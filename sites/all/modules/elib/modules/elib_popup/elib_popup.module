@@ -210,20 +210,20 @@ function elib_popup_download_sample($ting_id) {
         'title' => t('Sample'),
         'content' => theme('elib_popup_sample_generic', array(
             'title' => $title,
-            'link' => $teasersamplelink)),
-         'file' => $teasersamplelink,
-         'itemTitle' => $title,
-         'itemAuthor' =>  (string)$book->data->contributors[0]->first_name 
-              . ' ' 
-              . (string)$book->data->contributors[0]->family_name
+            'link' => $teasersamplelink)
+        ),
+        'file' => $teasersamplelink,
+        'itemTitle' => $title,
+        'itemAuthor' =>  (string)$book->data->contributors[0]->first_name . ' ' . (string)$book->data->contributors[0]->family_name
        );
     } elseif ($platform == PLATFORM_IOS) {
       $status = array(
         'status' => TRUE,
         'title' => t('Sample'),
         'content' => theme('elib_popup_sample_ios', array(
-            'title' => $title,
-            'link' => (string)$book->data->teaser->link))
+          'title' => $title,
+          'link' => (string)$book->data->teaser->link)
+        ),
       );
     }
   }
@@ -301,6 +301,7 @@ function elib_popup_download_loan_initial($ting_id, $type = "download") {
     }
   }
   else {
+    // User was not logged in.
     $status = array(
       'status' => FALSE,
       'title' => t('Error'),
@@ -362,7 +363,7 @@ function elib_popup_loan_popup($ting_id, $type = 'download') {
   
   // Whether user is logged in.
   if ($user->uid) {
-    // Check if item is lready loaned
+    // Check if item is already loaned
     $loan = _elib_popup_is_loaned($ting_id);
     if (($loan)) {
       $status = _elib_popup_return_content($type, $loan['download_link'], $loan['book']->data->title);
@@ -374,6 +375,7 @@ function elib_popup_loan_popup($ting_id, $type = 'download') {
     }
   }
   else {
+    // User was not logged in.
     $status = array(
       'status' => FALSE,
       'title' => t('Error'),
