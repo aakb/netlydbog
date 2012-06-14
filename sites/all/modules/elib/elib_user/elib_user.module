@@ -1,16 +1,28 @@
-<?php 
+<?php
 
+/**
+ * @file
+ * Handles login to the library systems, to ensure that the user has permisson
+ * to download or stream a given book.
+ *
+ */
 
-
+/**
+ * Creates a unique identifier for a given user based on the input parameter.
+ *
+ * @param string $cardno
+ * @return string MD5 seeded value of the input parameter.
+ */
 function elib_user_elib_id($cardno){
-	
-	// @todo: check for distinct/unique
-	
-	//return $cardno
-	return md5($cardno+'f4ds56fs');	
+  /**
+   * @todo: Moved seed value into settings.php and upgraded to SHA function.
+   *
+   */
+	return md5($cardno+'f4ds56fs');
 }
+
+
 function elib_user_get_elib_info(){
-	
 	return array(
 	 'cardno',
 	 'pin',
@@ -18,146 +30,155 @@ function elib_user_get_elib_info(){
 	);
 }
 
-function elib_check_credentials($cardno,$pin,$lib){
-  elib_client()->setLoaner($cardno,$pin,$lib);
-  if(!elib_client()->validateUser()){
-    return false;
+/**
+ * Validate the user against the librarys sytems.
+ *
+ * @param string $cardno
+ * @param string $pin
+ * @param string $lib
+ * @return mixed the users UID or FALSE on failure to validate the user.
+ */
+function elib_check_credentials($cardno, $pin, $lib){
+  $client = elib_client();
+  $client->setLoaner($cardno, $pin, $lib);
+
+  // Check if the user has been validated, if not return FALSE.
+  if($client->validateUser()){
+    /**
+     *  @todo: do something else here preferably.
+     */
+    $_SESSION['ssn'] = $cardno;
+    $_SESSION['pin'] = $pin;
+
+    $elib_id = elib_user_elib_id($cardno);
+
+    // Check if user exists.
+    $uid = db_result(db_query("SELECT uid FROM {elib_user} WHERE elib_id = '%s'", $elib_id));
+    if ($uid) {
+      db_query("UPDATE {elib_user} SET elib_library = %d WHERE elib_id = '%s'", $lib, $elib_id);
+      return $uid;
+    }
+    else {
+      $random_name = $_SERVER['REQUEST_TIME'] . mt_rand();
+      // User data to pass to user_save().
+      $user_data = array(
+        'name' => $random_name,
+        'display_name' => 'unknown',
+        'mail' => $random_name . '@mail.invalid',
+        // Login via Drupal's standard login should not be possible.
+        'pass' => microtime(TRUE) . mt_rand(),
+        'status' => 1,
+      );
+
+      // If no e-mail was set in the XML, we need to generate a
+      // random, invalid address,  since Drupal has a unique
+      // constraint on the mail column in the users table.
+      // Set the initial e-mail to the same e-mail-address.
+      $user_data['init'] = $user_data['mail'];
+
+      // Saves the user and returns the user UID.
+      $user = user_save(NULL, $user_data);
+
+      // Store user reference in our own table.
+      db_query("INSERT INTO {elib_user} (uid, elib_id, elib_library) VALUES (%d, '%s', '%s');", $user->uid, $elib_id, $lib);
+
+      // Return user ID.
+      return($user->uid);
+    }
   }
-  
-  // @todo: do something else here preferably
-  $_SESSION['ssn'] = $cardno;
-  $_SESSION['pin'] = $pin;
-  
-  $elibid = elib_user_elib_id($cardno);
-  
-// Check if user exists.
-  $uid = db_result(db_query("SELECT uid FROM {elib_user} WHERE elib_id='%s';", $elibid));
-  if ($uid) {
-  	db_query("UPDATE {elib_user} SET elib_library = %d WHERE elib_id='%s';",$lib,$elibid);
-  	
-  	
-    //$account = user_load($uid);
-
-  	//die('save!');
-  	
-    return $uid;
-  }
-  else {
-    $random_name = $_SERVER['REQUEST_TIME'] . mt_rand();
-    // User data to pass to user_save().
-    $user_data = array(
-      'name' => $random_name,
-      'display_name' => 'unknown',
-      'mail' => $random_name . '@mail.invalid',
-      // Login via Drupal's standard login should not be possible.
-      'pass' => microtime(TRUE) . mt_rand(),
-      'status' => 1,
-    );
-
-    // If no e-mail was set in the XML, we need to generate a
-    // random, invalid address,  since Drupal has a unique
-    // constraint on the mail column in the users table.
-    // Set the initial e-mail to the same e-mail-address.
-    $user_data['init'] = $user_data['mail'];
-
-    // Saves the user and returns the user UID.
-    $user = user_save(NULL, $user_data);
-
-    
-    // Store Alma user reference in our own table.
-    db_query("INSERT INTO {elib_user} (uid, elib_id, elib_library) VALUES (%d, '%s', '%s');", $user->uid, $elibid, $lib);
-
-    return($user->uid);
-  }
+  return false;
 }
 
+/**
+ * Fetch the current logged in users library credentials or for the uid parsed
+ * to the function.
+ *
+ * @global object $user
+ * @param string $uid user identifier
+ * @return array user credentials (ssn, pin, lib, user name)
+ */
 function elib_user_get_cred($uid = false){
 	if(!$uid){
 	  global $user;
 	  $uid = $user->uid;
 	}
-	
-	 $elibuser = db_fetch_array(db_query('SELECT * FROM {elib_user} WHERE uid = %d',$uid));
-	
-	 //$user->elib_username = 'fd'.$elibuser['elib_username'];
-	 
-	 
+  $elibuser = db_fetch_array(db_query('SELECT * FROM {elib_user} WHERE uid = %d', $uid));
+
+  /**
+   * @todo: Why not save every ting in the session ?
+   */
+
 	return array(
 	 'cpr' => $_SESSION['ssn'],
 	 'pin' => $_SESSION['pin'],
 	 'lib' => $elibuser['elib_library'],
 	 'user' => $elibuser['elib_username'],
-	 //'key' => elib_libraries_get_library_keycode($elibuser['elib_library'])
 	);
-
 }
 
 function elib_user_block($op = 'list', $delta = 0) {
-if ($op == 'list') {
-    return array(
-      'account' => array(
-        'info' => t('Mine lån'),
-        'cache' => BLOCK_NO_CACHE,
-        'status' => 1,
-        //'region' => 'account',
-      ),
-    );
-  }
-  elseif ($op == 'view' && $delta == 'account') {
-    //global $user;
-    $block = array();
-    
-    $userinfo = elib_user_get_cred();
-    // verify user
-    elib_client()->setLoaner($userinfo['cpr'],$userinfo['pin'],$userinfo['lib']);
-    try{
-      $loans = elib_client()->getLoans();
-    }
-    catch(Exception $e){
-      elib_display_error($e);
-    }
+  $block = array();
+  switch ($op) {
+    case 'list':
+      $block = array(
+        'account' => array(
+          'info' => t('Mine lån'),
+          'cache' => BLOCK_NO_CACHE,
+          'status' => 1,
+        ),
+      );
+      return $block;
+      break;
 
-    $out = array();
-    module_load_include('client.inc', 'ting');
-    $loans = $loans->data;
+    case 'view':
+      if ($delta == 'account') {
+        $userinfo = elib_user_get_cred();
 
-    if ($loans->orderitem) {
-      foreach ($loans->orderitem as $book) {
-        $object = elib_get_ting_object_by_isbn(trim($book->book->attributes()->id));
-        $bookdisplay[elib_str_to_time((string)$book->loanexpiredate[0], TRUE)] = elib_displaybook($object,$book);
+        // Verify user
+        elib_client()->setLoaner($userinfo['cpr'], $userinfo['pin'], $userinfo['lib']);
+        try {
+          $loans = elib_client()->getLoans();
+        } catch (Exception $e) {
+          elib_display_error($e);
+          return;
+        }
+
+        $out = array();
+        module_load_include('client.inc', 'ting');
+        $loans = $loans->data;
+
+        if ($loans->orderitem) {
+          foreach ($loans->orderitem as $book) {
+            $object = elib_get_ting_object_by_isbn(trim($book->book->attributes()->id));
+            $bookdisplay[elib_str_to_time((string)$book->loanexpiredate[0], TRUE)] = elib_displaybook($object, $book);
+          }
+          ksort($bookdisplay);
+
+          foreach ($bookdisplay as $book) {
+            $out[] = '<div class="display-book biglist">' . $book . '</div>';
+          }
+        }
+        else {
+          $out[] = t('Du har ingen aktive ebogslån.');
+        }
       }
-
-      ksort($bookdisplay);
-
-      foreach ($bookdisplay as $book) {
-        $out[] = '<div class="display-book biglist">' . $book . '</div>';
-      }
-    }
-    else {
-      $out[] = t('Du har ingen aktive netlydbogslån.');
-    }
-
-    $block['content'] = implode($out);
-    
-    
-    $block['subject'] = t('Mine lån');   
-      
-      //$block['content'] = theme('alma_user_status_block', $status)
-
-    return $block;
+      break;
   }
-	
+
+  $block['subject'] = t('Mine lån');
+  $block['content'] = implode($out);
+  return $block;
 }
 
-function elib_user_cleanuploans(&$loans){
-  // some problem occur when an object passed by refference is empty, the validation is done before function call instead
+function elib_user_cleanuploans(&$loans) {
+  // Some problem occur when an object passed by refference is empty, the
+  // validation is done before function call instead
   $count = sizeof($loans);
-  for($i = $count-1 ; $i >= 0; $i--){
+  for ($i = $count - 1; $i >= 0; $i--) {
     $id = $loans[$i]->orderstatus['id'];
     $expiredate = $loans[$i]->loanexpiredate;
-    if((intval($id) != 1) || (strtotime($expiredate) < time())){
+    if ((intval($id) != 1) || (strtotime($expiredate) < time())) {
       unset($loans[$i]);
     }
   }
 }
-?>

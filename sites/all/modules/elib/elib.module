@@ -123,7 +123,7 @@ function elib_block($op = 'list', $delta = 0, $edit = array()) {
 
 /*init elib client as singleton */
 
-function elib_client(){
+function elib_client() {
   global $user;
   static $client;
   global $testuser;
@@ -421,7 +421,7 @@ function elib_display_error($error){
   static $isset;
 
   if(!$isset){
-    drupal_set_message(t('Oops! We cound\'nt connect to the library').'<div class="spec" style="font-size:.7em">'.t($error->getMessage()).'</div>','error');
+    drupal_set_message(t('Oops! We cound\'nt connect to the library') . '<div class="spec" style="font-size:.7em">' . t($error->getMessage()) . '</div>', 'error', FALSE);
     $isset = true;
   }
 }
