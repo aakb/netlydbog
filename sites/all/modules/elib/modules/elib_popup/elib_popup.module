@@ -391,23 +391,8 @@ function elib_popup_loan_popup($ting_object_id, $type = 'download') {
     }
   }
   else {
-    // User was not logged in.
-
-    // Drupal get login form and theme elib_popup_login and destination to url,
-    // so the user is redirected after login. More optimal sulution is to
-    // validate the user and procceed with the loan.
-
-    // elib/popup/login
-
-    /**
-     *  $account = elib_check_credentials($card, $form_state['values']['pass'], $form_state['values']['library']);
-     *  if ($account) {
-     *    user_authenticate_finalize($form_state['values']);
-     *  }
-     */
-
+    // User was not logged in, so present login form.
     $form = drupal_get_form('elib_popup_login_form');
-    
     $status = array(
       'status' => 'login',
       'title' => t('Login'),
@@ -419,34 +404,43 @@ function elib_popup_loan_popup($ting_object_id, $type = 'download') {
   exit(0);
 }
 
+/**
+ * Build popup login form based on the user_login in form used to login normally
+ * and overrides the validation functions.
+ *
+ * @return array $form.
+ */
 function elib_popup_login_form() {
   $form_id = 'user_login';
   $form_state = array();
-  
+
   // Get user login form.
   $form = call_user_func_array('drupal_retrieve_form', array($form_id));
-  
+
   // Run hook_form_alter functions.
   $hook = 'form_alter';
   foreach (module_implements($hook) as $module) {
     $function = $module . '_' . $hook;
     $function($form, $form_state, $form_id);
   }
-  
+
   // Override validate function.
   $form['#validate'][0] = 'elib_popup_login_form_validate';
-  
+
   return $form;
 }
 
+/**
+ * Form validation for popup login form, which returns json.
+ */
 function elib_popup_login_form_validate($form, &$form_state) {
   // Default status message.
   $status = array(
     'status' => FALSE,
     'title' => t('Error'),
-    'content' => theme('elib_popup_notice', array('message' => t('You where not authenticated and only authenticated users are able to loan.')))
+    'content' => '<div class="messages error">' . t('Sorry, unrecognized username or password. <a href="@password">Have you forgotten your password?</a>', array('@password' => url('user/password'))) . '</div>',
   );
-  
+
   // If no credentials are presented, return.
   if (empty($form_state['values']['name']) || empty($form_state['values']['pass'])) {
     drupal_json($status);

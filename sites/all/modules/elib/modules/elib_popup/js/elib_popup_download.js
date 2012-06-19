@@ -2,7 +2,7 @@
   $('.ebog-dlink').live('click', function() {
     $('#ting-download-popup-info').dialog('close');
   });
-  
+
   var href = '';
   var clicked = null;
   var button = null;
@@ -47,7 +47,7 @@
         });
       }
       else {
-        // This was now a re-load so process the loan, this may trigge a 
+        // This was now a re-load so process the loan, this may trigge a
         // login request.
         process_loan();
       }
@@ -62,6 +62,14 @@
         url : href + '/popup',
         dataType : 'json',
         success : function(response) {
+          // Check if login dialog is open, if it is close it.
+          var login_dialog = $('#ting-login-popup');
+          if (login_dialog.length) {
+            $('#ting-login-popup').dialog('close');
+            $('#ting-login-popup').remove();
+          }
+
+          // Remove ajax loader.
           $('#ting-download-popup').remove();
           clicked.parent().find('.ajax-loader').remove();
           clicked.show();
@@ -83,12 +91,14 @@
             return;
           }
           else if (response.status === 'login') {
+            // Login is required, so display login form.
             popup_buttons = {};
-            
+
             // Hide login button from the form.
             var content = $(response.content);
             $('#edit-submit', content).remove();
-           
+
+            // Add action to the login dialog button.
             popup_buttons[login_button] = function() {
               // Add ajax loader to replace buttons.
               button = $('#ting-login-popup').parents('.ui-dialog:first').find('button');
@@ -97,8 +107,7 @@
 
               // Collect form values.
               var data = $('#elib-popup-login-form').formSerialize();
-              console.log(data);
-              
+
               // Make login ajax callback.
               $.ajax({
                 type : 'POST',
@@ -108,23 +117,31 @@
                 success : function(response) {
                   // If not logged in handle errors.
                   if (response.status !== 'loggedin') {
-                    alert(response.content);
+
+                    // Display error message.
+                    if ($('#ting-login-popup .messages').length) {
+                      $('#ting-login-popup .messages').fadeOut('fast', function () {
+                        $(this).remove();
+                        $('#elib-popup-login-form #edit-name-wrapper').prepend(response.content);
+                      });
+                    }
+                    else {
+                      $('#elib-popup-login-form #edit-name-wrapper').prepend(response.content);
+                    }
+
+                    // Enable login buttons and remove ajax loader.
                     button.css('visibility', 'visible');
                     button.parent().find('.ajax-loader').remove();
                     return;
                   }
                   else {
-                    // Close and remove the dialog.
-                    $('#ting-login-popup').dialog('close');
-                    $('#ting-login-popup').remove();
-
                     // Try to process the loan once more.
-                    process_loan();                  
+                    process_loan();
                   }
                 }
               });
               return false;
-              
+
             }
 
             popup_buttons[cancel_button] = function() {
@@ -142,7 +159,7 @@
             }
 
             $('<div id="ting-login-popup" title="' + response.title + '">' + content[0].outerHTML + '</div>').dialog(options);
-            
+
             return;
           }
 
@@ -193,7 +210,7 @@
 
     // Check those checkboxes
     var check_rules = function() {
-     
+
       $.ajax({
         type : 'post',
         url : href + '/request',
@@ -250,7 +267,7 @@
                 $('#ting-download-popup-info').dialog('close');
               }
 
-              
+
             }
             $('<div id="ting-download-popup-info" title="' + response.title + '">' + response.content + '</div>').dialog({
                 modal : true,
