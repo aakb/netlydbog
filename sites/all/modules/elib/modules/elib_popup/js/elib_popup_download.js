@@ -9,6 +9,7 @@
   var popup_buttons = null;
   var ok_button = Drupal.t('Ok');
   var cancel_button = Drupal.t('Cancel');
+  var login_button = Drupal.t('Login');
   var download_button = Drupal.t('Proceed to download');
 
   // Handle clicked loan link, those matching 'ting/object/%/download' pattern
@@ -46,6 +47,8 @@
         });
       }
       else {
+        // This was now a re-load so process the loan, this may trigge a 
+        // login request.
         process_loan();
       }
 
@@ -77,6 +80,67 @@
               buttons: popup_buttons
             });
 
+            return;
+          }
+          else if (response.status === 'login') {
+            popup_buttons = {};
+            
+            // Hide login button from the form.
+            var content = $(response.content);
+            $('#edit-submit', content).remove();
+           
+            popup_buttons[login_button] = function() {
+              // Add ajax loader to replace buttons.
+              button = $('#ting-login-popup').parents('.ui-dialog:first').find('button');
+              button.css('visibility', 'hidden');
+              button.parent().append('<div class="ajax-loader"></div>');
+
+              // Collect form values.
+              var data = $('#elib-popup-login-form').formSerialize();
+              console.log(data);
+              
+              // Make login ajax callback.
+              $.ajax({
+                type : 'POST',
+                url : $('#elib-popup-login-form').attr('action'),
+                dataType : 'json',
+                data: data,
+                success : function(response) {
+                  // If not logged in handle errors.
+//                  if (response.status !== 'loggedin') {
+//                    alert('error');
+//                    return;
+//                  }
+//                  else {
+//                    // Close and remove the dialog.
+                    $('#ting-login-popup').dialog('close');
+                    $('#ting-login-popup').remove();
+
+                    // Try to process the loan once more.
+//                    process_loan();                  
+//                  }
+                }
+              });
+              return false;
+              
+            }
+
+            popup_buttons[cancel_button] = function() {
+              // Close the form an remove it from the dom or close will not work
+              // if displayed once more.
+              $('#ting-login-popup').dialog('close');
+              $('#ting-login-popup').remove();
+            }
+
+            options = {
+              modal: true,
+              width: 'auto',
+              height: 'auto',
+              buttons: popup_buttons
+            }
+
+            $('<div id="ting-login-popup" title="' + response.title + '">' + content[0].outerHTML + '</div>').dialog(options);
+            
             return;
           }
 
