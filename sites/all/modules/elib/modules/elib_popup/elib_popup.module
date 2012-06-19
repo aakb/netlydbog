@@ -444,7 +444,7 @@ function elib_popup_login_form_validate($form, &$form_state) {
   $status = array(
     'status' => FALSE,
     'title' => t('Error'),
-    'content' => theme('elib_popup_notice', array('message' => t('Only authenticated users are able to loan.')))
+    'content' => theme('elib_popup_notice', array('message' => t('You where not authenticated and only authenticated users are able to loan.')))
   );
   
   // If no credentials are presented, return.
@@ -467,7 +467,7 @@ function elib_popup_login_form_validate($form, &$form_state) {
     $status = array(
       'status' => 'loggedin',
       'title' => t('Login'),
-      'content' => 'test test test',
+      'content' => t('You are now logged in an can procceed'),
     );
   }
 

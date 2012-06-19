@@ -107,18 +107,20 @@
                 data: data,
                 success : function(response) {
                   // If not logged in handle errors.
-//                  if (response.status !== 'loggedin') {
-//                    alert('error');
-//                    return;
-//                  }
-//                  else {
-//                    // Close and remove the dialog.
+                  if (response.status !== 'loggedin') {
+                    alert(response.content);
+                    button.css('visibility', 'visible');
+                    button.parent().find('.ajax-loader').remove();
+                    return;
+                  }
+                  else {
+                    // Close and remove the dialog.
                     $('#ting-login-popup').dialog('close');
                     $('#ting-login-popup').remove();
 
                     // Try to process the loan once more.
-//                    process_loan();                  
-//                  }
+                    process_loan();                  
+                  }
                 }
               });
               return false;
