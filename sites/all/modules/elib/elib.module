@@ -88,10 +88,12 @@ function elib_login_validate($form, &$form_state) {
 
   // Try to login to the library, this will create the user if login succeed
   // and the user do not exists in Drupal.
-  $account = elib_check_credentials($card, $form_state['values']['pass'],$form_state['values']['library']);
+  $account = elib_check_credentials($card, $form_state['values']['pass'], $form_state['values']['library']);
   if ($account) {
+    global $user;
+    $user = $account;
     user_authenticate_finalize($form_state['values']);
-    drupal_goto('/min_side');
+    drupal_goto('min_side');
   }
 }
 
