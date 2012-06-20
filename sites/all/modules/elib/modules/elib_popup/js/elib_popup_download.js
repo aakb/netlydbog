@@ -184,13 +184,11 @@
               response.content = Drupal.t('Click on the Strem link in order to start streaming of this audiobook.') + '<br />' + '<a href="' + response.stream + '" target="_blank">' + Drupal.t('Stream') + '</a>';
             }
           } else {
-            popup_buttons[download_button] = function() {
-              button = $('#ting-download-popup').parents('.ui-dialog:first').find('button');
-              button.css('visibility', 'hidden');
-              button.parent().append('<div class="ajax-loader"></div>');
-              if (response.final && response.final == true) {
-                $('#ting-download-popup').dialog('close');
-              } else {
+            if (!response.final) {
+              popup_buttons[download_button] = function() {
+                button = $('#ting-download-popup').parents('.ui-dialog:first').find('button');
+                button.css('visibility', 'hidden');
+                button.parent().append('<div class="ajax-loader"></div>');
                 check_rules();
               }
             }
@@ -210,7 +208,6 @@
 
     // Check those checkboxes
     var check_rules = function() {
-
       $.ajax({
         type : 'post',
         url : href + '/request',
@@ -263,18 +260,17 @@
                 button.parent().append('<div class="ajax-loader"></div>');
                 $('#ting-download-popup-info').dialog('close');
               }
+
               popup_buttons[cancel_button] = function() {
                 $('#ting-download-popup-info').dialog('close');
               }
-
-
             }
             $('<div id="ting-download-popup-info" title="' + response.title + '">' + response.content + '</div>').dialog({
-                modal : true,
-                width: 'auto',
-                height: 'auto',
-                buttons: popup_buttons
-              });
+              modal : true,
+              width: 'auto',
+              height: 'auto',
+              buttons: popup_buttons
+            });
           }
         }
       });
