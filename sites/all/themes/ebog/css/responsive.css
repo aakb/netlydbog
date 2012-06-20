@@ -351,13 +351,17 @@
   }
 
   div.ui-dialog .ui-dialog-content {
-    width: 300px !important;
+    width: 280px !important;
   }
   
+  #elib-popup-login-form p {
+    width: 250px;
+  }
+
   #elib-popup-login-form input {
-    width: 270px;
+    width: 250px;
   }
-  
+
   #footer #footer-first {
     padding: 30px 10px 10px;
   }
