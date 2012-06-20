@@ -11,6 +11,7 @@
   var cancel_button = Drupal.t('Cancel');
   var login_button = Drupal.t('Login');
   var download_button = Drupal.t('Proceed to download');
+  var loggedin = false; // If true the site should be reloaded.
 
   // Handle clicked loan link, those matching 'ting/object/%/download' pattern
   $(document).ready(function() {
@@ -135,6 +136,17 @@
                     return;
                   }
                   else {
+                    // Upload login menu link.
+                    var link = $('.menu .login-link');
+                    link.removeClass('login-link').addClass('account-link');
+                    link = $('a', link);
+                    link.val(Drupal.t('My page'));
+                    link.attr("href", "/min_side");
+
+                    // Add logout block to the site.
+                    var block = $('<div class="block block-elib_block_lastloans" id="block-elib_block_lastloans-5"><h2>'+Drupal.t('My profile')+'</h2><div class="content"><p>'+Drupal.t('You are now logged in')+': <a class="biglogoutbutton" href="/logout">'+Drupal.t('Logout')+'</a></p></div></div>');
+                    $('#sidebar-first').prepend(block);
+
                     // Try to process the loan once more.
                     process_loan();
                   }
