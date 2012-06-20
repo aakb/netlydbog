@@ -351,9 +351,13 @@
   }
 
   div.ui-dialog .ui-dialog-content {
-    width: 200px !important;
+    width: 300px !important;
   }
-
+  
+  #elib-popup-login-form input {
+    width: 270px;
+  }
+  
   #footer #footer-first {
     padding: 30px 10px 10px;
   }
