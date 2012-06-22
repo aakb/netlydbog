@@ -1,24 +1,31 @@
 <?php
 
+/**
+ * @file
+ * This module handles communikation witht the eLib web-service (now known as
+ * publizon).
+ *
+ */
+
 define('PLATFORM_GENERIC', 1);
 define('PLATFORM_IOS', 2);
 
+/**
+ * Implements hook_menu().
+ */
 function elib_menu() {
-  $path  = drupal_get_path('module', 'elib') . '/includes';
   $items = array();
 
   $items['admin/settings/elib'] = array(
-    'title'            => 'eLib settings',
-    'description'      => 'settings for eLib SOAP webservice',
+    'title' => 'eLib settings',
+    'description' => t('Settings for eLib SOAP webservice'),
     'access arguments' => array('access administration pages'),
-    'page callback'    => 'drupal_get_form',
-    'page arguments'   => array('ting_admin_settings_form_elib'),
-    'file'             => 'elib.admin.inc',
-    'file path'        => $path,
-  //  'type'             => MENU_LOCAL_TASK,
-    'weight'           => 2,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ting_admin_settings_form_elib'),
+    'file path' => drupal_get_path('module', 'elib') . '/includes',
+    'file' => 'elib.admin.inc',
   );
-  
+
   $items['admin/settings/elib/main'] = array(
     'title' => 'eLib',
     'type' => MENU_DEFAULT_LOCAL_TASK,
@@ -26,6 +33,10 @@ function elib_menu() {
 
   return $items;
 }
+
+/**
+ * Implements hook_theme().
+ */
 function elib_theme() {
   return array(
     'page' =>  array(
@@ -35,57 +46,89 @@ function elib_theme() {
         'show_blocks' => TRUE,
         'show_messages' => TRUE,
       ),
-   ),
-
+    ),
   );
 }
 
 
-
+/**
+ * Implement hook_form_alter().
+ *
+ * Adds elib user validation to the login form.
+ */
 function elib_form_alter(&$form, $form_state, $form_id) {
-  switch ($form_id) {
-    case 'user_login':
-    case 'user_login_block':
-	$form['name']['#prefix'] = '<h1>' . t('Welcome to Netlydbog.dk') . '</h1><p>' . t('We noticed that you are not logged in.') . '</p><p>' . t('Please fill in your CPR number + pincode to login.') . '</p>';
-	$form['name']['#title'] = t('CPR number');
-	$form['pass']['#title'] = t('Pincode');
+  if ($form_id == 'user_login' || $form_id == 'user_login_block') {
+      // Login form found, so change labels and description.
+      $form['name']['#prefix'] = '<h1>' . t('Welcome to Netlydbog.dk') . '</h1><p>' . t('We noticed that you are not logged in.') . '</p><p>' . t('Please fill in your CPR number + pincode to login.') . '</p>';
+      $form['name']['#title'] = t('CPR number');
+      $form['pass']['#title'] = t('Pincode');
       $form['name']['#type'] = 'password';
+
+      // Remove default descriptions.
       unset($form['name']['#description']);
       unset($form['pass']['#description']);
-      //unset($form['name']['#description']);
+
+      // Add validation function to the front of validation form array.
       array_unshift($form['#validate'], 'elib_login_validate');
-      //$form['#submit'][] = 'elib_login_submit';
-    //  var_dump($form);
-      break;
-    case 'collection_node_form':
-      //dsm($form);
-      break;
   }
 }
 
-function elib_get_isbn_from_object_id($oid){
+/**
+ * Login validation form that handles login into the library.
+ */
+function elib_login_validate($form, &$form_state) {
+  // If no credentials are presented, return.
+  if (empty($form_state['values']['name']) || empty($form_state['values']['pass'])) {
+    return;
+  }
+
+  // The user may use both borrower card / cpr number to login, so we have to
+  // remove anything thats not an number form the user name.
+  $card = preg_replace('/\D+/', '', $form_state['values']['name']);
+
+  // Try to login to the library, this will create the user if login succeed
+  // and the user do not exists in Drupal.
+  $account = elib_check_credentials($card, $form_state['values']['pass'], $form_state['values']['library']);
+  if ($account) {
+    global $user;
+    $user = $account;
+    user_authenticate_finalize($form_state['values']);
+    drupal_goto('min_side');
+  }
+}
+
+/**
+ * Based on a ting_object_id this function returns the book ISBN number. It does
+ * this by loading the ting object from the datawell, so this is an expensive
+ * function to get the ISBN number.
+ *
+ * @param type $ting_object_id
+ * @return type
+ */
+function elib_get_isbn_from_object_id($ting_object_id){
   module_load_include('client.inc', 'ting');
   module_load_include('isbn_static_func.inc', 'elib');
+  $isbn = NULL;
   try {
-    $object = ting_get_object_by_id($oid);
+    $object = ting_get_object_by_id($ting_object_id);
     $isbn = convertFromIsbn13ToIsbn10($object->record['dc:identifier']['dkdcplus:ISBN'][0]);
-
-    /*$eliburl = $object->record['dc:identifier']['dcterms:URI'][0];
-    $first = substr($eliburl,strpos($eliburl,'&id=')+4);
-    $isbn = trim(substr($first,0,strpos($first,'&lib')));*/
   }
   catch (TingClientException $e) {
     // If the specified object id does not exist, an exception is throw.
+    /**
+     * @todo: Should this error be handled ?
+     */
   }
+
   return $isbn;
 }
 
-function elib_str_to_time($str,$aststamp = false){
-  list($d,$t) = explode(" ",$str);
-  list($r['y'],$r['m'],$r['d']) = explode("-",$d);
-  list($r['h'],$r['i'],$r['s']) = explode(":",$t);
+function elib_str_to_time($str, $aststamp = false){
+  list($d, $t) = explode(" ", $str);
+  list($r['y'], $r['m'], $r['d']) = explode("-", $d);
+  list($r['h'], $r['i'], $r['s']) = explode(":", $t);
   if($aststamp){
-    return mktime($r['h'],$r['i'],$r['s'],$r['m'],$r['d'],$r['y']);
+    return mktime($r['h'], $r['i'], $r['s'], $r['m'], $r['d'], $r['y']);
   }
   return $r;
 }
@@ -111,19 +154,15 @@ function elib_block($op = 'list', $delta = 0, $edit = array()) {
     }
     else {
       $block['content'] = 'LOGIN HERE!';
-
-      //$block['content'] = theme('alma_user_status_block', $status);
     }
 
     return $block;
   }
 }
 
-
-
 /*init elib client as singleton */
 
-function elib_client(){
+function elib_client() {
   global $user;
   static $client;
   global $testuser;
@@ -140,59 +179,19 @@ function elib_client(){
   return $client;
 }
 
-function elib_login_validate($form, &$form_state) {
-  if (empty($form_state['values']['name']) || empty($form_state['values']['pass'])) {
-    // empty user name or password makes little sense to try and validate.
-    return;
-  }
-
-  // Remove everything from numbers from the “name” field to try and
-  // validate it as a library/borrower card.
-  $card = preg_replace('/\D+/', '', $form_state['values']['name']);
-
-  // if local user exists and no elibuser things exists then ask elib
-
-  $account = user_authenticate($form_state['values']);
-  if(is_object($account)){
-    $elib = elib_user_get_cred($account->uid);
-  }
-  $localuser = false;
-
-  if($account && !($elib['user'])){
-    $localuser = true;
-  }
-
-  if (!$localuser) {
-    $uid = elib_check_credentials($card, $form_state['values']['pass'],$form_state['values']['library']);
-
-    if ($uid && $account = user_load($uid)) {
-      global $user;
-      $user = $account;
-      user_authenticate_finalize($form_state['values']);
-
-      // If we have Alma credentials and a user was logged in, cache the
-      // credentials in our own cache bin.
-      //alma_user_cache_credentials($user, $form_state['values']['name'], $form_state['values']['pass']);
-      // TODO: find propper way of redirecting...
-      echo '<script type="text/javascript">window.location = "/min_side"</script>';
-    }
-  }
-}
-
-
 function elib_displaybook(TingClientObject $object,$elib_data = false){
   $isbn = convertToEAN($object->record['dc:identifier']['dkdcplus:ISBN'][0]);
   $image_url = elib_book_cover($isbn, '65_x');
 
   $idt = explode('|', $object->record['ac:identifier'][''][0]);
   $faust = variable_get('ting_agency', '') . ':' . $idt[0];
-  
+
   $out[] = '
     <div class="left">
   ';
 
   $out[] = '
-      <div class="picture">' . 
+      <div class="picture">' .
         l(theme('image', $image_url, '', '', null, false), 'ting/object/'.$faust, array('html' => true)) . '
       </div>
   ';
@@ -206,8 +205,8 @@ function elib_displaybook(TingClientObject $object,$elib_data = false){
   ';
 
   $author = (string)$elib_data->book->authors[0]->author->attributes()->name;
-    $out[] = '<h3 class="title">' . 
-      l($elib_data->book->title, 'ting/object/'.$faust, array('attributes' => array('class' =>'title'))) . 
+    $out[] = '<h3 class="title">' .
+      l($elib_data->book->title, 'ting/object/'.$faust, array('attributes' => array('class' =>'title'))) .
     '</h3>';
     $out[] = '<div class="author">' .
       t('!creator_name', array('!creator_name' => l($author,'ting/search/'.$author))) .
@@ -248,7 +247,7 @@ function elib_displaybook(TingClientObject $object,$elib_data = false){
 }
 
 /**
- * 
+ *
  */
 function _elib_action_icons($url, $postfix = '') {
   $html = '
@@ -305,7 +304,7 @@ function elib_displaybookNEW($obj, $elib='',$displaysize=false, $block_index = 1
   $part['title'] = '<h3 class="title">' . l($obj->record['dc:title'][''][0], $obj->url, array('attributes' => array('class' =>'title'))) . '</h3>';
   $part['author'] = '<div class="author">' . t('!creator_name', array('!creator_name' => l($obj->record["dc:creator"]["dkdcplus:aut"][0],'ting/search/'.$obj->record["dc:creator"]["dkdcplus:aut"][0]))) . '</div>';
   $part['icons'] = _elib_action_icons($obj->url);
-   
+
   if($displaysize == 'review'){
 
     $u = elib_user_get_cred($elib[1]);
@@ -377,7 +376,7 @@ function elib_displaybookNEW($obj, $elib='',$displaysize=false, $block_index = 1
     }
 
     $part['icons'] = _elib_action_icons($obj->url);
-    
+
   }
 
   if($displaysize == 'small_rm'){
@@ -421,7 +420,7 @@ function elib_display_error($error){
   static $isset;
 
   if(!$isset){
-    drupal_set_message(t('Oops! We cound\'nt connect to the library').'<div class="spec" style="font-size:.7em">'.t($error->getMessage()).'</div>','error');
+    drupal_set_message(t('Oops! We cound\'nt connect to the library') . '<div class="spec" style="font-size:.7em">' . t($error->getMessage()) . '</div>', 'error', FALSE);
     $isset = true;
   }
 }
@@ -463,14 +462,14 @@ function elib_displaybook2(TingClientObject $obj,$fields,$settings='',$displaysi
   $part['title'] = '<h3 class="title">' . l($obj->title, $obj->url, array('attributes' => array('class' =>'title'))) . '</h3>';
   $part['author'] = '<div class="author">' . t('By !creator_name', array('!creator_name' => l($obj->creators_string,'ting/search/'.$obj->creators_string))) . '</div>';
   $part['icons'] = _elib_action_icons($obj->url);
-  
+
   if($displaysize == 'review'){
 
     $u = elib_user_get_cred($elib[1]);
 
     $part['text'] = '<div class="clearfix"></div><div class="text">'.truncate_utf8($elib[0],400,true,true).'</div>';
     $part['icons'] = _elib_action_icons($obj->url);
-    
+
     $part['picture'] = '<div class="picture">' . l(theme('image', $image_url, '', '', null, false), $obj->url, array('html' => true)) . '</div>';
     $displaysize = 'small';
   }
@@ -571,7 +570,7 @@ function _elib_covers_pages_fetch_image($path, $image_url) {
 }
 
 /**
-* Get a path to stored cover 
+* Get a path to stored cover
 */
 function elib_init_cover_path($isbn) {
   return 'elib/covers/' . md5($isbn) . '.jpg';
