@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * @file
+ * This module is used to make alterations that is not possible to do form 
+ * inside the theme. Such as chaning cacheing header etc.
+ * 
+ */
+
+/**
+ * Set max-age for pages that are cacheable, when not in external cache 
+ * mode. This allows us to cache pages in varnish at the same time use
+ * Drupal pages cache for https requests.
+ */
+function netsound_admin_init(){
+  $cache_mode = variable_get('cache', CACHE_DISABLED);
+  if (drupal_page_is_cacheable() && $cache_mode != CACHE_EXTERNAL) {
+    $max_age = variable_get('page_cache_max_age', 0);
+    drupal_set_header('Cache-Control', 'public, max-age=' . $max_age);
+  }
+}
+
+
+function netsound_admin_ting_client_response_alter(&$response) {
+  if (is_array($response->collections)) {
+    foreach ($response->collections as $i => &$collection) {
+      foreach ($collection as &$object) {
+        // Remove results, that do not have an ISBN.
+        if (!isset($object[0]->record['dc:identifier']['dkdcplus:ISBN'])) {
+          // Update number of results returned.
+          $response->numTotalCollections = intval($response->numTotalCollections) - 1;
+          $response->numTotalObjects = intval($response->numTotalObjects) - count($response->numTotalObjects);
+
+          // Remove collection
+          unset($response->collections[$i]);
+          watchdog('ISBN', 'Missing ISBN for object "%obj"', array('%obj' => $object[0]->id), WATCHDOG_CRITICAL);
+        }
+        else {
+          // Fix ISBN 10 vs 13 issue.
+          foreach ($object[0]->record['dc:identifier']['dkdcplus:ISBN'] as $j => $isbn) {
+            $tmp = str_replace('-', '', $isbn);
+            if (strlen(str_replace('-', '', $isbn)) == 10) {
+              unset($object[0]->record['dc:identifier']['dkdcplus:ISBN'][$j]);
+            }
+          }
+        }
+        // Remove old ebog links.
+        if (isset($object[0]->record['dc:identifier']['dcterms:URI'])) {
+          foreach ($object[0]->record['dc:identifier']['dcterms:URI'] as $i => $uri) {
+            if (preg_match('/ebog\.dk/', $uri, $matches)) {
+              unset($object[0]->record['dc:identifier']['dcterms:URI'][$i]);
+            }
+          }
+        }
+      }
+    }
+  }
+}
