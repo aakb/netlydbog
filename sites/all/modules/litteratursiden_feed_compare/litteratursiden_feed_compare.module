@@ -103,13 +103,17 @@ function litteratursiden_feed_compare_get_feed($items) {
         if ($search->numTotalObjects > 0) {
           foreach ($search->collections as $collection) {
             foreach ($collection->objects as $object) {
-              $isbn = $object->record['dc:identifier']['dkdcplus:ISBN'][0];
+              foreach ($object->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
+                if (preg_match('/[^0-9]{13}/', $isbn, $matches)) {
+                  break;
+                }
+              }
               $litteratursiden_item = litteratursiden_feed_compare_get_litteratursiden_item($object->title, $object->creators[0]);
               if (!empty($isbn) && !$litteratursiden_item['error'] && $litteratursiden_item['nid'] == $val['nid']) {
                 // Title from feed consists of title+author.
                 // Combine title and author from TING to perform reasonable search.
                 try {
-                  $book = $c->getBook($object);
+                  $book = $c->getBook($isbn);
                 }
                 catch (Exception $e) {
                   $ret['status'] = 'error';
