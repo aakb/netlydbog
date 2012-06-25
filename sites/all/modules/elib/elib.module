@@ -141,7 +141,7 @@ function elib_block($op = 'list', $delta = 0, $edit = array()) {
             'region' => 'account',
         ),
     );
-  } 
+  }
   else if ($op == 'view' && $delta == 'account') {
     global $user;
     $block = array();
@@ -332,13 +332,13 @@ function elib_displaybookNEW($obj, $elib='',$displaysize=false, $block_index = 1
       }
       $extras = theme('item_list', $readers, t('Reader'), 'span', array('class' => 'contributor'));
     }
-    
+
     if (!empty($obj->record["dc:subject"]["dkdcplus:DBCF"])) {
       foreach($obj->record["dc:subject"]["dkdcplus:DBCF"] as $subject){
         $subs[] = l($subject,'ting/search/'.$subject);
       }
     }
-    
+
     $part['icons'] = _elib_action_icons($obj->url);
   }
 

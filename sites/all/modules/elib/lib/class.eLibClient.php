@@ -2,7 +2,7 @@
 
 /**
  * Adapter for eLib webservices
- * 
+ *
  * @author troelslenda
  *
  */
@@ -33,6 +33,11 @@ class eLibClient {
       $this->sc_params['proxy_host'] = $host;
       $this->sc_params['proxy_port'] = $port;
     }
+  }
+
+  public function getStreamUrl($key, $player = 'flash') {
+    $url =  "http://service.pubhub.dk/Download.aspx?id=";
+    return $url . $key .'&player=' . $player . '&stream=true';
   }
 
   public function GetUrl($retailerorderid) {
@@ -181,7 +186,7 @@ class eLibClient {
   public function getLoans() {
 
     if (is_a($this->elibUsr, 'loaner')) {
-      $response = $this->soapCall($this->base_url . 'getlibraryuserorderlist.asmx?WSDL', 'GetLibraryUserOrderList', array('cardnumber' => $this->elibUsr->getId()));
+      $response = $this->soapCall($this->base_url . 'getlibraryuserorderlist.asmx?WSDL', 'GetLibraryUserOrderList', array('cardnumber' => $this->elibUsr->getId(), 'booktype' => '2'));
       $xml = simplexml_load_string($response->GetLibraryUserOrderListResult->any);
       return $xml;
     } else {
@@ -190,7 +195,7 @@ class eLibClient {
   }
 
   /**
-   * 
+   *
    * @param int $isbn
    * @return SimpleXMLElement
    */
@@ -285,8 +290,8 @@ class loaner {
 
   public function loginParams() {
     return array(
-        'cardnumber' => $this->getId(),
-        'pincode' => $this->getPin()
+      'cardnumber' => $this->getId(),
+      'pincode' => $this->getPin()
     );
   }
 
