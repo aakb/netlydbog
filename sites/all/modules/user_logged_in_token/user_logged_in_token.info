@@ -1,0 +1,4 @@
+name = "User logged in token"
+description = "Provides a token that indicates the users login state."
+package = Other
+core = 6.x

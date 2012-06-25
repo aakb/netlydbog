@@ -7,6 +7,7 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
   
   if ($op == 'list') {
     $block[0]["info"] = t('eLIB infinite carousel');
+    $block[0]['cache'] = BLOCK_NO_CACHE;
   }
   else if ($op == 'configure' && $delta == 0) {
     $form['items'] = array(

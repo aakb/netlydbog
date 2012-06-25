@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * Handles database updates and module configuration changes.
+ *  
+ */
+
+/**
+ * Disable block cache for the infinite caruosel block.
+ */
+function elib_infinite_carousel_update_6001() {
+  $ret = array();
+  $query = "UPDATE blocks SET cache = -1 WHERE module = 'elib_infinite_carousel'";
+  $ret[] = db_query($query);
+  return $ret;
+}
