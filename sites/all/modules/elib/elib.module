@@ -104,7 +104,7 @@ function elib_login_validate($form, &$form_state) {
  * @param type $ting_object_id
  * @return type
  */
-function elib_get_isbn_from_object_id($ting_object_id){
+function elib_get_isbn_from_object_id($object_id){
   module_load_include('client.inc', 'ting');
   module_load_include('isbn_static_func.inc', 'elib');
   $isbn = NULL;
