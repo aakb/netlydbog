@@ -39,7 +39,7 @@ function elib_menu() {
  */
 function elib_theme() {
   return array(
-    'page' =>  array(
+    'page' => array(
       'template' => 'page-clean',
       'arguments' => array(
         'content' => NULL,
@@ -49,7 +49,6 @@ function elib_theme() {
     ),
   );
 }
-
 
 /**
  * Implement hook_form_alter().
@@ -110,16 +109,15 @@ function elib_get_isbn_from_object_id($ting_object_id){
   module_load_include('isbn_static_func.inc', 'elib');
   $isbn = NULL;
   try {
-    $object = ting_get_object_by_id($ting_object_id);
-    $isbn = convertFromIsbn13ToIsbn10($object->record['dc:identifier']['dkdcplus:ISBN'][0]);
-  }
-  catch (TingClientException $e) {
+    $object = ting_get_object_by_id($object_id);
+    foreach ($object->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
+      if (preg_match('/[^0-9]{13}/', $isbn, $matches)) {
+          break;
+      }
+    }
+  } catch (TingClientException $e) {
     // If the specified object id does not exist, an exception is throw.
-    /**
-     * @todo: Should this error be handled ?
-     */
   }
-
   return $isbn;
 }
 
@@ -127,7 +125,7 @@ function elib_str_to_time($str, $aststamp = false){
   list($d, $t) = explode(" ", $str);
   list($r['y'], $r['m'], $r['d']) = explode("-", $d);
   list($r['h'], $r['i'], $r['s']) = explode(":", $t);
-  if($aststamp){
+  if ($aststamp) {
     return mktime($r['h'], $r['i'], $r['s'], $r['m'], $r['d'], $r['y']);
   }
   return $r;
@@ -136,15 +134,15 @@ function elib_str_to_time($str, $aststamp = false){
 function elib_block($op = 'list', $delta = 0, $edit = array()) {
   if ($op == 'list') {
     return array(
-      'account' => array(
-        'info' => t('Login through eLib'),
-        'cache' => BLOCK_NO_CACHE,
-        'status' => 1,
-        'region' => 'account',
-      ),
+        'account' => array(
+            'info' => t('Login through eLib'),
+            'cache' => BLOCK_NO_CACHE,
+            'status' => 1,
+            'region' => 'account',
+        ),
     );
-  }
-  elseif ($op == 'view' && $delta == 'account') {
+  } 
+  else if ($op == 'view' && $delta == 'account') {
     global $user;
     $block = array();
 
@@ -160,7 +158,7 @@ function elib_block($op = 'list', $delta = 0, $edit = array()) {
   }
 }
 
-/*init elib client as singleton */
+/* init elib client as singleton */
 
 function elib_client() {
   global $user;
@@ -207,40 +205,34 @@ function elib_displaybook(TingClientObject $object,$elib_data = false){
   $author = (string)$elib_data->book->authors[0]->author->attributes()->name;
     $out[] = '<h3 class="title">' .
       l($elib_data->book->title, 'ting/object/'.$faust, array('attributes' => array('class' =>'title'))) .
-    '</h3>';
-    $out[] = '<div class="author">' .
+          '</h3>';
+  $out[] = '<div class="author">' .
       t('!creator_name', array('!creator_name' => l($author,'ting/search/'.$author))) .
-    '</div>';
-    $out[] = '<div class="rating-for-faust"><div class="'.$faust.'"></div></div>';
+          '</div>';
+  $out[] = '<div class="rating-for-faust"><div class="'.$faust.'"></div></div>';
 
-    if($elib_data->loanexpiredate){
-      $loanlimit = elib_str_to_time($elib_data->loanexpiredate,true);
-      $diff = $loanlimit-time();
-      $days = floor($diff/86400);
-      $hours     = floor($diff/3600);
-      $minutes   = floor($diff/60);
-    }
+  if ($elib_data->loanexpiredate){
+    $loanlimit = elib_str_to_time($elib_data->loanexpiredate,true);
+    $diff = $loanlimit-time();
+    $days = floor($diff/86400);
+    $hours     = floor($diff/3600);
+    $minutes   = floor($diff/60);
+  }
 
-    if ($days < 1) {
-      if ($hours < 1) {
-        $out[] = '
-          <div class="loanperiod short">'.t('Loan expires in %minutes',array('%minutes' => format_plural($minutes, 'one minute.', '@count minutes.'))).'</div>
-        ';
-      }
-      else {
-        $out[] = '
-          <div class="loanperiod short">'.t('Loan expires in %hours',array('%hours' => format_plural($hours, 'one hour.', '@count hours.'))).'</div>
-        ';
-      }
+  if ($days < 1) {
+    if ($hours < 1) {
+      $out[] = '<div class="loanperiod short">'.t('Loan expires in %minutes',array('%minutes' => format_plural($minutes, 'one minute.', '@count minutes.'))).'</div>';
     }
     else {
-      $out[] = '
-        <div class="loanperiod short">'.t('Loan expires in %days',array('%days' => format_plural($days, 'one day.', '@count days'))).'</div>
-    ';
+      $out[] = '<div class="loanperiod short">'.t('Loan expires in %hours',array('%hours' => format_plural($hours, 'one hour.', '@count hours.'))).'</div>';
     }
+  }
+  else {
+    $out[] = '<div class="loanperiod short">'.t('Loan expires in %days',array('%days' => format_plural($days, 'one day.', '@count days'))).'</div>';
+  }
 
-    $out[] = _elib_action_icons('ting/object/' . $faust);
-    $out[] = '</div>';
+  $out[] = _elib_action_icons('ting/object/' . $faust);
+  $out[] = '</div>';
 
   return implode($out);
 
@@ -272,11 +264,10 @@ function elib_displaybookNEW($obj, $elib='',$displaysize=false, $block_index = 1
     return;
   }
   // fetch cover from elib
-  elib_book_cover($obj);
   $isbn = convertToEAN($obj->record['dc:identifier']['dkdcplus:ISBN'][0]);
   $obj->url = 'ting/object/' . $obj->id;
 
-  switch($displaysize){
+  switch ($displaysize) {
     case 'small':
     case 'small_rm':
     case 'lorem':
@@ -290,14 +281,14 @@ function elib_displaybookNEW($obj, $elib='',$displaysize=false, $block_index = 1
   }
 
   //dsm($obj);
-	$alttext = t('@titel af @forfatter',array('@titel' => $obj->record['dc:title'][''][0], '@forfatter' => $obj->record["dc:creator"]["dkdcplus:aut"][0]));
+	$alttext = t('@titel af @forfatter', array('@titel' => $obj->record['dc:title'][''][0], '@forfatter' => $obj->record["dc:creator"]["dkdcplus:aut"][0]));
   $part['picture'] = '<div class="picture">' . l(theme('image', $image_url, $alttext, $alttext, null, false), $obj->url, array('html' => true)) . '</div>';
-  if($elib_data->loanexpiredate){
-    $loanlimit = elib_str_to_time($elib_data->loanexpiredate,true);
+  if ($elib_data->loanexpiredate) {
+    $loanlimit = elib_str_to_time($elib_data->loanexpiredate, true);
     $diff = $loanlimit-time();
     $days = floor($diff / 86400);
     $loanperiod_class = 'short';
-    $part['loginexpire'] = '<div class="loanperiod '.$loanperiod_class.'">'.t('Lånet udløber om <div>%days',array('%days' => format_plural($days, 'en dag', '@count dage'))).'</div></div>';
+    $part['loginexpire'] = '<div class="loanperiod ' . $loanperiod_class . '">' . t('Lånet udløber om <div>%days', array('%days' => format_plural($days, 'en dag', '@count dage'))) . '</div></div>';
   }
 
   $part['rating'] = '<div class="rating-for-faust"><div class="'.$obj->localId.'"></div></div>';
@@ -305,41 +296,19 @@ function elib_displaybookNEW($obj, $elib='',$displaysize=false, $block_index = 1
   $part['author'] = '<div class="author">' . t('!creator_name', array('!creator_name' => l($obj->record["dc:creator"]["dkdcplus:aut"][0],'ting/search/'.$obj->record["dc:creator"]["dkdcplus:aut"][0]))) . '</div>';
   $part['icons'] = _elib_action_icons($obj->url);
 
-  if($displaysize == 'review'){
+  if ($displaysize == 'review') {
 
     $u = elib_user_get_cred($elib[1]);
-    $part['text'] = '<div class="clearfix"></div><div class="text">'.truncate_utf8($elib[0],400,true,true).' '.l('LÆS MERE →',$obj->url).'</div>';
+    $part['text'] = '<div class="clearfix"></div><div class="text">' . truncate_utf8($elib[0], 400, true, true) . ' ' . l('LÆS MERE →', $obj->url) . '</div>';
 
     $part['icons'] = _elib_action_icons($obj->url);
     $part['picture'] = '<div class="picture">' . l(theme('image', $image_url, $alttext, $alttext, null, false), $obj->url, array('html' => true)) . '</div>';
     $displaysize = 'small';
   }
 
-  if($displaysize == 'textright'){
-    #error_log(__FILE__ . ' +' . __LINE__ . ' ' . print_r($obj->record, 1));
+  if ($displaysize == 'textright') {
     $part['picture'] = '<div class="picture main size1of2">' . l(theme('image', $image_url, $alttext, $alttext, null, false), $obj->url, array('html' => true)) . '</div>';
     $part['author'] = '<div class="author">' . t('By !creator_name', array('!creator_name' => l($obj->record["dc:creator"]["dkdcplus:aut"][0],'ting/search/'.$obj->record["dc:creator"]["dkdcplus:aut"][0]))) . '</div>';
-
-// removet pr. ticket: #165
-//    if (!empty($obj->record['dc:contributor']['oss:dkind'])) {
-//     foreach($obj->record['dc:contributor']['oss:dkind'] as $reader){
-//        $readers[] = l($reader,'ting/search/'.$reader);
-//      }
-//      $extras = theme('item_list', $readers, t('Reader'), 'span', array('class' => 'contributor'));
-//    }
-//    if (!empty($obj->subjects)) {
-//      foreach($obj->subjects as $subject){
-//        $subs[] = l($subject,'ting/search/'.$subject);
-//      }
-//      $extras .= theme('item_list', $subs, t('Subjects'), 'span', array('class' => 'subject'));
-//    }
-//    if (!empty($obj->record['dc:date'][''])) {
-//      $link = l($obj->record['dc:date'][''][0],'ting/search/'.$obj->record['dc:date'][''][0]);
-//      $extras .= theme('item_list', array($link), t('Published'), 'span', array('class' => 'published'));
-//    }
-//    if (!empty($obj->record['dcterms:extent'][''])) {
-//      $extras .= theme('item_list', $obj->record['dcterms:extent'][''], t('Extent'), 'span', array('class' => 'version'));
-//    }
 
     return '
       <div class="display-book '.$displaysize.' line">'.
@@ -352,48 +321,43 @@ function elib_displaybookNEW($obj, $elib='',$displaysize=false, $block_index = 1
         $part['icons'].
         $part['text'].
         $extras.
-        '</div>
+            '</div>
       </div>
     ';
   }
 
 
-  if($elib['popular']){
+  if ($elib['popular']) {
     if (!empty($obj->record['dc:contributor'][''])) {
-     foreach($obj->record['dc:contributor'][''] as $reader){
+      foreach ($obj->record['dc:contributor'][''] as $reader) {
         $readers[] = l($reader,'ting/search/'.$reader);
       }
       $extras = theme('item_list', $readers, t('Reader'), 'span', array('class' => 'contributor'));
     }
+    
     if (!empty($obj->record["dc:subject"]["dkdcplus:DBCF"])) {
       foreach($obj->record["dc:subject"]["dkdcplus:DBCF"] as $subject){
-       $subs[] = l($subject,'ting/search/'.$subject);
+        $subs[] = l($subject,'ting/search/'.$subject);
       }
- //     $extras .= theme('item_list', $subs, t('Subjects'), 'span', array('class' => 'subject'));
     }
-    if (!empty($obj->record['dcterms:extent'][''])) {
-      //$extras .= theme('item_list', $obj->record['dcterms:extent'][''], t('Extent'), 'span', array('class' => 'version'));
-    }
-
+    
     $part['icons'] = _elib_action_icons($obj->url);
-
   }
 
   if($displaysize == 'small_rm'){
     $displaysize = 'small';
 
     $part['icons'] = _elib_action_icons($obj->url, '
-       <li class="seperator"></li>
+          <li class="seperator"></li>
        <li>' . l(t('Remove'), $obj->url.'/huskeliste/fjern', array('html' => true, 'query' => drupal_get_destination())) . '</li>'
     );
-
   }
 
   $part['icons'] = $part['icons'];
   return '<div class="display-book '.$displaysize.' line ruler-after index-' . $block_index . '">
     <div class="left">'.
     $part['picture'].
-    '</div>
+          '</div>
     <div class="right">'.
     $part['loginexpire'].
     $part['title'].
@@ -404,42 +368,42 @@ function elib_displaybookNEW($obj, $elib='',$displaysize=false, $block_index = 1
     '<div class="extras" style="margin-left:80px;">'.$extras.'</div>
     </div>
   </div>';
-
 }
-function dummy_lorem($numberofwords=100){
+
+function dummy_lorem($numberofwords=100) {
   $words = explode(' ','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam aliquet risus vitae purus rutrum tincidunt. Vivamus consectetur enim quam, ac viverra felis. Cras vitae urna id tortor suscipit rutrum quis vel metus. Nullam vulputate rhoncus diam, ultricies bibendum nulla aliquam sit amet.');
-  for($i=0;$i<$numberofwords;$i++){
+  for ($i=0; $i<$numberofwords; $i++){
     $new[] = $words[array_rand($words)];
   }
-  return implode(' ',$new);
+  return implode(' ', $new);
 
 }
 
-function elib_display_error($error){
+function elib_display_error($error) {
   // singleton display error
   static $isset;
 
-  if(!$isset){
+  if (!$isset) {
     drupal_set_message(t('Oops! We cound\'nt connect to the library') . '<div class="spec" style="font-size:.7em">' . t($error->getMessage()) . '</div>', 'error', FALSE);
-    $isset = true;
+    $isset = TRUE;
   }
 }
 
-function elib_get_rating($objectid){
+function elib_get_rating($objectid) {
 
   /* if node dosent exist, there is no rating, skip this function */
-  if(!$n = node_load(array('title' => $objectid,'type' => 'bookrating'))){
+  if (!$n = node_load(array('title' => $objectid, 'type' => 'bookrating'))) {
     return;
   }
 
-  $c = node_build_content($n,true);
+  $c = node_build_content($n, true);
 
   return $c->content['fivestar_widget']['#value'];
 }
 
-function elib_displaybook2(TingClientObject $obj,$fields,$settings='',$displaysize=false){
+function elib_displaybook2(TingClientObject $obj, $fields, $settings = '', $displaysize = false) {
   $elib_data = $settings['elib'];
-  switch($displaysize){
+  switch ($displaysize) {
     case 'small':
     case 'lorem':
     case 'review':
@@ -451,19 +415,19 @@ function elib_displaybook2(TingClientObject $obj,$fields,$settings='',$displaysi
       break;
   }
   $part['picture'] = '<div class="picture">' . l(theme('image', $image_url, '', '', null, false), $obj->url, array('html' => true)) . '</div>';
-  if($elib_data->loanexpiredate){
-    $loanlimit = elib_str_to_time($elib_data->loanexpiredate,true);
-    $diff = $loanlimit-time();
-    $days = floor($diff/86400);
+  if ($elib_data->loanexpiredate) {
+    $loanlimit = elib_str_to_time($elib_data->loanexpiredate, true);
+    $diff = $loanlimit - time();
+    $days = floor($diff / 86400);
     $loanperiod_class = 'short';
-    $part['loginexpire'] = '<div class="loanperiod '.$loanperiod_class.'">'.t('Lånet udløber om <div>%days',array('%days' => format_plural($days, 'en dag', '@count dage'))).'</div></div>';
+    $part['loginexpire'] = '<div class="loanperiod ' . $loanperiod_class . '">' .t ('Lånet udløber om <div>%days', array('%days' => format_plural($days, 'en dag', '@count dage'))) . '</div></div>';
   }
 
   $part['title'] = '<h3 class="title">' . l($obj->title, $obj->url, array('attributes' => array('class' =>'title'))) . '</h3>';
   $part['author'] = '<div class="author">' . t('By !creator_name', array('!creator_name' => l($obj->creators_string,'ting/search/'.$obj->creators_string))) . '</div>';
   $part['icons'] = _elib_action_icons($obj->url);
 
-  if($displaysize == 'review'){
+  if ($displaysize == 'review') {
 
     $u = elib_user_get_cred($elib[1]);
 
@@ -500,39 +464,44 @@ function elib_displaybook2(TingClientObject $obj,$fields,$settings='',$displaysi
 /**
  * Getting a cover form eLib WS by ISBN
  *
- * @param string $isbn
+ * @param array $isbns
  * @param string $presetname
  * @return string
  */
-function elib_book_cover($isbn, $presetname) {
-  if (!$isbn || $isbn == '') {
-    _elib_covers_default_image();
-  }
-  //$isbn = '9788702071849';
-  $path = elib_init_cover_path($isbn);
-  if (file_exists(file_create_path($path))) {
-    return imagecache_create_url($presetname, $path);
-  } else {
-    // init elib client
-    $c = elib_client();
-    $c->setLibrary(variable_get('elib_retailer_id', ''));
-    // fetch book from elib by isbn
-    try {
-      $book = $c->getBook($isbn);
-    } catch (Exception $e) { }
-    // store cover from elib in drupal
-    $cover = (string)$book->data->coverimage;
-    if (empty($cover)) {
-      _elib_covers_default_image();
+function elib_book_cover($isbns, $presetname) {
+  // Look in the ISBNs to find if image have been downloaded.
+  foreach ($isbns as $isbn) {
+    if (preg_match('/^([0-9]{13})/', $isbn, $matches)) {
+      $path = elib_init_cover_path($isbn);
+      if (file_exists(file_create_path($path))) {
+        return imagecache_create_url($presetname, $path);
+      }
     }
-    $path = _elib_covers_fetch_or_redirect($path, $cover);
-    return imagecache_create_url($presetname, $path);
-  }
   }
 
+  // No image found try elib client and featch one.
+  $c = elib_client();
+  $c->setLibrary(variable_get('elib_retailer_id', ''));
+  // fetch book from elib by isbn
+  try {
+    foreach ($isbns as $isbn) {
+      $book = $c->getBook($isbn);
+      if (isset($book->data->coverimage)) {
+        $path = elib_init_cover_path($isbn);
+        $path = _elib_covers_fetch_or_redirect($path, (string) $book->data->coverimage);
+        return imagecache_create_url($presetname, $path);
+      }
+    }
+  } catch (Exception $e) {
+    // @todo: ERROR
+  }
+
+  return imagecache_create_url($presetname, _elib_covers_default_image());
+}
+
 /**
-* Help function, returns path to default image.
-*/
+ * Help function, returns path to default image.
+ */
 function _elib_covers_default_image() {
   return drupal_get_path('module', 'ting_covers') . '/img/default.gif';
 }
@@ -560,9 +529,9 @@ function _elib_covers_pages_fetch_image($path, $image_url) {
   if ($result->code == 200) {
     // get the folder for the final location of this preset...
     $dir = file_directory_path() . '/' . dirname($path);
-     // Build the destination folder tree if it doesn't already exists.
+    // Build the destination folder tree if it doesn't already exists.
     if (!file_check_directory($dir, FILE_CREATE_DIRECTORY) &&
-        !mkdir($dir, 0775, TRUE)) {
+            !mkdir($dir, 0775, TRUE)) {
       return 0;
     }
     return file_save_data($result->data, $path, FILE_EXISTS_REPLACE);
@@ -570,8 +539,8 @@ function _elib_covers_pages_fetch_image($path, $image_url) {
 }
 
 /**
-* Get a path to stored cover
-*/
+ * Get a path to stored cover
+ */
 function elib_init_cover_path($isbn) {
   return 'elib/covers/' . md5($isbn) . '.jpg';
 }

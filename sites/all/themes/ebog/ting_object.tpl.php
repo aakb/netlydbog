@@ -20,7 +20,6 @@ if (module_exists('ding_voxb')) {
   drupal_add_js(VOXB_PATH . '/js/livequery.js');
   drupal_add_js(VOXB_PATH . '/js/cyclic.fade.js');
   drupal_add_js(VOXB_PATH . '/js/voxb.item.js');
-  drupal_add_js(VOXB_PATH . '/js/voxb.details.js');
 
   require_once(VOXB_PATH . '/lib/VoxbItem.class.php');
   require_once(VOXB_PATH . '/lib/VoxbProfile.class.php');
