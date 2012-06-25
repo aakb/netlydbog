@@ -10,7 +10,11 @@
 
 module_load_include('isbn_static_func.inc', 'elib');
 
-$isbn = preg_replace('/[^0-9]+/', '', $object->record['dc:identifier']['dkdcplus:ISBN'][0]);
+foreach ($object->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
+  if (preg_match('/[^0-9]{13}/', $isbn, $matches)) {
+    break;
+  }
+}
 
 if (module_exists('ding_voxb')) {
   drupal_add_css(VOXB_PATH . '/css/voxb-pager.css');
@@ -37,7 +41,7 @@ if (module_exists('ding_voxb')) {
 <div id="ting-object" class="line rulerafter">
 
   <div class="picture unit grid-3 alpha">
-    <?php $image_url = elib_book_cover($isbn, '170_x'); ?>
+    <?php $image_url = elib_book_cover($object->record['dc:identifier']['dkdcplus:ISBN'], '170_x'); ?>
     <?php if (strpos($image_url,'imagecache')): ?>
       <div class="inner left" style="margin-bottom:10px;">
         <?php print theme('image', $image_url, $object->title, $object->title, null, false); ?>
@@ -156,7 +160,6 @@ if (module_exists('ding_voxb')) {
           <?php if (!empty($object->record['dc:rights'][''])) { ?>
             <?php print theme('item_list', $object->record['dc:rights'][''], t('Rights').t(':&nbsp;'), 'span', array('class' => 'rights'));?>
           <?php } ?>
-          <?php //print elib_book_teaser($object) ?>
         </div>
       </div>
       <div class="icons">
@@ -164,15 +167,6 @@ if (module_exists('ding_voxb')) {
           <li class="sample"><?php print l(t('Sample'), $object->url.'/sample', array('html' => true, 'attributes' => array('action' => 'sample'))) ?><li>
           <li class="seperator"></li>
           <li class="stream"><?php print l(t('Stream'), $object->url.'/stream', array('html' => true, 'attributes' => array('action' => 'stream'))) ?></li>
-          <?php
-            $platform = elib_check_platform();
-            if ($platform == PLATFORM_GENERIC) {
-              print '<li class="seperator"></li>';
-              print '<li class="fetch">';
-              print l(t('Fetch'), $object->url.'/download', array('html' => true, 'attributes' => array('action' => 'download')));
-              print '</li>';
-            }
-          ?>
           <?php 
             if($user->uid){
               print '<li class="seperator"></li>';

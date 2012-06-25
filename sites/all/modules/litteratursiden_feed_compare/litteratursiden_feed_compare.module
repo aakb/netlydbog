@@ -109,7 +109,7 @@ function litteratursiden_feed_compare_get_feed($items) {
                 // Title from feed consists of title+author.
                 // Combine title and author from TING to perform reasonable search.
                 try {
-                  $book = $c->getBook($isbn);
+                  $book = $c->getBook($object);
                 }
                 catch (Exception $e) {
                   $ret['status'] = 'error';

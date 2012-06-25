@@ -200,13 +200,11 @@ function elib_popup_download_sample($ting_id) {
   module_load_include('isbn_static_func.inc', 'elib');
   $object = ting_get_object_by_id($ting_id);
 
-  $isbn = preg_replace('/[^0-9]+/', '', $object->record['dc:identifier']['dkdcplus:ISBN'][0]);
-
   $c = elib_client();
   $c->setLibrary(variable_get('elib_retailer_id', ''));
 
   try {
-    $book = $c->getBook($isbn);
+    $book = $c->getBook($object);
   }
   catch (Exception $e) {
     error_log(__FILE__ . ' +' . __LINE__ . ' ' . print_r($e, 1));
