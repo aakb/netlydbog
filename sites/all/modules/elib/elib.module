@@ -258,7 +258,7 @@ function _elib_action_icons($url, $postfix = '') {
   return $html;
 }
 
-function elib_displaybookNEW($obj, $elib='',$displaysize=false, $block_index = 1){
+function elib_displaybookNEW($obj, $elib = '', $displaysize = false, $block_index = 1){
   if(!is_a($obj,'TingClientObject')){
     return;
   }

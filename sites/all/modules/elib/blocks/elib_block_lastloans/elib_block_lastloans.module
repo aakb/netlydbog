@@ -81,6 +81,7 @@ function elib_block_lastloans_block($op = 'list', $delta = 0) {
         $response = elib_client()->getLatestLoans();
 
         foreach ($response as $isbn) {
+          $obj = elib_get_ting_object_by_isbn($isbn);
           $out .= elib_displaybookNEW(elib_get_ting_object_by_isbn($isbn), '', 'small');
         }
         $block['subject'] = t('Seneste Lån');
