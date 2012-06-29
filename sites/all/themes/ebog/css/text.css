@@ -175,7 +175,10 @@ div#sidebar-first div#block-block-12 {
   cursor: pointer;
 }
 
-#ting-object h1.book-title,
+#ting-object h1.book-title {
+  color: #2C2E29;
+}
+
 div#sidebar-first div#block-block-12 .content h3 {
   color: #FFF;
 }
