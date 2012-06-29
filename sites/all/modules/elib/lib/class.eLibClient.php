@@ -1,30 +1,29 @@
-<?php 
+<?php
 
 /**
  * Adapter for eLib webservices
- * 
+ *
  * @author troelslenda
  *
  */
+class eLibClient {
 
-class eLibClient{
-	
-	private $elibUsr;
-	private $retailerid;
-	private $retailerkeycode;
-	private $languagecode;
-	private $sc_params;
-	public $base_url;
-	
-	public function __construct($languagecode){
-		//$this->retailerid = $retailerid;
-		//$this->retailerkeycode = $retailerkeycode;
-		$this->languagecode = $languagecode;
-		$this->sc_params = array(
-	    'trace' => true, 
-      'cache_wsdl' => WSDL_CACHE_NONE,
+  private $elibUsr;
+  private $retailerid;
+  private $retailerkeycode;
+  private $languagecode;
+  private $sc_params;
+  public $base_url;
+
+  public function __construct($languagecode) {
+    //$this->retailerid = $retailerid;
+    //$this->retailerkeycode = $retailerkeycode;
+    $this->languagecode = $languagecode;
+    $this->sc_params = array(
+        'trace' => true,
+        'cache_wsdl' => WSDL_CACHE_NONE,
 #      'connection_timeout' => 10
-	  );
+    );
 
     // support for proxy settings via admin
     // @see: http://domain.tld/admin/settings/elib
@@ -34,58 +33,55 @@ class eLibClient{
       $this->sc_params['proxy_host'] = $host;
       $this->sc_params['proxy_port'] = $port;
     }
-	}
-  
+  }
+
   public function getStreamUrl($key, $player = 'flash') {
     $url =  "http://service.pubhub.dk/Download.aspx?id=";
     return $url . $key .'&player=' . $player . '&stream=true';
   }
-  
-	public function GetUrl($retailerorderid){
-		$params['retailerorderid'] = $retailerorderid;
-		$params['md5checksum'] = md5($this->retailerid.$retailerorderid.$this->retailerkeycode);
-		
-		$response = $this->soapCall($this->base_url.'getlibraryloanurl.asmx?WSDL','GetLibraryLoanUrl',$params);
-		
-		$xml = simplexml_load_string($response->GetLibraryLoanUrlResult->any);
-		return $xml;
-	}
-	
-	public function setLibrary($lib){
-		$this->retailerid = $lib;
-    $this->retailerkeycode = elib_libraries_get_library_keycode($lib);
-	}
-	
-	public function setLoaner($cardno,$pin,$lib){
-		$this->retailerid = $lib;
-		$this->retailerkeycode = elib_libraries_get_library_keycode($lib);
-		//if(strlen($cardno)>9){
-		  $this->elibUsr = new loaner($cardno,$pin);	
-		//}
-	}
-	
-	public function validateUser() {
-		if(is_a($this->elibUsr, 'loaner')) {
-			$params = $this->elibUsr->loginParams();
-			$response = $this->soapCall($this->base_url.'validatelibraryuser.asmx?WSDL','ValidateLibraryUser',$params);
-			
-			$xml = simplexml_load_string($response->ValidateLibraryUserResult->any);
 
-			// if user credentials are valid 101 is returned in xml according to eLib
-			if($xml->status->code == '101'){
-				return true;
-			}
-			else {
-        watchdog('elib', 'eLib login: “@message” (code: @code)', array(
+  public function GetUrl($retailerorderid) {
+    $params['retailerorderid'] = $retailerorderid;
+    $params['md5checksum'] = md5($this->retailerid . $retailerorderid . $this->retailerkeycode);
+
+    $response = $this->soapCall($this->base_url . 'getlibraryloanurl.asmx?WSDL', 'GetLibraryLoanUrl', $params);
+
+    $xml = simplexml_load_string($response->GetLibraryLoanUrlResult->any);
+    return $xml;
+  }
+
+  public function setLibrary($lib) {
+    $this->retailerid = $lib;
+    $this->retailerkeycode = elib_libraries_get_library_keycode($lib);
+  }
+
+  public function setLoaner($cardno, $pin, $lib) {
+    $this->retailerid = $lib;
+    $this->retailerkeycode = elib_libraries_get_library_keycode($lib);
+    //if(strlen($cardno)>9){
+    $this->elibUsr = new loaner($cardno, $pin);
+    //}
+  }
+
+  public function validateUser() {
+    if (is_a($this->elibUsr, 'loaner')) {
+      $params = $this->elibUsr->loginParams();
+      $response = $this->soapCall($this->base_url . 'validatelibraryuser.asmx?WSDL', 'ValidateLibraryUser', $params);
+
+      $xml = simplexml_load_string($response->ValidateLibraryUserResult->any);
+
+      // if user credentials are valid 101 is returned in xml according to eLib
+      if ($xml->status->code == '101') {
+        return true;
+      } else {
+        $this->doLog('eLib user validate: "@message" (code: @code)', array(
           '@message' => (string) $xml->status->message,
-          '@code' => (string) $xml->status->code
-        ), WATCHDOG_ERROR);
-				return false;
-			}
-		}
-		else{
-			throw new Exception('No user instance: '.__FUNCTION__);
-		}
+          '@code' => (string) $xml->status->code), WATCHDOG_ERROR);
+        return false;
+      }
+    } else {
+      throw new Exception('No user instance: ' . __FUNCTION__);
+    }
   }
 
   /**
@@ -100,37 +96,35 @@ class eLibClient{
       $fromdate = strtotime('-1 month');
     }
 
-  	$params['top'] = $limit;
-  	$params['listtype'] = 1;
-  	#$params['fromdate'] = date('Y-m-d',time()-22592000);
-  	$params['fromdate'] = date('Y-m-d', $fromdate);
+    $params['top'] = $limit;
+    $params['listtype'] = 1;
+    #$params['fromdate'] = date('Y-m-d',time()-22592000);
+    $params['fromdate'] = date('Y-m-d', $fromdate);
 
-  	$response = $this->soapCall($this->base_url.'getlibrarylist.asmx?WSDL','GetNewBooks',$params);
-  	
-  	$xml = array();
-  	if(simplexml_load_string($response->GetNewBooksResult->any)){
-  		$xml = simplexml_load_string($response->GetNewBooksResult->any);
-  	}
-  	
-  	return $xml;
-  	
+    $response = $this->soapCall($this->base_url . 'getlibrarylist.asmx?WSDL', 'GetNewBooks', $params);
+
+    $xml = array();
+    if (simplexml_load_string($response->GetNewBooksResult->any)) {
+      $xml = simplexml_load_string($response->GetNewBooksResult->any);
+    }
+
+    return $xml;
   }
 
-  public function getPopularBooks($count = 7){
+  public function getPopularBooks($count = 7) {
     $params['top'] = $count;
     $params['listtype'] = 1;
     $params['fromdate'] = date('Y-m-d', strtotime('-1 day'));
     $params['todate'] = date('Y-m-d');
-    
-    $response = $this->soapCall($this->base_url.'getlibrarylist.asmx?WSDL','GetTopList',$params);
-    
+
+    $response = $this->soapCall($this->base_url . 'getlibrarylist.asmx?WSDL', 'GetTopList', $params);
+
     $xml = array();
-    if(simplexml_load_string($response->GetTopListResult->any)){
+    if (simplexml_load_string($response->GetTopListResult->any)) {
       $xml = simplexml_load_string($response->GetTopListResult->any);
     }
-    
+
     return $xml;
-    
   }
 
   /**
@@ -138,150 +132,167 @@ class eLibClient{
    * @param int $type the type of items to fetch: 1- ebook, 2- audiobook. Defaults to audiobook for test purposes only
    */
   public function getLatestLoans($type = '2') {
-    
+
     // We set only the listtype parameter, the other 2 will be inserted
     // automatically when executing the soap call
     // TODO: Make it work with mixed content (audio + ebook)
     if (in_array($type, array('1', '2'))) {
-     $params['listtype'] = $type;
+      $params['listtype'] = $type;
     }
-    
-    $response = $this->soapCall($this->base_url.'getlibrarylist.asmx?WSDL','GetLastLoansForAll',$params);
+
+    $response = $this->soapCall($this->base_url . 'getlibrarylist.asmx?WSDL', 'GetLastLoansForAll', $params);
 
     $xml = simplexml_load_string($response->GetLastLoansForAllResult->any);
 
-  	$ids = array();
-  	
-    if(($xml->data->orderinformationitem)){
-      foreach($xml->data->orderinformationitem as $line){
-        if(!in_array(trim($line->identifier),$ids)){
+    $ids = array();
+
+    if (($xml->data->orderinformationitem)) {
+      foreach ($xml->data->orderinformationitem as $line) {
+        if (!in_array(trim($line->identifier), $ids)) {
           $ids[] = trim($line->identifier);
         }
       }
-  	}
-  	
-  	return array_slice(array_reverse($ids),0,7);
-  }
-
-  public function makeLoan($ebookid){
-  	if(is_a($this->elibUsr,'loaner')){
-	  	
-	  	$params = $this->elibUsr->loginParams();
-	  	$params['ebookid'] = $ebookid;
-	  	$params['format'] = '230';
-	  	$params['mobipocketid'] = '';
-
-		//watchdog('elib', 'eLib SOAP (makeLoan): “@message”', array('@message' => var_export($params,true), WATCHDOG_DEBUG));
-	  	$response = $this->soapCall($this->base_url.'createloan.asmx?WSDL','CreateLoan',$params);
-	  	 	 	
-	  	$xml = simplexml_load_string($response->CreateLoanResult->any);
-	  	
-	  	return $xml;
-  	}
-    else{
-      throw new Exception('No user instance: '.__FUNCTION__);
     }
-  	
+
+    return array_slice(array_reverse($ids), 0, 7);
   }
-  
+
+  public function makeLoan($ebookid) {
+    if (is_a($this->elibUsr, 'loaner')) {
+
+      $params = $this->elibUsr->loginParams();
+      $params['ebookid'] = $ebookid;
+      $params['format'] = '230';
+      $params['mobipocketid'] = '';
+
+      $this->doLog('eLib (makeLoan): “@message”', array('@message' => var_export($params,true)), WATCHDOG_DEBUG);
+      $response = $this->soapCall($this->base_url . 'createloan.asmx?WSDL', 'CreateLoan', $params);
+
+      $xml = simplexml_load_string($response->CreateLoanResult->any);
+
+      return $xml;
+    } else {
+      throw new Exception('No user instance: ' . __FUNCTION__);
+    }
+  }
+
   // not used?!
-  public function getSingleLoan($retailerorderid){
-  	$response = $this->soapCall($this->base_url.'getlibraryuserorder.asmx?WSDL','GetLibraryUserOrder',array('retailerorderid' => $retailerorderid));
-  	$xml = simplexml_load_string($response->GetLibraryUserOrderResult->any);    
+  public function getSingleLoan($retailerorderid) {
+    $response = $this->soapCall($this->base_url . 'getlibraryuserorder.asmx?WSDL', 'GetLibraryUserOrder', array('retailerorderid' => $retailerorderid));
+    $xml = simplexml_load_string($response->GetLibraryUserOrderResult->any);
     return $xml->data->orderitem;
-    
   }
 
-  public function getLoans(){
-  	
-  	if(is_a($this->elibUsr,'loaner')){
-	  	$response = $this->soapCall($this->base_url.'getlibraryuserorderlist.asmx?WSDL','GetLibraryUserOrderList',array('cardnumber' => $this->elibUsr->getId(), 'booktype' => '2'));
-	   	$xml = simplexml_load_string($response->GetLibraryUserOrderListResult->any);
-	  	return $xml;
-  	}
-    else{
-      throw new Exception('No user instance: '.__FUNCTION__);
+  public function getLoans() {
+
+    if (is_a($this->elibUsr, 'loaner')) {
+      $response = $this->soapCall($this->base_url . 'getlibraryuserorderlist.asmx?WSDL', 'GetLibraryUserOrderList', array('cardnumber' => $this->elibUsr->getId(), 'booktype' => '2'));
+      $xml = simplexml_load_string($response->GetLibraryUserOrderListResult->any);
+      return $xml;
+    } else {
+      throw new Exception('No user instance: ' . __FUNCTION__);
     }
   }
-  
+
   /**
-   * 
+   *
    * @param int $isbn
    * @return SimpleXMLElement
    */
-  public function getBook($isbn){
-    if(preg_match('/^[0-9]+(X)?$/', $isbn)){
-      $response = $this->soapCall($this->base_url.'getproduct.asmx?WSDL','GetProduct',array('ebookid' => $isbn));
+  public function getBook($isbn) {
+    // Convert TingClientObject into ISBN.
+    if ($isbn instanceof TingClientObject) {
+      $object = $isbn;
+      foreach ($object->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
+        if (preg_match('/[^0-9]{13}/', $isbn, $matches)) {
+          break;
+        }
+      }
+    }
+    if (preg_match('/^[0-9]+(X)?$/', $isbn)) {
+      $response = $this->soapCall($this->base_url . 'getproduct.asmx?WSDL', 'GetProduct', array('ebookid' => $isbn));
       return simplexml_load_string($response->GetProductResult->any);
-    }
-    else{
-    	throw new Exception('the isbn need to be int: "'.$isbn.'" send');
+    } else {
+      throw new Exception('The number passed is not an ISBN: "' . $isbn);
     }
   }
 
-  public function getBooks($fromdate){
-    return $this->soapCall($this->base_url.'getproductlist.asmx?wsdl','GetProductList',array('countrycode'=> 'dk','fromdate' => $fromdate));
+  public function getBooks($fromdate) {
+    return $this->soapCall($this->base_url . 'getproductlist.asmx?wsdl', 'GetProductList', array('countrycode' => 'dk', 'fromdate' => $fromdate));
   }
-  
-  public function soapCall($wsdl,$func,$ext_params=NULL){
+
+  public function soapCall($wsdl, $func, $ext_params = NULL) {
     $params = array(
-      'retailerid' => $this->retailerid,
-      'retailerkeycode' => md5($this->retailerkeycode),
-      'languagecode' => $this->languagecode
+        'retailerid' => $this->retailerid,
+        'retailerkeycode' => md5($this->retailerkeycode),
+        'languagecode' => $this->languagecode
     );
-    if(is_array($ext_params)){
-      $params = array_merge($params,$ext_params);
+    if (is_array($ext_params)) {
+      $params = array_merge($params, $ext_params);
     }
 
-    try{
-      $request = new SoapClient($wsdl,$this->sc_params);
+    try {
+      $request = new SoapClient($wsdl, $this->sc_params);
       $response = $request->$func($params);
       // var_dump($request->__getLastRequest());
-       watchdog('elib', 'eLib soapCall: “@message” [REQUEST]: @request [RESPONSE]: @response', 
-                array('@message' => $func . " (" . $wsdl . ")", 
-                      '@request' => var_export($request->__getLastRequest(), true), 
-                      '@response' => var_export($request->__getLastResponse(), true)
-                      , WATCHDOG_DEBUG));
+      $this->doLog('eLib soapCall: “@message” [REQUEST]: @request [RESPONSE]: @response', array(
+        '@message' => $func . " (" . $wsdl . ")",
+        '@request' => var_export($request->__getLastRequest(), true),
+        '@response' => var_export($request->__getLastResponse(), true)), WATCHDOG_DEBUG);
       return $response;
-    }
-    catch(Exception $e){
+    } catch (Exception $e) {
       elib_display_error($e);
-    	//print ('Der er sket en fejl i forbindelsen med eLib: '. $e->getMessage());
-     	//watchdog('elib', 'eLib SOAP: “@message”', array('@message' => $e->getMessage(), WATCHDOG_ERROR));
+      $this->doLog('eLib error in soapCall: “@message”', array('@message' => $e->getMessage()), WATCHDOG_ERROR);
+    }
+  }
+
+  /**
+   * Log message if logging is enabled in the elib administration interface or
+   * if the severity is WATCHDOG_ERROR.
+   *
+   * @param string $message
+   *   Message to log.
+   * @param array $vars
+   *   Variables to replace in the message See @watchdog.
+   * @param string $severity
+   *   The messages severity in form of watchdog severity levels.
+   */
+  private function doLog($message, $vars, $severity) {
+    $logging = variable_get(elib_enable_logging, FALSE);
+    if ($logging || $severity == WATCHDOG_ERROR) {
+      watchdog('elib', $message, $vars, $severity);
     }
   }
 }
-  
 
-class loaner{
-	
-	private $cardno;
-	private $pin;
-	private $cpr;
-	
-	public function __construct($cardno='', $pin='',$cpr=''){
-		$this->cardno = $cardno;
-		$this->pin = $pin;
-		$this->cpr = $cpr;
-	}
+class loaner {
 
-	public function getId(){
-		if($this->cardno == ''){
-			return $this->cpr;
-		}
+  private $cardno;
+  private $pin;
+  private $cpr;
+
+  public function __construct($cardno = '', $pin = '', $cpr = '') {
+    $this->cardno = $cardno;
+    $this->pin = $pin;
+    $this->cpr = $cpr;
+  }
+
+  public function getId() {
+    if ($this->cardno == '') {
+      return $this->cpr;
+    }
     return $this->cardno;
-	}
+  }
 
-	public function getPin(){
-		return $this->pin;
-	}
-  
-	public function loginParams(){
-		return array(
-		  'cardnumber' => $this->getId(),
+  public function getPin() {
+    return $this->pin;
+  }
+
+  public function loginParams() {
+    return array(
+      'cardnumber' => $this->getId(),
       'pincode' => $this->getPin()
-		);
-	}
-}
+    );
+  }
 
-?>
+}

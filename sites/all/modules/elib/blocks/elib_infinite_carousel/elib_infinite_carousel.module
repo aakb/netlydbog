@@ -7,6 +7,7 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
   
   if ($op == 'list') {
     $block[0]["info"] = t('eLIB infinite carousel');
+    $block[0]['cache'] = BLOCK_NO_CACHE;
   }
   else if ($op == 'configure' && $delta == 0) {
     $form['items'] = array(
@@ -95,15 +96,14 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
         break;
       }
       
-      $isbn = convertToEAN($object->record['dc:identifier']['dkdcplus:ISBN'][0]);
       $alttext = t('@titel af @forfatter',array('@titel' => $object->title, '@forfatter' => $object->creators_string));
-      $image_url = elib_book_cover($isbn, '120_x');//ting_covers_collection_url($object, '120_x');
+      $image_url = elib_book_cover($object->record['dc:identifier']['dkdcplus:ISBN'], '120_x');
 
       $image = theme('image', $image_url, $alttext, $alttext, null, false);
 
       $list .= '
         <li>
-          <a href="' . $object->url . '" title="' . $alttext . '">
+          <a tabindex="-1" href="' . $object->url . '" title="' . $alttext . '">
             ' . $image . '
           </a>
         </li>

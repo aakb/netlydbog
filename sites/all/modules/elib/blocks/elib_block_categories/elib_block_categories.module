@@ -81,7 +81,7 @@ function elib_block_categories_block($op = 'list', $delta = 0) {
 
       $data = '';
       $addon = '<div class="see-more categories-links">';
-      
+
       $all_text = variable_get('elib_block_categories_all_title', '');
       $all_url = variable_get('elib_block_categories_all_url', '');
 
@@ -100,13 +100,15 @@ function elib_block_categories_block($op = 'list', $delta = 0) {
 
       $data .= '<div class="categories"><ul>';
       foreach ($menu as $x => $item) {
-        foreach ($item['below'] as $y => $link) {
-          $data .= '<li><a href="' . url($link['link']['link_path']) . '">' . $link['link']['link_title'] . '</a></li>' . "\n";
+        if (isset($item['below']) && is_array($item['below'])) {
+          foreach ($item['below'] as $y => $link) {
+            $data .= '<li><a href="' . url($link['link']['link_path']) . '">' . $link['link']['link_title'] . '</a></li>' . "\n";
+          }
         }
       }
       $data .= '</ul></div>';
-          $data .= $addon;
-      
+      $data .= $addon;
+
       cache_set($cache_name, $data, 'cache', CACHE_TEMPORARY);
     }
 

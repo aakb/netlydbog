@@ -13,9 +13,10 @@ function elib_popup_init() {
   if (!defined('ELIB_POPUP_PATH')) {
     define('ELIB_POPUP_PATH', drupal_get_path('module', 'elib_popup'));
   }
-  
+
   drupal_add_js(ELIB_POPUP_PATH . '/js/elib_popup_download.js', 'file');
   drupal_add_js(ELIB_POPUP_PATH . '/js/elib_popup_sample.js', 'file');
+  drupal_add_js(ELIB_POPUP_PATH . '/js/jquery.form.js', 'file');
   drupal_add_js(drupal_get_path('theme', 'ebog') . '/js/audio-player/audio-player.js', 'file');
   drupal_add_js(array('elib_popup' => array('theme_path' => drupal_get_path('theme', 'ebog'))), 'setting');
   drupal_add_css(ELIB_POPUP_PATH . '/css/elib_popup_style.css', 'file');
@@ -46,7 +47,7 @@ function elib_popup_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
-  
+
   $menu['ting/object/%/stream/popup'] = array(
     'title' => 'Show a popup before stream',
     'description' => 'Display some user specific text and perform some check before stream.',
@@ -55,7 +56,7 @@ function elib_popup_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
-   
+
   $menu['ting/object/%/stream/request'] = array(
     'title' => 'Download ting ebook',
     'description' => 'Checker for stream abilities regarding selected book for specific user.',
@@ -64,7 +65,7 @@ function elib_popup_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
-  
+
   $menu['ting/object/%/sample/popup'] = array(
     'title' => 'Stream sample book',
     'description' => 'Stream sample audio book.',
@@ -78,6 +79,15 @@ function elib_popup_menu() {
     'title' => 'Stream sample book',
     'description' => 'Redirect to external stream domain.',
     'page callback' => 'elib_popup_stream_redirect',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $menu['elib/popup/login'] = array(
+    'title' => 'Login user',
+    'description' => 'Try to login user into the libray system.',
+    'page callback' => 'elib_popup_login',
     'page arguments' => array(),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
@@ -106,12 +116,12 @@ function elib_popup_theme($existing, $type, $theme, $path) {
     'arguments' => array('data' => NULL),
     'template' => 'templates/elib_popup-download-info',
   );
-  
+
   $hooks['elib_popup_stream_info'] = array(
     'arguments' => array('data' => NULL),
     'template' => 'templates/elib_popup-stream-info',
   );
-  
+
   $hooks['elib_popup_sample_generic'] = array(
     'arguments' => array('data' => NULL),
     'template' => 'templates/elib_popup-sample-generic',
@@ -126,7 +136,12 @@ function elib_popup_theme($existing, $type, $theme, $path) {
     'arguments' => array('data' => NULL),
     'template' => 'templates/elib_popup-stream-ios',
   );
-  
+
+  $hooks['elib_popup_login'] = array(
+    'arguments' => array('data' => NULL),
+    'template' => 'templates/elib_popup-login',
+  );
+
   return $hooks;
 }
 
@@ -141,11 +156,11 @@ function elib_popup_stream_redirect() {
 /**
  * Return content for download or stream
  * @param type $type
- * @param type $downloadUrl 
+ * @param type $downloadUrl
  */
 function _elib_popup_return_content($type = 'download', $downloadUrl, $title = '') {
   switch ($type) {
-    case 'download': 
+    case 'download':
       return array(
         'status' => TRUE,
         'title' => t('Download'),
@@ -168,7 +183,7 @@ function _elib_popup_return_content($type = 'download', $downloadUrl, $title = '
         $stream = elib_client()->getStreamUrl($key[1]);
         $response['stream'] = url('elib/stream/redirect', array('query' => 'url=' . $stream));
       }
-      
+
       $response['status'] = TRUE;
       $response['title'] = t('Stream');
       $response['processed'] = TRUE;
@@ -178,20 +193,18 @@ function _elib_popup_return_content($type = 'download', $downloadUrl, $title = '
 }
 
 /**
- * 
+ *
  */
 function elib_popup_download_sample($ting_id) {
   module_load_include('client.inc', 'ting');
   module_load_include('isbn_static_func.inc', 'elib');
   $object = ting_get_object_by_id($ting_id);
-  
-  $isbn = preg_replace('/[^0-9]+/', '', $object->record['dc:identifier']['dkdcplus:ISBN'][0]);
 
   $c = elib_client();
   $c->setLibrary(variable_get('elib_retailer_id', ''));
-  
+
   try {
-    $book = $c->getBook($isbn);
+    $book = $c->getBook($object);
   }
   catch (Exception $e) {
     error_log(__FILE__ . ' +' . __LINE__ . ' ' . print_r($e, 1));
@@ -202,7 +215,7 @@ function elib_popup_download_sample($ting_id) {
 
   if (!empty($teasersamplelink)) {
     $title = (string)$book->data->title;
-    
+
     $platform = elib_check_platform();
     if ($platform == PLATFORM_GENERIC) {
       $status = array(
@@ -210,34 +223,35 @@ function elib_popup_download_sample($ting_id) {
         'title' => t('Sample'),
         'content' => theme('elib_popup_sample_generic', array(
             'title' => $title,
-            'link' => $teasersamplelink)),
-         'file' => $teasersamplelink,
-         'itemTitle' => $title,
-         'itemAuthor' =>  (string)$book->data->contributors[0]->first_name 
-              . ' ' 
-              . (string)$book->data->contributors[0]->family_name
+            'link' => $teasersamplelink)
+        ),
+        'file' => $teasersamplelink,
+        'itemTitle' => $title,
+        'itemAuthor' =>  (string)$book->data->contributors[0]->first_name . ' ' . (string)$book->data->contributors[0]->family_name
        );
     } elseif ($platform == PLATFORM_IOS) {
       $status = array(
         'status' => TRUE,
         'title' => t('Sample'),
         'content' => theme('elib_popup_sample_ios', array(
-            'title' => $title,
-            'link' => (string)$book->data->teaser->link))
+          'title' => $title,
+          'link' => (string)$book->data->teaser->link)
+        ),
       );
     }
   }
-  
-  echo json_encode($status);
+
+  drupal_json($status);
   exit(0);
 }
+
 /**
  * Provides item loan/check routine for elib service.
  *
  * @global $user
  *   Logged in user data
  * @param $ting_id Ting object id
- * @param $type string 
+ * @param $type string
  */
 function elib_popup_download_loan_initial($ting_id, $type = "download") {
   global $user;
@@ -251,7 +265,7 @@ function elib_popup_download_loan_initial($ting_id, $type = "download") {
     $userinfo = elib_user_get_cred();
     $client = elib_client();
     $client->setLoaner($userinfo['cpr'], $userinfo['pin'], $userinfo['lib']);
-    
+
     $book = $client->getBook($ean);
     $down_link = get_download_url($client->getLoans(), $ean);
     $loaned = (is_string($down_link)) ? TRUE : FALSE;
@@ -301,6 +315,7 @@ function elib_popup_download_loan_initial($ting_id, $type = "download") {
     }
   }
   else {
+    // User was not logged in.
     $status = array(
       'status' => FALSE,
       'title' => t('Error'),
@@ -309,7 +324,7 @@ function elib_popup_download_loan_initial($ting_id, $type = "download") {
   }
 
   // Send response
-  echo json_encode($status);
+  drupal_json($status);
   exit(0);
 }
 
@@ -353,17 +368,17 @@ function _elib_popup_is_loaned($ting_id) {
 /**
  * More a dummy method, used only for confirmation dialog retrieval.
  *
- * @param $ting_id
+ * @param $ting_object_id
  *   Ting object id.
  */
-function elib_popup_loan_popup($ting_id, $type = 'download') {
+function elib_popup_loan_popup($ting_object_id, $type = 'download') {
   global $user;
   $status = array();
-  
+
   // Whether user is logged in.
   if ($user->uid) {
-    // Check if item is lready loaned
-    $loan = _elib_popup_is_loaned($ting_id);
+    // Check if item is already loaned
+    $loan = _elib_popup_is_loaned($ting_object_id);
     if (($loan)) {
       $status = _elib_popup_return_content($type, $loan['download_link'], $loan['book']->data->title);
     } else {
@@ -374,13 +389,80 @@ function elib_popup_loan_popup($ting_id, $type = 'download') {
     }
   }
   else {
+    // User was not logged in, so present login form.
+    $form = drupal_get_form('elib_popup_login_form');
     $status = array(
-      'status' => FALSE,
-      'title' => t('Error'),
-      'content' => theme('elib_popup_notice', array('message' => t('Only authenticated users are able to loan.')))
+      'status' => 'login',
+      'title' => t('Login'),
+      'content' => $form,
     );
   }
 
-  echo json_encode($status);
+  drupal_json($status);
+  exit(0);
+}
+
+/**
+ * Build popup login form based on the user_login in form used to login normally
+ * and overrides the validation functions.
+ *
+ * @return array $form.
+ */
+function elib_popup_login_form() {
+  $form_id = 'user_login';
+  $form_state = array();
+
+  // Get user login form.
+  $form = call_user_func_array('drupal_retrieve_form', array($form_id));
+
+  // Run hook_form_alter functions.
+  $hook = 'form_alter';
+  foreach (module_implements($hook) as $module) {
+    $function = $module . '_' . $hook;
+    $function($form, $form_state, $form_id);
+  }
+
+  // Override validate function.
+  $form['#validate'][0] = 'elib_popup_login_form_validate';
+
+  return $form;
+}
+
+/**
+ * Form validation for popup login form, which returns json.
+ */
+function elib_popup_login_form_validate($form, &$form_state) {
+  // Default status message.
+  $status = array(
+    'status' => FALSE,
+    'title' => t('Error'),
+    'content' => '<div class="messages error">' . t('Sorry, unrecognized username or password. <a href="@password">Have you forgotten your password?</a>', array('@password' => url('user/password'))) . '</div>',
+  );
+
+  // If no credentials are presented, return.
+  if (empty($form_state['values']['name']) || empty($form_state['values']['pass'])) {
+    drupal_json($status);
+    exit(0);
+  }
+
+  // The user may use both borrower card / cpr number to login, so we have to
+  // remove anything thats not an number form the user name.
+  $card = preg_replace('/\D+/', '', $form_state['values']['name']);
+
+  // Try to login to the library, this will create the user if login succeed
+  // and the user do not exists in Drupal.
+  $account = elib_check_credentials($card, $form_state['values']['pass'], $form_state['values']['library']);
+  if ($account) {
+    global $user;
+    $user = $account;
+    user_authenticate_finalize($form_state['values']);
+    $status = array(
+      'status' => 'loggedin',
+      'title' => t('Login'),
+      'content' => t('You are now logged in an can procceed'),
+    );
+  }
+
+  drupal_json($status);
   exit(0);
 }

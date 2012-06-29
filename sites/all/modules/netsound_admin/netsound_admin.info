@@ -1,0 +1,4 @@
+name = Netsound admin
+description = Makes alterations to the sites thats only possible from inside a module.
+package = Other
+core = 6.x

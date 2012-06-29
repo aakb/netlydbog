@@ -1,9 +1,38 @@
-# Ignore files directory
-sites/default/files
-
-# Ignore local settings file
-sites/default/settings.php
-
-# Ignore swap files
+# Assorted IDE & editor files
+# --------------------------------
+*.esproj
+*.kpf
+*.tmproj
+.cache
 *.swp
-/nbproject/
+.project
+.settings
+*/_notes
+nbproject
+.DS_Store
+._*
+
+# Unused version control info,
+# Patches, crud
+# -------------------------------
+CVS
+*.patch
+*~
+
+# Settings, files
+# ------------------------------
+/sites/default/settings.php
+/sites/default/files
+/files
+
+# Drush 4.x backups, SQL dumps
+# -------------------------------
+/backup
+/backups
+
+# Modules + themes only used locally
+# -------------------------------------
+/sites/all/modules/devel_themer
+/sites/all/modules/devel
+/sites/all/modules/coder
+/sites/all/modules/hacked

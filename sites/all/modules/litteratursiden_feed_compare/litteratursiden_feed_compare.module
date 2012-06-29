@@ -39,24 +39,28 @@ function litteratursiden_feed_compare_theme() {
 /**
  * Get cached search result from feed-to-TING search/parse process.
  */
-function litteratursiden_feed_compare_get_cached_feed($items) {
+function litteratursiden_feed_compare_get_cached_feed($items, $reset = FALSE) {
+  static $data;
+  if (!isset($data) || $reset) {
+    if (!$reset && ($cache = cache_get('litteratursiden_feed_compare_cache')) && !empty($cache->data)) {
+      $data = unserialize($cache->data);
+    }
+    else {
+      $items = variable_get('litteratursiden_feed_compare_items_on_page', '10');
+      $lifetime = variable_get('litteratursiden_feed_compare_cache_lifetime', '360');
 
-  $items = variable_get('litteratursiden_feed_compare_items_on_page', '10');
-
-  $lifetime = variable_get('litteratursiden_feed_compare_cache_lifetime', '360');
-
-  $cache = cache_get('litteratursiden_feed_compare_cache');
-  $ret = unserialize($cache->data);
-
-  if (empty($ret)) {
-    $ret = litteratursiden_feed_compare_get_feed($items);
-    cache_set('litteratursiden_feed_compare_cache', serialize($ret), 'cache', time() + $lifetime);
+      $data = litteratursiden_feed_compare_get_feed($items);
+      if (isset($data['data'])) {
+        cache_set('litteratursiden_feed_compare_cache', serialize($data), 'cache', time() + $lifetime);
+      }
+      else {
+        $data['data'] = array();
+      }
+    }
   }
 
-  shuffle($ret['data']);
-
-  return $ret;
-
+  shuffle($data['data']);
+  return $data;
 }
 
 /**
@@ -99,7 +103,11 @@ function litteratursiden_feed_compare_get_feed($items) {
         if ($search->numTotalObjects > 0) {
           foreach ($search->collections as $collection) {
             foreach ($collection->objects as $object) {
-              $isbn = $object->record['dc:identifier']['dkdcplus:ISBN'][0];
+              foreach ($object->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
+                if (preg_match('/[^0-9]{13}/', $isbn, $matches)) {
+                  break;
+                }
+              }
               $litteratursiden_item = litteratursiden_feed_compare_get_litteratursiden_item($object->title, $object->creators[0]);
               if (!empty($isbn) && !$litteratursiden_item['error'] && $litteratursiden_item['nid'] == $val['nid']) {
                 // Title from feed consists of title+author.
