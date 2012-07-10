@@ -18,7 +18,7 @@ function elib_user_elib_id($cardno){
    * @todo: Moved seed value into settings.php and upgraded to SHA function.
    *
    */
-	return md5($cardno+'f4ds56fs');
+	return md5(drupal_get_private_key() . $cardno);
 }
 
 function elib_user_get_elib_info(){
@@ -53,17 +53,12 @@ function elib_check_credentials($cardno, $pin, $lib) {
     $_SESSION['ssn'] = $cardno;
     $_SESSION['pin'] = $pin;
 
-    // Create identifier for this user.
-    $elib_id = elib_user_elib_id($cardno);
-
-    // Check if user exists.
-    $uid = db_result(db_query("SELECT uid FROM {elib_user} WHERE elib_id = '%s'", $elib_id));
-    if ($uid) {
-      db_query("UPDATE {elib_user} SET elib_library = %d WHERE elib_id = '%s'", $lib, $elib_id);
-      $account = user_load(array('uid' => $uid));
-    }
-    else {
+    // Get the users account or create a new account.
+    $account = elib_check_user($cardno, $lib);
+    if (!$account) {
+      // User have been validate, but no account was found. So lets create one.
       $random_name = $_SERVER['REQUEST_TIME'] . mt_rand();
+
       // User data to pass to user_save().
       $user_data = array(
         'name' => $random_name,
@@ -83,13 +78,37 @@ function elib_check_credentials($cardno, $pin, $lib) {
       $account = user_save(NULL, $user_data);
 
       // Store user reference in our own table.
-      db_query("INSERT INTO {elib_user} (uid, elib_id, elib_library) VALUES (%d, '%s', '%s');", $account->uid, $elib_id, $lib);
+      db_query("INSERT INTO {elib_user} (uid, elib_id, elib_library) VALUES (%d, '%s', '%s');", $account->uid, elib_user_elib_id($cardno), $lib);
     }
 
-    // Return the user account (loaded or newly created).
     return $account;
   }
   return false;
+}
+
+/**
+ * Loades an users account based on card number.
+ *
+ * @param type $cardno
+ * @return type
+ */
+function elib_check_user($cardno, $lib) {
+  // Check if user is known in the systemt.
+  $elib_id = elib_user_elib_id($cardno);
+  $uid = db_result(db_query("SELECT uid FROM {elib_user} WHERE elib_id = '%s'", $elib_id));
+  if ($uid) {
+    db_query("UPDATE {elib_user} SET elib_library = %d WHERE elib_id = '%s'", $lib, $elib_id);
+    return user_load(array('uid' => $uid));
+  }
+
+  // Test if old encoding is used (security fix) and update it.
+  $uid = db_result(db_query("SELECT uid FROM {elib_user} WHERE elib_id = md5('%s')", $cardno));
+  if ($uid) {
+    db_query("UPDATE {elib_user} SET elib_library = %d, elib_id = '%s' WHERE elib_id = md5('%s')", $lib, $elib_id, $cardno);
+    return user_load(array('uid' => $uid));
+  }
+
+  return FALSE;
 }
 
 /**
