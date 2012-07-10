@@ -24,12 +24,12 @@ function elib_libraries_menu() {
   return $items;
 }
 
-function elib_libraries_findlib($cpr){
+function elib_libraries_findlib($cardno){
 	$res = db_query('SELECT elib_library
                      FROM {elib_user}
-                    WHERE elib_user.elib_id = "' . elib_user_elib_id($cpr) . '"');
+                    WHERE elib_user.elib_id = "' . elib_user_elib_id($cardno) . '"');
 
-	echo json_encode(db_fetch_array($res));
+	drupal_json(db_fetch_array($res));
 }
 
 function elib_libraries_form_alter(&$form, $form_state, $form_id) {
