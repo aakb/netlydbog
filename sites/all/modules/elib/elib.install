@@ -49,7 +49,19 @@ function elib_loans_schema() {
       ),
     ),
   );
-  //$schema['cache_alma_credentials'] = drupal_get_schema_unprocessed('system', 'cache');
+
+  $schema['cache_elib_cover'] = drupal_get_schema_unprocessed('system', 'cache');
 
   return $schema;
+}
+
+/**
+ * Add cache table for cover images.
+ */
+function elib_update_6001() {
+  $schema = array();
+  $schema['cache_elib_cover'] = drupal_get_schema_unprocessed('system', 'cache');
+  $ret = array();
+  db_create_table($ret, 'cache_elib_cover', $schema['cache_elib_cover']);
+  return $ret;
 }
