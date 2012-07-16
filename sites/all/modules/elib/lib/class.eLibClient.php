@@ -258,7 +258,7 @@ class eLibClient {
    *   The messages severity in form of watchdog severity levels.
    */
   private function doLog($message, $vars, $severity) {
-    $logging = variable_get(elib_enable_logging, FALSE);
+    $logging = variable_get('elib_enable_logging', FALSE);
     if ($logging || $severity == WATCHDOG_ERROR) {
       watchdog('elib', $message, $vars, $severity);
     }

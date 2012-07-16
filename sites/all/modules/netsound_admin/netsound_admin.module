@@ -22,7 +22,7 @@ function netsound_admin_init(){
 
 
 function netsound_admin_ting_client_response_alter(&$response) {
-  if (is_array($response->collections)) {
+  if (property_exists($response, 'collections') && is_array($response->collections)) {
     foreach ($response->collections as $i => &$collection) {
       foreach ($collection as &$object) {
         // Remove results, that do not have an ISBN.

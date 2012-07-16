@@ -470,8 +470,8 @@ function elib_book_cover($isbns, $presetname) {
   // Look in the ISBNs to find if image have been downloaded.
   foreach ($isbns as $isbn) {
     if (preg_match('/^([0-9]{13})/', $isbn, $matches)) {
-      $path = elib_init_cover_path($isbn);
-      if (file_exists(file_create_path($path))) {
+      $path = _elib_cover_cache_get($isbn);
+      if ($path) {
         return imagecache_create_url($presetname, $path);
       }
     }
@@ -487,6 +487,7 @@ function elib_book_cover($isbns, $presetname) {
       if (isset($book->data->coverimage)) {
         $path = elib_init_cover_path($isbn);
         $path = _elib_covers_fetch_or_redirect($path, (string) $book->data->coverimage);
+        _elib_cover_cache_set($path, $isbn);
         return imagecache_create_url($presetname, $path);
       }
     }
@@ -582,4 +583,38 @@ function elib_get_ting_object_by_isbn($isbn, $enrich = FALSE) {
   $object = isset($r->collections[0]->objects[0]) ? $r->collections[0]->objects[0] : FALSE;
 
   return $object;
+}
+
+/**
+ * Implements hook_flush_caches().
+ *
+ * Flush local cover cache, which will be rebuild base on local file system and
+ * covers fetch from the web-service.
+ */
+function elib_flush_caches() {
+  return array('cache_elib_cover');
+}
+
+/**
+ * Helper function to store rendered "remember" lists based on user ID.
+ *
+ * @param type $data
+ * @param type $isbn
+ */
+function _elib_cover_cache_set($data, $isbn) {
+  cache_set($isbn,  $data, 'cache_elib_cover');
+}
+
+/**
+ * Helper function to retrive rendered "remember" lists based on user ID.
+ *
+ * @param type $isbn
+ * @param type $reset
+ * @return boolean
+ */
+function _elib_cover_cache_get($isbn, $reset = FALSE) {
+  if (!$reset && ($cache = cache_get($isbn, 'cache_elib_cover')) && !empty($cache->data)) {
+    return $cache->data;
+  }
+  return FALSE;
 }
