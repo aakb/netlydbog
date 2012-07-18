@@ -199,18 +199,30 @@ class eLibClient {
    * @param int $isbn
    * @return SimpleXMLElement
    */
-  public function getBook($isbn) {
+  public function getBook($isbn, $reset = FALSE) {
+    static $books;
+    if (!isset($books) || $reset) {
+      $books = array();
+    }
+
     // Convert TingClientObject into ISBN.
     if ($isbn instanceof TingClientObject) {
       $object = $isbn;
       foreach ($object->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
-        if (preg_match('/[^0-9]{13}/', $isbn, $matches)) {
+        if (preg_match('/^[0-9]{13}/', $isbn, $matches)) {
           break;
         }
       }
     }
+
     if (preg_match('/^[0-9]+(X)?$/', $isbn)) {
-      $response = $this->soapCall($this->base_url . 'getproduct.asmx?WSDL', 'GetProduct', array('ebookid' => $isbn));
+      if (!isset($books[$isbn])) {
+        $response = $this->soapCall($this->base_url . 'getproduct.asmx?WSDL', 'GetProduct', array('ebookid' => $isbn));
+        $books[$isbn] = $response;
+      }
+      else {
+        $response = $books[$isbn];
+      }
       return simplexml_load_string($response->GetProductResult->any);
     } else {
       throw new Exception('The number passed is not an ISBN: "' . $isbn);

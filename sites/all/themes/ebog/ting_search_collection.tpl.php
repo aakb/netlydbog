@@ -14,7 +14,7 @@ foreach ($collection->objects as $obj){
 		$Obj = $obj;
 
    foreach ($obj->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
-    if (preg_match('/[^0-9]{13}/', $isbn, $matches)) {
+    if (preg_match('/^[0-9]{13}/', $isbn, $matches)) {
       break;
     }
   }
