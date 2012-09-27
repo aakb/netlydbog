@@ -11,7 +11,7 @@
 module_load_include('isbn_static_func.inc', 'elib');
 
 foreach ($object->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
-  if (preg_match('/[^0-9]{13}/', $isbn, $matches)) {
+  if (preg_match('/^[0-9]{13}/', $isbn, $matches)) {
     break;
   }
 }

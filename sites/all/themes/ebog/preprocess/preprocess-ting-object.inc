@@ -7,7 +7,7 @@ drupal_set_title(check_plain($vars['object']->title . ' ' . t('af') . ' ' . $var
 global $base_url;
 $head = '';
 foreach ($vars['object']->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
-  if (preg_match('/[^0-9]{13}/', $isbn, $matches)) {
+  if (preg_match('/^[0-9]{13}/', $isbn, $matches)) {
     break;
   }
 }
