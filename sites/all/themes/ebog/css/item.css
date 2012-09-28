@@ -8,7 +8,7 @@
 
 #ting-object .panel-1col .panel-pane {
   float: right;
-} 
+}
 
 #ting-object .author,
 #ting-object .abstract,
@@ -45,7 +45,7 @@
  * Remove when needed.
  */
 
-#ting-object .ui-tabs-nav {
+#ting-object .tab-navigation {
   display: none;
 }
 
