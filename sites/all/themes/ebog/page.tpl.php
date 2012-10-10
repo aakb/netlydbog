@@ -113,7 +113,7 @@ maximum-scale=3.0" />
     match : function() {
       writeDefgo();
     }
-  });
+  }, true).listen();
 
   function writeDefgo(){
     var fileref=document.createElement('script');
