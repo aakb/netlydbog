@@ -927,3 +927,11 @@ input[type=submit]:hover {
   width: 380px;
   margin-right: 0px; 
 }
+
+/*****************
+ * Delgo.net
+ *****************/
+#defgonetmessage {
+  width: 25% !important;
+  left: 37.5% !important;
+}

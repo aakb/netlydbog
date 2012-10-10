@@ -410,4 +410,12 @@
   #audio-player {
     width: 200px !important;
   }
+
+  /*****************
+   * Delgo.net
+   *****************/
+  #defgonetmessage {
+    width: 0 !important;
+    left: 0 !important;
+  }
 }
