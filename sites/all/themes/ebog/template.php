@@ -2,7 +2,7 @@
 /**
  * Override or insert variables into the html template.
  */
-function ebog_preprocess_html(&$vars) {
+function ebog_preprocess_page(&$vars) {
     $url = drupal_get_path("theme","ebog");  
     drupal_add_js($url."/js/enquire.min.js");
 }
