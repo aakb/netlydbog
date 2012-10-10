@@ -136,7 +136,7 @@ maximum-scale=3.0" />
     }
   }
   </script>
-  <div style="display:none" id="defgonetmessage" class="defgoDivTag"></div><img style="display: none" border="0" src="http://app01.defgosoftware.net/defgo/blank.gif" width="1" height="1" onLoad="surveyOk=true">
+  <div style="display:none" id="defgonetmessage" class="defgoDivTag"></div><img style="display: none" border="0" src="https://app01.defgosoftware.net/defgo/blank.gif" width="1" height="1" onLoad="surveyOk=true">
   <!-- defgo.net script end -->
 </body>
 </html>
