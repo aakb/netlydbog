@@ -54,8 +54,10 @@ function showEntriesFromVocab($node, $vid) {
 function ebog_preprocess_page(&$vars, $hook) {
   global $user;
 
-  $url = drupal_get_path("theme","ebog");  
-  drupal_add_js($url."/js/enquire.min.js");
+  $path = drupal_get_path("theme","ebog");  
+  drupal_add_js($path . '/js/matchMedia.js');
+  drupal_add_js($path . '/js/matchMedia.addListener.js');
+  drupal_add_js($path . '/js/enquire.min.js');
 
   array_pop($vars['primary_links']) ;
   if ($user->uid != 0) {
