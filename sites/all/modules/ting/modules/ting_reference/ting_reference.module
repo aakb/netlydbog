@@ -375,20 +375,21 @@ function ting_reference_nodes($object_or_collection) {
 }
 
 /**
- * TODO: Document this.
+ * @TODO: Document this.
+ * @todo: this is removed to prevent it from being displayed.
  */
-function ting_reference_ting_tabs_alter(&$tabs, $type, $object) {
-  $referenced_nodes = ting_reference_nodes($object);
-  if ($referenced_nodes) {
-    $content = '<h3>'.t('Mentions on this site').'</h3>';
-    foreach ($referenced_nodes as $node) {
-      $content .= node_view($node, TRUE);
-    }
-
-    $tabs['reference'] = array(
-      'title' => t('On this site'),
-      'content' => $content,
-    );
-  }
-}
+//function ting_reference_ting_tabs_alter(&$tabs, $type, $object) {
+//  $referenced_nodes = ting_reference_nodes($object);
+//  if ($referenced_nodes) {
+//    $content = '<h3>'.t('Mentions on this site').'</h3>';
+//    foreach ($referenced_nodes as $node) {
+//      $content .= node_view($node, TRUE);
+//    }
+//
+//    $tabs['reference'] = array(
+//      'title' => t('On this site'),
+//      'content' => $content,
+//    );
+//  }
+//}
 
