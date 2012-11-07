@@ -76,8 +76,8 @@ function netsound_admin_preprocess_page(&$variables) {
     // If it's a node page put the argument's node type into the transaction
     // name.
     if ($panel_page['name'] == 'node_view') {
-      if (isset($panel_page['contexts']['argument_entity_id:node_1']->data)) {
-        $node = $panel_page['contexts']['argument_entity_id:node_1']->data;
+      if (isset($panel_page['contexts']['argument_nid_1']->data)) {
+        $node = $panel_page['contexts']['argument_nid_1']->data;
         $name = 'page_manager_node_view_page/' . $node->type;
       }
     }
