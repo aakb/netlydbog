@@ -47,7 +47,7 @@ function litteratursiden_feed_compare_get_cached_feed($items, $reset = FALSE) {
     }
     else {
       $items = variable_get('litteratursiden_feed_compare_items_on_page', '10');
-      $lifetime = variable_get('litteratursiden_feed_compare_cache_lifetime', '360');
+      $lifetime = variable_get('litteratursiden_feed_compare_cache_lifetime', '43200'); // 12 timer
 
       $data = litteratursiden_feed_compare_get_feed($items);
       if (isset($data['data'])) {

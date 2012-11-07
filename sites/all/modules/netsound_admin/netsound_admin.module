@@ -63,7 +63,7 @@ function netsound_admin_ting_client_response_alter(&$response) {
  * We want to provide more detail to New Relic on the transaction and late in
  * the page build seemed like the simplest place.
  */
-function netsound_admin_page_alter(&$page) {
+function netsound_admin_preprocess_page(&$variables) {
   if (!extension_loaded('newrelic')) {
     return;
   }
