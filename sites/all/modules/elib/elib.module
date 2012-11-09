@@ -512,13 +512,20 @@ function elib_displaybook2(TingClientObject $obj, $fields, $settings = '', $disp
  */
 function elib_book_cover($isbns, $presetname) {
   // Look in the ISBNs to find if image have been downloaded.
-  foreach ($isbns as $isbn) {
-    if (preg_match('/^([0-9]{13})/', $isbn, $matches)) {
+  if (is_array($isbns)) {
+    foreach ($isbns as $isbn) {
       $path = _elib_cover_cache_get($isbn);
       if ($path) {
         return imagecache_create_url($presetname, $path);
       }
     }
+  }
+  else {
+    $path = _elib_cover_cache_get($isbns);
+    if ($path) {
+      return imagecache_create_url($presetname, $path);
+    }
+    $isbns = array($isbns);
   }
 
   // No image found try elib client and featch one.
