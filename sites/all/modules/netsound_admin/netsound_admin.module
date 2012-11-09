@@ -2,13 +2,13 @@
 
 /**
  * @file
- * This module is used to make alterations that is not possible to do form 
+ * This module is used to make alterations that is not possible to do form
  * inside the theme. Such as chaning cacheing header etc.
- * 
+ *
  */
 
 /**
- * Set max-age for pages that are cacheable, when not in external cache 
+ * Set max-age for pages that are cacheable, when not in external cache
  * mode. This allows us to cache pages in varnish at the same time use
  * Drupal pages cache for https requests.
  */
@@ -54,5 +54,48 @@ function netsound_admin_ting_client_response_alter(&$response) {
         }
       }
     }
+  }
+}
+
+/**
+ * Implements hook_page_alter().
+ *
+ * We want to provide more detail to New Relic on the transaction and late in
+ * the page build seemed like the simplest place.
+ */
+function netsound_admin_preprocess_page(&$variables) {
+  if (!extension_loaded('newrelic')) {
+    return;
+  }
+
+  $name = NULL;
+
+  // Look for a panel page...
+  $panel_page = page_manager_get_current_page();
+  if (isset($panel_page['name'])) {
+    // If it's a node page put the argument's node type into the transaction
+    // name.
+    if ($panel_page['name'] == 'node_view') {
+      if (isset($panel_page['contexts']['argument_nid_1']->data)) {
+        $node = $panel_page['contexts']['argument_nid_1']->data;
+        $name = 'page_manager_node_view_page/' . $node->type;
+      }
+    }
+    // If it's a page_manager page use the panel name.
+    else if ($panel_page['task']['task type'] == 'page') {
+      $name = 'page_manager_page_execute/' . $panel_page['name'];
+    }
+  }
+  else {
+    $menu_item = menu_get_item();
+    if ($menu_item['path'] == 'node/%') {
+      // Looks like panels didn't have a variant and it's falling back to
+      // node_page_view.
+      $name = 'node_page_view/' . $menu_item['page_arguments'][0]->type;
+    }
+  }
+
+  if ($name) {
+    newrelic_name_transaction($name);
   }
 }
