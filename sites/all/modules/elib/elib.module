@@ -238,6 +238,50 @@ function elib_displaybook(TingClientObject $object,$elib_data = false){
 }
 
 /**
+ * Render book display when not ting object is avaliable. It is mainly used by
+ * the loans list when object is loaned but not in the data well any more.
+ *
+ * @return string
+ */
+function elib_displaybook_loan($loan = false) {
+  $image_url = elib_book_cover((int)$loan->book->attributes()->id, '65_x');
+
+  $out = array();
+  $out[] = '<div class="left">';
+  $out[] = '<div class="picture">' . theme('image', $image_url, '', '', null, false) . '</div>';
+
+  $out[] = '</div>';
+
+  $out[] = '<div class="right">';
+
+  $out[] = '<h3 class="title">' . check_plain((string)$loan->book->title) . '</h3>';
+
+  $author = check_plain((string)$loan->book->authors->author[0]->attributes()->name);
+  $out[] = '<div class="author">' . t('!author', array('!author' => l($author, 'ting/search/' . $author))) . '</div>';
+
+  if (!elib_user_is_loan_expired($loan)) {
+    $diff = elib_str_to_time($loan->loanexpiredate, true) - time();
+    $days = floor($diff / 86400);
+    $hours = floor($diff / 3600);
+
+    if ($days < 1) {
+      $out[] = '<div class="loanperiod short">' . t('Loan expires in %hours', array('%hours' => format_plural($hours, 'one hour.', '@count hours.'))) . '</div>';
+    }
+    else {
+      $out[] = '<div class="loanperiod short">' . t('Loan expires in %days', array('%days' => format_plural($days, 'one day.', '@count days'))) . '</div>';
+    }
+  }
+
+  $out[] = '<div class="book-not-available">';
+  $out[] = t('This book is no longer available and can not be downloaded.');
+  $out[] = '</div>';
+
+  $out[] = '</div>';
+
+  return implode($out);
+}
+
+/**
  *
  */
 function _elib_action_icons($url, $postfix = '') {
@@ -468,13 +512,20 @@ function elib_displaybook2(TingClientObject $obj, $fields, $settings = '', $disp
  */
 function elib_book_cover($isbns, $presetname) {
   // Look in the ISBNs to find if image have been downloaded.
-  foreach ($isbns as $isbn) {
-    if (preg_match('/^([0-9]{13})/', $isbn, $matches)) {
+  if (is_array($isbns)) {
+    foreach ($isbns as $isbn) {
       $path = _elib_cover_cache_get($isbn);
       if ($path) {
         return imagecache_create_url($presetname, $path);
       }
     }
+  }
+  else {
+    $path = _elib_cover_cache_get($isbns);
+    if ($path) {
+      return imagecache_create_url($presetname, $path);
+    }
+    $isbns = array($isbns);
   }
 
   // No image found try elib client and featch one.

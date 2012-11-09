@@ -288,8 +288,14 @@ function elib_popup_download_loan_initial($ting_id, $type = "download") {
       }
       else {
         $loan = elib_client()->makeLoan($ean);
+
         // Whether book loaned well
         if ((int)$loan->status->code == 101) {
+
+          // Clear loan cache for the user.
+          global $user;
+          elib_user_clear_loans_cache($user->uid);
+
           $down_link = $loan->data->downloadurl;
           $status = _elib_popup_return_content($type, $down_link, (string)$book->data->title);
         }

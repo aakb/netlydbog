@@ -122,6 +122,15 @@ function netsound_cart_block($op = 'list', $delta = 0, $edit = array()) {
                                       WHERE uid = %d', array('%d' => $user->uid));
         while ($row = db_fetch_array($result)) {
           $object = ting_get_object_by_id($row['ting_object_id']);
+
+          // HACK XXXX, the objects saved in the cart may not longer exists
+          // in the datawell. So if they do not have ISBN number, we have to
+          // remove them from the cart.
+          if (!isset($object->record['dc:identifier']['oss:PROVIDER-ID'])) {
+            netsound_cart_modify($row['ting_object_id'], 'delete');
+            continue;
+          }
+
           $rows[] = elib_displaybookNEW($object, '', 'small_rm');
         }
 
@@ -143,7 +152,7 @@ function netsound_cart_block($op = 'list', $delta = 0, $edit = array()) {
 }
 
 /**
- * Implements hook_fludh_caches().
+ * Implements hook_flush_caches().
  */
 function netsound_cart_flush_caches() {
   return array('cache_netsound_cart');
