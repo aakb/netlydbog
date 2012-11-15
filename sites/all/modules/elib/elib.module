@@ -561,7 +561,10 @@ function _elib_covers_default_image() {
  */
 function _elib_covers_fetch_or_redirect($path, $source_url) {
   if ($source_url && filter_var($source_url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED)) {
-    $path = _elib_covers_pages_fetch_image($path, $source_url);
+    // If the file exists, don't download it again.
+    if (!file_exists(file_directory_path() . '/' . $path)) {
+      $path = _elib_covers_pages_fetch_image($path, $source_url);
+    }
     if ($path) {
       return $path;
     }
