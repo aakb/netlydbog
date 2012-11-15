@@ -4,12 +4,14 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
   $block = array();
   $cache_name = 'elib_infinite_carousel_cache' . $delta;
   $cache_table = 'cache';
-  
+
   if ($op == 'list') {
-    $block[0]["info"] = t('eLIB infinite carousel');
+    $block[0]['info'] = t('eLIB infinite carousel');
     $block[0]['cache'] = BLOCK_NO_CACHE;
   }
   else if ($op == 'configure' && $delta == 0) {
+    $form = array();
+
     $form['items'] = array(
       '#type' => 'textfield',
       '#title' => t('Number of items in the carousel'),
@@ -18,8 +20,9 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
     $form['search'] = array(
       '#type' => 'textfield',
       '#title' => t('Search query string'),
-      '#default_value' => variable_get('elib_infinite_carousel_block_query', '(dc.date = 2011 OR dc.date = 2010) AND dc.type = "Lydbog (online)"'),
+      '#default_value' => variable_get('elib_infinite_carousel_block_query', '(dc.date = 2011) AND dc.type = "Lydbog (net)"'),
     );
+
     return $form;
   }
   else if ($op == 'save' && $delta == 0) {
@@ -27,9 +30,8 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
     variable_set('elib_infinite_carousel_block_query',  $edit['search']);
     variable_set('elib_infinite_carousel_block_title',  $edit['title']);
 
-    // now clear the cache...
+    // Clear the cache.
     cache_clear_all($cache_name, $cache_table);
-
   }
   else if ($op == 'view' && $delta == 0) {
 
@@ -40,39 +42,32 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
     $cache = cache_get($cache_name, $cache_table);
 
     if (isset($cache->data)) {
-      $books = $cache->data;
+      $items = $cache->data;
     }
     else {
-      $query = variable_get('elib_infinite_carousel_block_query', '(dc.date = 2011 OR dc.date = 2010) AND dc.type = "netdokument"');
+      $query = variable_get('elib_infinite_carousel_block_query', '(dc.date = 2012) AND dc.type = "Lydbog (net)"');
       $limit = variable_get('elib_infinite_carousel_block_items', 49);
-      $limit *= 2;
-      
+
       $newlimit = 25;
       $iterations = ceil($limit/$newlimit);
 
-      $books = array();
-      $found_ids = array();
-      for($i=0;$i<$iterations;$i++){
+      $ting_objects = array();
+      for ($i=0; $i < $iterations; $i++){
 
         $result = array();
         $page = ($i+1);
 
-        if(($newlimit*$page) > $limit){
+        if (($newlimit * $page) > $limit) {
           $newlimit =  $limit % $newlimit;
         }
-        
+
         $result = ting_do_search($query, $page, $newlimit);
 
         if (($result instanceof TingClientSearchResult) && ($result->numTotalObjects)) {
           foreach ($result->collections as $collection) {
             foreach ($collection->objects as $object) {
-              if (in_array($object->localId, $found_ids)) {
-                continue;
-              }
-
-              $found_ids[] = $object->localId;
-              $books[] = $object;
-              if(count($books) == $limit) {
+              $ting_objects[$object->localId] = $object;
+              if(count($ting_objects) == $limit) {
                 break 3;
               }
             }
@@ -80,45 +75,32 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
         }
       }
 
-      // only cache a valid result
-      // check that the cached data exists and is valid
-      if(count($books) > 0) {
-        cache_set($cache_name, $books, $cache_table, strtotime('+24 hours'));
+      // If we found any books, process them into list items adding book covers.
+      if (!empty($ting_objects)) {
+        $items = array();
+        foreach ($ting_objects as $local_id => $object) {
+          $image = elib_book_cover($object->record['dc:identifier']['dkdcplus:ISBN'], '120_x');
+          $alt = t('@titel af @forfatter',array('@titel' => $object->title, '@forfatter' => $object->creators_string));
+          $items[$local_id] = '<li><a href="' . $object->url . '" title="' . $alt . '">' . theme('image', $image, $alt, $alt, NULL, FALSE) . '</a></li>';
+        }
+
+        // Save the carousel items in the cache (24 timer).
+        cache_set($cache_name, $items, $cache_table, time() + 86400);
       }
     }
-    
-    shuffle($books);
-    module_load_include('isbn_static_func.inc', 'elib');
-    $limit = variable_get('elib_infinite_carousel_block_items', 49);
-    $count = 0;
-    foreach ($books as $object) {
-      if ($count >= $limit) {
-        break;
-      }
-      
-      $alttext = t('@titel af @forfatter',array('@titel' => $object->title, '@forfatter' => $object->creators_string));
-      $image_url = elib_book_cover($object->record['dc:identifier']['dkdcplus:ISBN'], '120_x');
 
-      $image = theme('image', $image_url, $alttext, $alttext, null, false);
-
-      $list .= '
-        <li>
-          <a tabindex="-1" href="' . $object->url . '" title="' . $alttext . '">
-            ' . $image . '
-          </a>
-        </li>
-      ';
-
-      $count++;
+    // Suffle items and create carousel based on the suffle.
+    shuffle($items);
+    $content = '';
+    foreach ($items as $item) {
+      $content .= $item;
     }
 
     $block['subject'] = variable_get('elib_infinite_carousel_block_title', t("Nyeste ebøger"));
     $block['content'] = '
       <div class="infiniteCarousel">
         <div class="wrapper">
-          <ul>
-          '.$list.'
-          </ul>
+          <ul>' . $content .'</ul>
         </div>
       </div>
     ';
