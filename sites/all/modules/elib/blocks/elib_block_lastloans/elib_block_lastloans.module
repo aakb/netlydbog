@@ -81,7 +81,6 @@ function elib_block_lastloans_block($op = 'list', $delta = 0) {
         $response = elib_client()->getLatestLoans();
 
         foreach ($response as $isbn) {
-          $obj = elib_get_ting_object_by_isbn($isbn);
           $out .= elib_displaybookNEW(elib_get_ting_object_by_isbn($isbn), '', 'small');
         }
         $block['subject'] = t('Seneste Lån');
@@ -129,7 +128,6 @@ function elib_block_lastloans_block($op = 'list', $delta = 0) {
           $index = 1;
 
           foreach ($response->data->toplistitem as $item) {
-            //print $item['ebookid'].'--';
             if (elib_get_ting_object_by_isbn(trim($item->ebookid))) {
               $out .= elib_displaybookNEW(elib_get_ting_object_by_isbn(trim($item->ebookid)), array('popular' => 1), 'small', $index, $item);
               $index++;
@@ -169,7 +167,7 @@ function elib_block_lastloans_block($op = 'list', $delta = 0) {
         $out = '<p class="spacing-before">' . t('Velkommen! Som bruger i @library kan du låne @amount om måneden', array('@library' => $library, '@amount' => format_plural(elib_libraries_get_maxloans($u['lib']), 'en ebog', '@count ebøger'))) . '</p>';
 
         elib_client()->setLoaner($u['cpr'], $u['pin'], $u['lib']);
-        $loans = elib_client()->getLoans();
+        $loans = elib_user_get_loans();
         $loans = $loans->orderitem;
         $loanlimit = 100000000000;
         if ($loans) {
@@ -227,11 +225,7 @@ function elib_block_lastloans_block($op = 'list', $delta = 0) {
             $isbn = trim($item->ebookid);
             $ting_object = elib_get_ting_object_by_isbn($isbn);
             if ($ting_object) {
-              $out[$pages] .= theme('elib_item', array(
-                  'ting_obj' => $ting_object,
-                  'isbn' => $isbn,
-                      )
-              );
+              $out[$pages] .= theme('elib_item', array('ting_obj' => $ting_object, 'isbn' => $isbn));
             }
 
             $items++;
@@ -260,16 +254,7 @@ function elib_block_lastloans_block($op = 'list', $delta = 0) {
         $block['subject'] = t('100 most popular items');
     }
 
-    //krumo($books);
-    //$response = elib_client()->getNewBooks();
-
-
-
-
     $block['content'] = $out;
-
-
-
     return $block;
   }
 }
