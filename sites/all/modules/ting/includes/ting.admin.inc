@@ -7,7 +7,7 @@
 /**
  * Ting search settings form.
  */
-function ting_admin_settings_form($form_state) {
+function ting_admin_settings_form() {
   $form = array();
 
   $form['ting'] = array(
@@ -60,7 +60,7 @@ function ting_admin_settings_form($form_state) {
   $form['ting']['ting_enable_logging'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable logging'),
-    '#default_value' => variable_get('ting_enable_logging', false),
+    '#default_value' => variable_get('ting_enable_logging', FALSE),
   );
 
   $form['addi'] = array(

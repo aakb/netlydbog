@@ -4,22 +4,6 @@
  * Wrapper functions for Ting client.
  */
 
-// Ting client has a ton of includes. Let's load them.
-$includes = array(
-  'addi-client/AdditionalInformationService.php',
-  'ting-client/lib/TingClient.php',
-  'ting-client/lib/adapter/TingClientRequestAdapter.php',
-  'ting-client/lib/request/TingClientRequestFactory.php',
-  'ting-client/lib/log/TingClientDrupalWatchDogLogger.php'
-  
-);
-
-$path = drupal_get_path('module', 'ting') . '/lib/';
-
-foreach ($includes as $include) {
-  require_once($path . $include);
-}
-
 /**
  * Load an object from Ting by ID.
  *
@@ -330,7 +314,7 @@ function ting_get_client() {
   static $client;
 
   if (!isset($client)) {
-    $logger = (variable_get('ting_enable_logging', false)) ? new TingClientDrupalWatchDogLogger() : new TingClientVoidLogger();
+    $logger = (variable_get('ting_enable_logging', FALSE)) ? new TingClientDrupalWatchDogLogger() : new TingClientVoidLogger();
     $client = new TingClient(new TingClientRequestAdapter(), $logger);
   }
 

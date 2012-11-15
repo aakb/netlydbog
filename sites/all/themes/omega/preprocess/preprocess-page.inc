@@ -5,12 +5,12 @@ global $theme_key;
 $settings = theme_get_settings($theme_key);
 
 /**
- * Adding in the ability to combine the sidebars on certain paths in order to adjust 
- * layouts based on context of the page. My main purpose for this is in the admin 
+ * Adding in the ability to combine the sidebars on certain paths in order to adjust
+ * layouts based on context of the page. My main purpose for this is in the admin
  * section to help widen up the layout if two sidebars are being used.
- * 
- * All it does is combine the sidebar_first and sidebar_last into sidebar_first and 
- * unset the sidebar_last variable. This resets the layout to act like only one 
+ *
+ * All it does is combine the sidebar_first and sidebar_last into sidebar_first and
+ * unset the sidebar_last variable. This resets the layout to act like only one
  * sidebar is present in certain paths
  */
 if ($settings['sidebar_contain_pages']) {
@@ -23,7 +23,7 @@ if ($settings['sidebar_contain_pages']) {
   $page_match = !($settings['sidebar_combine'] xor $page_match);
   if ($page_match && substr($_GET['q'], 0, 17) != 'admin/build/block') {
     $vars['sidebar_first'] = $vars['sidebar_first']. $vars['sidebar_last'];
-    unset($vars['sidebar_last']); 
+    unset($vars['sidebar_last']);
   }
 }
 
@@ -31,10 +31,10 @@ if ($settings['sidebar_contain_pages']) {
  * Header Region
  * Depends on the width of the logo and title region, which is 4 grids by default.
  * This leaves 12 (Grid-12 by default) for the maximum width of any one of the elements in this zone
- * If only one zone is included, it fills the maximum width, and if both zones are present, 
+ * If only one zone is included, it fills the maximum width, and if both zones are present,
  * they will use the provided settings from the theme configuration interface.
  */
- 
+
 // the width of the wrapper item around the navigation menus & header block regions
 // This width plus the logo width should total the width of your grid.
 $vars['header_wrapper_width'] = $settings['omega_header_wrapper_width'];
@@ -56,7 +56,7 @@ $header_regions = array(
     'width' => $settings['omega_header_first_width'],
   ),
   'header_last' => array(
-    'data' => $vars['header_last'],
+    'data' => isset($vars['header_last']) ? $vars['header_last'] : '',
     'width' => $settings['omega_header_last_width'],
   ),
 );
@@ -70,21 +70,21 @@ $vars = static_region_builder($header_regions, $settings['omega_header_wrapper_w
 $vars['preface_wrapper_grids'] = $settings['omega_preface_wrapper_grids'];
 $preface_regions = array(
   'preface_first' => array(
-    'data' => $vars['preface_first'],
+    'data' => isset($vars['preface_first']) ? $vars['preface_first'] : '',
     'width' => $settings['omega_preface_first_width'],
     'spacing' => array(
       'prefix' => $settings['omega_preface_first_prefix'],
       'suffix' => $settings['omega_preface_first_suffix']),
     ),
   'preface_middle' => array(
-    'data' => $vars['preface_middle'],
+    'data' => isset($vars['preface_middle']) ? $vars['preface_middle'] : '',
     'width' => $settings['omega_preface_middle_width'],
     'spacing' => array(
       'prefix' => $settings['omega_preface_middle_prefix'],
       'suffix' => $settings['omega_preface_middle_suffix']),
     ),
   'preface_last' => array(
-    'data' => $vars['preface_last'],
+    'data' => isset($vars['preface_last']) ? $vars['preface_last'] : '',
     'width' => $settings['omega_preface_last_width'],
     'spacing' => array(
       'prefix' => $settings['omega_preface_last_prefix'],
@@ -96,11 +96,11 @@ $vars = static_region_builder($preface_regions, $vars['preface_wrapper_grids'], 
 /**
  * Body Region
  * Configuration of $sidebar_first, $sidebar_last, and the main content zone
- * 
+ *
  * This section needs MUCH cleanup as I know I can condense the switch
  * statement to be much shorter than completely redeclaring each zone
  * for each case that can be present.
- * 
+ *
  * @todo cleanup switch statement
  */
 $vars['content_container_width'] = $settings['omega_content_container_width'];
@@ -114,7 +114,7 @@ $content_regions = array(
     'primary' => TRUE,
     // we need to tell the "related" zones so that we can determine widths for this primary zone
     'related' => array(
-      'sidebar_first' => array('width' => $settings['omega_sidebar_first_width']), 
+      'sidebar_first' => array('width' => $settings['omega_sidebar_first_width']),
       'sidebar_last' => array('width' => $settings['omega_sidebar_last_width']),
     ),
     'push' => array(
@@ -137,7 +137,7 @@ $content_regions = array(
       'width' => '',
       'conditions' => array(
         // this just needs the region name it depends on in this primary array
-        // must be a region in this group though, not a region outside the 
+        // must be a region in this group though, not a region outside the
         // $content_regions area.
         // 'sidebar_last',
       ),
@@ -151,7 +151,7 @@ $content_regions = array(
     ),
   ),
   'sidebar_last' => array(
-    'data' => $vars['sidebar_last'],
+    'data' => isset($vars['sidebar_last']) ? $vars['sidebar_last'] : '',
     'width' => $settings['omega_sidebar_last_width'],
     'push' => array(
       'width' => '',
@@ -169,7 +169,7 @@ $content_regions = array(
 );
 
 /**
- * For panels and other modules that may set $show_blocks to false, we will need to 
+ * For panels and other modules that may set $show_blocks to false, we will need to
  * unset the sidebars in this case
  */
 if (!$vars['show_blocks']) {
@@ -182,18 +182,18 @@ switch($settings['omega_content_layout']){
   default:
   case 'first_content_last':
   // FIRST - CONTENT - LAST
-  
+
   // the distance to pull the "first" / left sidebar to place it on the left of the content
-  // this does always include the right sidebar width, and does not need to account for if 
-  // there is content available in that region or not. If there wasn't content in it, the 
+  // this does always include the right sidebar width, and does not need to account for if
+  // there is content available in that region or not. If there wasn't content in it, the
   // primary content region would swallow up that extra grid space anyway.
-  
+
   // if sidebar_last isn't present, we will pull the first sidebar the combined width of the content & sidebar last spacing
   // otherwise,
   $sl_pull = $vars['sidebar_last'] ? $settings['omega_content_main_width'] : $settings['omega_content_main_width'] + $settings['omega_sidebar_last_width'];
-  
+
   // let's assign some new data to our $content_regions array to assing pull classes
-  
+
   // sidebar_first will be pulled an exact amount assuming it exists in this layout
   $content_regions['sidebar_first']['pull']['width'] = $sl_pull;
   $content_regions['sidebar_first']['pull']['conditions'] = array();
@@ -216,15 +216,15 @@ switch($settings['omega_content_layout']){
   );
   // calling the dynamic region builder function to position these elements
   $vars = dynamic_region_builder($content_regions, $settings['omega_content_container_width'], $vars);
-  
-  
+
+
   break;
 
   // CONTENT  - FIRST - LAST
   case 'content_first_last':
   // This is seriously the easiest implementation because source order is used
   // making push/pull irrelevant in this case.
-  
+
   // sidebar_first doesn't move in this layout
   $content_regions['sidebar_first']['pull'] = FALSE;
   $content_regions['sidebar_first']['push'] = FALSE;
@@ -236,7 +236,7 @@ switch($settings['omega_content_layout']){
   $content_regions['main_content']['push'] = FALSE;
   // calling the dynamic region builder function to position these elements
   $vars = dynamic_region_builder($content_regions, $settings['omega_content_container_width'], $vars);
-  
+
   break;
 
   // FIRST - LAST - CONTENT
@@ -247,7 +247,7 @@ switch($settings['omega_content_layout']){
   $sr_pull = $vars['sidebar_first'] ? $settings['omega_content_main_width'] : $settings['omega_content_main_width'] + $settings['omega_sidebar_first_width'];
   $sc_max_push = $settings['omega_sidebar_first_width'] + $settings['omega_sidebar_last_width'];
   // let's assign some new data to our $content_regions array to assing pull classes
-  
+
   // sidebar_first will be pulled an exact amount assuming it exists in this layout
   $content_regions['sidebar_first']['pull']['width'] = $sl_pull;
   $content_regions['sidebar_first']['pull']['conditions'] = array();
@@ -289,28 +289,28 @@ $vars['postscript_container_width'] = $settings['omega_postscript_container_widt
 $vars['preface_wrapper_grids'] = $settings['omega_preface_wrapper_grids'];
 $postscript_regions = array(
   'postscript_one' => array(
-    'data' => $vars['postscript_one'],
+    'data' => isset($vars['postscript_one']) ? $vars['postscript_one'] : '',
     'width' => $settings['omega_postscript_one_width'],
     'spacing' => array(
       'prefix' => $settings['omega_postscript_one_prefix'],
       'suffix' => $settings['omega_postscript_one_suffix']),
     ),
   'postscript_two' => array(
-    'data' => $vars['postscript_two'],
+    'data' => isset($vars['postscript_two']) ? $vars['postscript_two'] : '',
     'width' => $settings['omega_postscript_two_width'],
     'spacing' => array(
       'prefix' => $settings['omega_postscript_two_prefix'],
       'suffix' => $settings['omega_postscript_two_suffix']),
     ),
   'postscript_three' => array(
-    'data' => $vars['postscript_three'],
+    'data' => isset($vars['postscript_three']) ? $vars['postscript_three'] : '',
     'width' => $settings['omega_postscript_three_width'],
     'spacing' => array(
       'prefix' => $settings['omega_postscript_three_prefix'],
       'suffix' => $settings['omega_postscript_three_suffix'])
   ),
   'postscript_four' => array(
-    'data' => $vars['postscript_four'],
+    'data' => isset($vars['postscript_four']) ? $vars['postscript_four'] : '',
     'width' => $settings['omega_postscript_four_width'],
     'spacing' => array(
       'prefix' => $settings['omega_postscript_four_prefix'],
@@ -330,7 +330,7 @@ $footer_regions = array(
     'width' => $settings['omega_footer_first_width'],
   ),
   'footer_last' => array(
-    'data' => $vars['footer_last'],
+    'data' => isset($vars['footer_last']) ? isset($vars['footer_last']) : '',
     'width' => $settings['omega_footer_last_width'],
   ),
 );
@@ -339,7 +339,7 @@ $vars = static_region_builder($footer_regions, $settings['omega_footer_container
 // ZEN - BODY CLASSES
 // Classes for body element. Allows advanced theming based on context
 // (home page, node of certain type, etc.)
-$classes = split(' ', $vars['body_classes']);
+$classes = explode(' ', $vars['body_classes']);
 // Remove the mostly useless page-ARG0 class.
 if ($index = array_search(preg_replace('![^abcdefghijklmnopqrstuvwxyz0-9-_]+!s', '', 'page-'. drupal_strtolower(arg(0))), $classes)) {
   unset($classes[$index]);
@@ -363,7 +363,7 @@ if (!$vars['is_front']) {
 $vars['body_classes_array'] = $classes;
 $vars['body_classes'] = implode(' ', $classes); // Concatenate with spaces.
 
-$vars['logo_img'] = $vars['logo'] ? theme('image', substr($vars['logo'], strlen(base_path())), t($vars['site_name']), t($vars['site_name'])) : '';	
+$vars['logo_img'] = $vars['logo'] ? theme('image', substr($vars['logo'], strlen(base_path())), t($vars['site_name']), t($vars['site_name'])) : '';
 
 // NINESIXTY - For easy printing of variables.
 $vars['linked_logo_img'] = $vars['logo_img'] ? l($vars['logo_img'], '<front>', array('rel' => 'home', 'title' => t($vars['site_name']), 'html' => TRUE)) : '';
@@ -423,7 +423,7 @@ if (!module_exists('page_title')) {
 }
 // implement mission statement settings
 $vars['mission'] = t(variable_get('site_mission', ''));
-if ($vars['mission'] && ($settings['mission_statement_pages'] == 'all' || $vars['is_front'] && $settings['mission_statement_pages'] == 'home') && $settings['mission_statement_pages'] != 'none') { 
+if ($vars['mission'] && ($settings['mission_statement_pages'] == 'all' || $vars['is_front'] && $settings['mission_statement_pages'] == 'home') && $settings['mission_statement_pages'] != 'none') {
   $vars['mission'] = '<div id="mission" class=""><p>' .$vars['mission']. '</p></div>';
 }
 else {
