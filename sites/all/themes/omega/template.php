@@ -4,15 +4,15 @@
 //ini_set('error_reporting', E_ALL);
 /**
  * Implementation of hook_preprocess()
- * 
- * This function checks to see if a hook has a preprocess file associated with 
+ *
+ * This function checks to see if a hook has a preprocess file associated with
  * it, and if so, loads it.
- * 
- * This makes it easier to keep sorted the preprocess functions that can be present in the 
+ *
+ * This makes it easier to keep sorted the preprocess functions that can be present in the
  * template.php file. You may still use hook_preprocess_page in template.php
  * or create a file preprocess-page.inc in the preprocess folder to include the appropriate
  * logic to your preprocess functionality
- * 
+ *
  * @param $vars
  * @param $hook
  * @return Array
@@ -22,7 +22,7 @@ function omega_preprocess(&$vars, $hook) {
   $themes_active = array();
   global $theme_info;
 
-  // If there is a base theme, collect the names of all themes that may have 
+  // If there is a base theme, collect the names of all themes that may have
   // preprocess files to load.
   if($theme_info->base_theme) {
     global $base_theme_info;
@@ -54,7 +54,7 @@ function omega_preprocess_page(&$vars, $hook) {
   	$css_960 = drupal_get_path('theme', 'omega') .'/css/960.css';
   }
   drupal_add_css($css_960, 'module', 'all');
-  
+
   // enable/disable optional CSS files
   if (theme_get_setting('reset_css') == '1') {
     drupal_add_css(drupal_get_path('theme', 'omega') .'/css/reset.css', 'module', 'all');
@@ -77,10 +77,10 @@ function omega_preprocess_page(&$vars, $hook) {
   //krumo($vars['styles']);
 } // end preprocess_page
 function omega_preprocess_node(&$vars, $hook) {
-  
+
 } // end preprocess_node
 
-/** 
+/**
  * NINESIXTY - Contextually adds 960 Grid System classes.
  *
  * The first parameter passed is the *default class*. All other parameters must
@@ -125,9 +125,9 @@ function ns() {
  * The region_builder function will create the variables needed to create
  * a dynamic group of regions. This function is simply a quick pass-thru
  * that will create either inline or stacked regions. This function will
- * not do any advanced functionality, but simply assing the appropriate 
+ * not do any advanced functionality, but simply assing the appropriate
  * classes based on the settings for the theme.
- * 
+ *
  * For a more advanced set of regions, dynamic_region_builder() will be used.
  */
 function static_region_builder($region_data, $container_width, $vars) {
@@ -141,7 +141,7 @@ function static_region_builder($region_data, $container_width, $vars) {
       foreach ($info['spacing'] AS $attribute => $value) {
         if ($value) {
           $vars[$region .'_classes'] .= ' '. $attribute .'-'. $value;
-        } 
+        }
       }
     }
   }
@@ -159,7 +159,7 @@ function _omega_dynamic_zones($width, $conditions, $vars) {
 }
 function _omega_dynamic_widths($width, $conditions, $vars) {
   foreach($conditions AS $variable => $zone) {
-    if(($vars[$variable])) {
+    if(isset($vars[$variable])) {
       $width = $width - $zone['width'];
     }
   }
@@ -169,7 +169,7 @@ function _omega_dynamic_widths($width, $conditions, $vars) {
  * The dynamic_region_builder function will be used to pass important zones
  * like the content regions where the regions sent to the function MUST appear
  * inline, and advanced calculations need to be done in order to display the as such
- * 
+ *
  * Stacked regions are not possible using this function, and should be passed through
  * static_region_builder() instead.
  */
@@ -178,7 +178,7 @@ function dynamic_region_builder($region_data, $container_width, $vars) {
   foreach ($region_data AS $region => $info) {
     // if we do have content for this region, let's create it.
     if ($info['data']) {
-      
+
       $width = !empty($info['primary']) ? $container_width : $info['width'];
       $vars[$region .'_classes'] = !empty($info['primary']) ?  ns('grid-'. _omega_dynamic_widths($width, $info['related'], $vars)) : ns('grid-'. $info['width']);
       // we know we have stuff to put here, so we can check for push & pull options
@@ -201,7 +201,7 @@ function dynamic_region_builder($region_data, $container_width, $vars) {
       foreach ($info['spacing'] AS $attribute => $value) {
         if ($value) {
           $vars[$region .'_classes'] .= ' '. $attribute .'-'. $value;
-        } 
+        }
       }
     }
     // \unused prefix/suffix stuffs
@@ -210,8 +210,8 @@ function dynamic_region_builder($region_data, $container_width, $vars) {
 }
 
 /**
- * The rfilter function takes one argument, an array of values for the regions 
- * for a "group" of regions like preface or postscript 
+ * The rfilter function takes one argument, an array of values for the regions
+ * for a "group" of regions like preface or postscript
  * @param $vars
  */
 function rfilter($vars) {
@@ -316,7 +316,7 @@ function omega_breadcrumb($breadcrumb) {
 }
 /**
  * Create a string of attributes form a provided array.
- * 
+ *
  * @param $attributes
  * @return string
  */

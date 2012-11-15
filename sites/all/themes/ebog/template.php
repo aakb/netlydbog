@@ -1,29 +1,23 @@
 <?php
 /**
- * Implementation of HOOK_theme().
+ * @file
+ *
  */
-function ebog_theme(&$existing, $type, $theme, $path) {
-  $hooks = omega_theme($existing, $type, $theme, $path);
-  // Add your theme hooks like this:
-  /*
-  $hooks['hook_name_here'] = array( // Details go here );
-  */
-  // @TODO: Needs detailed comments. Patches welcome!
-  return $hooks;
-}
 
+/**
+ * @TODO what do this do ?
+ *
+ * @param type $node
+ * @param type $count
+ * @return type
+ */
 function fetchNewestComment($node = false, $count = 1) {
-  $sql = db_query_range("
-    SELECT
-      c.*
-    FROM
-      {comments} AS c
-    WHERE
-      c.nid = %d
-  ", $node->nid, 0, $count);
-    $result = db_fetch_object($sql);
-    
-    return $result;
+  $query = db_query_range("SELECT c.*
+                             FROM {comments} AS c
+                            WHERE c.nid = %d", $node->nid, 0, $count);
+
+  $result = db_fetch_object($query);
+  return $result;
 }
 
 /**
@@ -71,11 +65,11 @@ function ebog_preprocess_page(&$vars, $hook) {
   $rendered_primary_links = theme('links', $vars['primary_links'], array('class' => 'menu'));
   $vars['navigation'] = '<div class="block block-menu" id="block-menu-primary-links"><div class="content">' . $rendered_primary_links . '</div></div>';
 
-  if(arg(0) == 'min_side' && $user->uid == 0){
+  if (arg(0) == 'min_side' && $user->uid == 0){
     drupal_goto('user',drupal_get_destination());
   }
 
-  if(arg(3) == 'stream' || arg(3) == 'download' || $_GET['clean'] == 1 ){
+  if (arg(3) == 'stream' || arg(3) == 'download' || (isset($_GET['clean']) && $_GET['clean'] == 1)){
     $vars['template_files'] = array('page-clean');
     $vars['css']['all']['theme']['sites/all/themes/ebog/css/style.css'] = false;
   }
@@ -92,20 +86,20 @@ function ebog_preprocess_page(&$vars, $hook) {
 function ebog_preprocess_comment(&$variables) {
   $comment = $variables['comment'];
   $node = $variables['node'];
-  
-  $uA = elib_user_get_cred($comment->uid);
-  
-  $variables['author']    = $uA['user'];//theme('username', $comment);
+
+  $elib_user = elib_user_get_cred($comment->uid);
+
+  $variables['author']    = $elib_user['user'];
   $variables['content']   = $comment->comment;
   $variables['date']      = format_date($comment->timestamp);
- // $variables['links']     = isset($variables['links']) ? theme('links', $variables['links']) : '';
   $variables['new']       = $comment->new ? t('new') : '';
   $variables['picture']   = theme_get_setting('toggle_comment_user_picture') ? theme('user_picture', $comment) : '';
   $variables['signature'] = $comment->signature;
   $variables['submitted'] = theme('comment_submitted', $comment);
   $variables['title']     = l($comment->subject, $_GET['q'], array('fragment' => "comment-$comment->cid"));
   $variables['template_files'][] = 'comment-'. $node->type;
-  // set status to a string representation of comment->status.
+
+  // Set status to a string representation of comment->status.
   if (isset($comment->preview)) {
     $variables['status']  = 'comment-preview';
   }
