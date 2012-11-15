@@ -43,7 +43,7 @@ function litteratursiden_feed_compare_get_cached_feed($items, $reset = FALSE) {
   static $data;
   if (!isset($data) || $reset) {
     if (!$reset && ($cache = cache_get('litteratursiden_feed_compare_cache')) && !empty($cache->data)) {
-      $data = unserialize($cache->data);
+      $data = $cache->data;
     }
     else {
       $items = variable_get('litteratursiden_feed_compare_items_on_page', '10');
@@ -51,7 +51,7 @@ function litteratursiden_feed_compare_get_cached_feed($items, $reset = FALSE) {
 
       $data = litteratursiden_feed_compare_get_feed($items);
       if (isset($data['data'])) {
-        cache_set('litteratursiden_feed_compare_cache', serialize($data), 'cache', time() + $lifetime);
+        cache_set('litteratursiden_feed_compare_cache', $data, 'cache', time() + $lifetime);
       }
       else {
         $data['data'] = array();
@@ -92,13 +92,12 @@ function litteratursiden_feed_compare_get_feed($items) {
   $feed_main_url = variable_get('litteratursiden_feed_compare_feed_url', 'http://www.litteratursiden.dk/service/recommendations');
 
   while ($i != 25) {
-    $feed_url = $feed_main_url . '?count=20&offset=' . $i*25;
+    $feed_url = $feed_main_url . '?count=24&offset=' . $i*25;
     $feed_json_data = _litteratursiden_feed_compare_file_get_contents_curl($feed_url);
     $feed = json_decode($feed_json_data, TRUE);
     foreach ($feed as $key => $val) {
       if (is_numeric($key)) {
-        $a = explode(' af ', $val['title']);
-        $query = $a[0];
+        $query = 'dc.title="' . str_replace('"', '', $val['book_title']) . '" AND dc.type="lydbog (net)"';
         $search = ting_do_search($query, 1, 25);
         if ($search->numTotalObjects > 0) {
           foreach ($search->collections as $collection) {
@@ -108,8 +107,7 @@ function litteratursiden_feed_compare_get_feed($items) {
                   break;
                 }
               }
-              $litteratursiden_item = litteratursiden_feed_compare_get_litteratursiden_item($object->title, $object->creators[0]);
-              if (!empty($isbn) && !$litteratursiden_item['error'] && $litteratursiden_item['nid'] == $val['nid']) {
+              if (!empty($isbn)) {
                 // Title from feed consists of title+author.
                 // Combine title and author from TING to perform reasonable search.
                 try {
@@ -125,7 +123,7 @@ function litteratursiden_feed_compare_get_feed($items) {
                     'title' => (string)$book->data->title,
                     'isbn' => (string)$book->data->external_ids->id,
                     'author' => (string)$book->data->contributors->first_name . ' ' . (string)$book->data->contributors->family_name,
-                    'abstract' => (string)$litteratursiden_item['description'],
+                    'abstract' => $val['description'],
                     'image' => (string)$book->data->coverimage,
                     'url' => $object->url
                   );
