@@ -13,7 +13,7 @@ foreach ($collection->objects as $obj){
 	if(TRUE/*$obj->type == 'Netdokument'*/) {
 		$Obj = $obj;
 
-   foreach ($obj->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
+   foreach ($obj->record['dc:identifier']['oss:PROVIDER-ID'] as $isbn) {
     if (preg_match('/^[0-9]{13}/', $isbn, $matches)) {
       break;
     }
@@ -22,9 +22,9 @@ foreach ($collection->objects as $obj){
 
 ?>
   <li class="display-book ting-collection ruler-after line clear-block" id="<?php print $Obj->id ?>">
-  
+
     <div class="picture">
-      <?php $image_url = elib_book_cover($obj->record['dc:identifier']['dkdcplus:ISBN'], '80_x'); ?>
+      <?php $image_url = elib_book_cover($obj->record['dc:identifier']['oss:PROVIDER-ID'], '80_x'); ?>
       <?php if ($image_url) { ?>
         <?php print l(theme('image', $image_url, $alttext, $alttext, null, false), $Obj->url, array('html' => true)); ?>
       <?php } ?>
@@ -33,7 +33,7 @@ foreach ($collection->objects as $obj){
     <div class="record">
       <div class="left">
         <h3>
-          <?php print l($Obj->title, $Obj->url, array('attributes' => array('class' =>'title'))) ;?> 
+          <?php print l($Obj->title, $Obj->url, array('attributes' => array('class' =>'title'))) ;?>
         </h3>
         <div class="meta">
           <?php if ($Obj->creators_string) : ?>
