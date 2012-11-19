@@ -627,7 +627,7 @@ function elib_check_platform() {
  */
 function elib_get_ting_object_by_isbn($isbn, $enrich = FALSE) {
   $request = ting_get_request_factory()->getSearchRequest();
-  $request->setQuery('(dc.identifier=' . $isbn . ')');
+  $request->setQuery($isbn);
   $request->setNumResults(1);
 
   $request = ting_add_agency($request);
