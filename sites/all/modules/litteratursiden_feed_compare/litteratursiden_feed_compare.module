@@ -102,7 +102,7 @@ function litteratursiden_feed_compare_get_feed($items) {
         if ($search->numTotalObjects > 0) {
           foreach ($search->collections as $collection) {
             foreach ($collection->objects as $object) {
-              foreach ($object->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
+              foreach ($object->record['dc:identifier']['oss:PROVIDER-ID'] as $isbn) {
                 if (preg_match('/^[0-9]{13}/', $isbn, $matches)) {
                   break;
                 }

@@ -10,7 +10,7 @@
 
 module_load_include('isbn_static_func.inc', 'elib');
 
-foreach ($object->record['dc:identifier']['dkdcplus:ISBN'] as $isbn) {
+foreach ($object->record['dc:identifier']['oss:PROVIDER-ID'] as $isbn) {
   if (preg_match('/^[0-9]{13}/', $isbn, $matches)) {
     break;
   }
@@ -41,7 +41,7 @@ if (module_exists('ding_voxb')) {
 <div id="ting-object" class="line rulerafter">
 
   <div class="picture unit grid-3 alpha">
-    <?php $image_url = elib_book_cover($object->record['dc:identifier']['dkdcplus:ISBN'], '170_x'); ?>
+    <?php $image_url = elib_book_cover($object->record['dc:identifier']['oss:PROVIDER-ID'], '170_x'); ?>
     <?php if (strpos($image_url,'imagecache')): ?>
       <div class="inner left" style="margin-bottom:10px;">
         <?php print theme('image', $image_url, $object->title, $object->title, null, false); ?>
@@ -112,8 +112,8 @@ if (module_exists('ding_voxb')) {
           <?php if (!empty($object->record['dc:source'][''])) { ?>
             <?php print theme('item_list', $object->record['dc:source'][''], t('Original title').t(':&nbsp;'), 'span', array('class' => 'titles'));?>
           <?php } ?>
-          <?php if (!empty($object->record['dc:identifier']['dkdcplus:ISBN'])) { ?>
-            <?php print theme('item_list', $object->record['dc:identifier']['dkdcplus:ISBN'], t('ISBN').t(':&nbsp;'), 'span', array('class' => 'identifier'));?>
+          <?php if (!empty($object->record['dc:identifier']['oss:PROVIDER-ID'])) { ?>
+            <?php print theme('item_list', $object->record['dc:identifier']['oss:PROVIDER-ID'], t('ISBN').t(':&nbsp;'), 'span', array('class' => 'identifier'));?>
           <?php } ?>
           <?php if (!empty($object->record['dc:publisher'][''])) { ?>
             <?php print theme('item_list', $object->record['dc:publisher'][''], t('Publisher'.t(':&nbsp;')), 'span', array('class' => 'publisher'));?>
@@ -176,7 +176,7 @@ if (module_exists('ding_voxb')) {
             print '</li>';
           }
           ?>
-          <?php 
+          <?php
             if($user->uid){
               print '<li class="seperator"></li>';
               print '<li class="husk">';
