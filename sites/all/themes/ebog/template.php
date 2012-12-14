@@ -87,9 +87,7 @@ function ebog_preprocess_comment(&$variables) {
   $comment = $variables['comment'];
   $node = $variables['node'];
 
-  $elib_user = elib_user_get_cred($comment->uid);
-
-  $variables['author']    = $elib_user['user'];
+  $variables['author']    = netsound_get_username($comment->uid);
   $variables['content']   = $comment->comment;
   $variables['date']      = format_date($comment->timestamp);
   $variables['new']       = $comment->new ? t('new') : '';

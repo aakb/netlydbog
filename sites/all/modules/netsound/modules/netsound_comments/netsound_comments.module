@@ -1,0 +1,28 @@
+<?php
+
+function netsound_comments_form_alter(&$form, $form_state, $form_id) {
+		if($form_id == 'comment_form'){
+
+			$username = netsound_get_username();
+			$form['netsound_username']['#default_value'] = $username;
+
+			$form['netsound_username']['#type'] = 'textfield';
+			$form['netsound_username']['#title'] = $form['_author']['#title'];
+		  $form['netsound_username']['#required'] = true;
+			$form['netsound_username']['#type'] = 'textfield';
+			$form['netsound_username']['#weight'] = -2;
+
+			unset($form['preview']);
+			unset($form['_author']);
+
+			$form['#submit'] = array('comment_form_submit','netsound_comments_savename');
+
+		}
+}
+
+function netsound_comments_savename($form,&$form_state){
+	global $user;
+
+	$fields = array('username' => $form_state['values']['netsound_username'], 'uid' => $user->uid);
+	drupal_write_record('netsound_user', $fields, array('uid'));
+}

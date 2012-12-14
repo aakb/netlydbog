@@ -10,7 +10,7 @@ function netsound_cart_install() {
  * Implementation of hook_uninstall().
  */
 function netsound_cart_uninstall() {
-  drupal_uninstall_schema('netsound_cart');
+  //drupal_uninstall_schema('netsound_cart');
 }
 
 /**

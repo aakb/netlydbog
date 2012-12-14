@@ -47,8 +47,8 @@ function netsound_review_userreview_form($form_state) {
   $form['author']['#title'] = t('Author');
   $form['author']['#required'] = 1;
 
-  $u = elib_user_get_cred();
-  $form['author']['#default_value'] = $u['user'];
+  $username = netsound_get_username();
+  $form['author']['#default_value'] = $username;
 
   $form['button']['#type'] = 'submit';
   $form['button']['#value'] = t('send review');
