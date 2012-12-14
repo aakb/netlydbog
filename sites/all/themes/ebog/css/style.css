@@ -156,7 +156,7 @@ voxb h3 {
 .panel-pane.pane-embedvideo .pane-content,
 .panel-pane.pane-front .pane-content,
 #sidebar-first #block-views-latest_news-block_1 .content,
-.pane-elib-block-lastloans-3 .pane-content,
+.pane-publizon-user-welcome .pane-content,
 .panel-pane.pane-latest-news .pane-content,
 .page-anmeldelser .pane-content,
 .section-artikel .pane-content,
@@ -466,7 +466,7 @@ voxb h3 {
 
 .display-book:first-child,
 .view-anmeldelser .views-row-first,
-.pane-elib-user-account .pane-content .display-book.biglist:first-child,
+.pane-publizon-loans-myloans .pane-content .display-book.biglist:first-child,
 .view-user-reviews .views-row-first {
   padding-top: 0;
 }
@@ -643,38 +643,38 @@ voxb h3 {
   display: none;
 }
 
-.pane-elib-user-account,
-.pane-netsound-cart-0 {
+.pane-publizon-loans-myloans,
+.pane-recall-list-cart {
   float: left;
   width: 340px;
   margin: 0;
 }
 
-.pane-elib-user-account {
+.pane-publizon-loans-myloans {
   margin-right: 10px;
 }
 
-.pane-netsound-cart-0 {
+.pane-recall-list-cart {
   margin-left: 10px;
 }
 
-.pane-elib-user-account ul {
+.pane-publizon-loans-myloans ul {
   margin: 0;
 }
 
-.pane-elib-block-lastloans-3 {
+.pane-publizon-user-welcome {
   margin-bottom: 35px;
 }
 
-.pane-elib-user-account .loanperiod {
+.pane-publizon-loans-myloans .loanperiod {
   clear: both;
   font-weight: bold;
   padding-top: 10px;
 }
 
-.pane-elib-user-account .loanperiod.short   { color: ##1B75BC; }
-.pane-elib-user-account .loanperiod.medium  { color: #FF8;     }
-.pane-elib-user-account .loanperiod.long    { color: #9BC833;  }
+.pane-publizon-loans-myloans .loanperiod.short   { color: ##1B75BC; }
+.pane-publizon-loans-myloans .loanperiod.medium  { color: #FF8;     }
+.pane-publizon-loans-myloans .loanperiod.long    { color: #9BC833;  }
 
 div.panel-pane.pane-node-content .pane-content div.submitted {
   display: none;
