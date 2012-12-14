@@ -18,7 +18,6 @@ function elib_block_categories_menu() {
   );
 }
 
-
 /**
  * hook_admin implementation
  *
@@ -26,12 +25,14 @@ function elib_block_categories_menu() {
  */
 function elib_block_categories_admin() {
   $form = array();
+
   $form['elib_block_categories']['elib_block_categories_all_title'] = array(
     '#type' => 'textfield',
     '#title' => t('Link text'),
     '#description' => t('The lable for the "All Titles" link'),
     '#default_value' => variable_get('elib_block_categories_all_title', ''),
   );
+
   $form['elib_block_categories']['elib_block_categories_all_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Link to "All Titles" page'),
@@ -45,6 +46,7 @@ function elib_block_categories_admin() {
     '#description' => t('The lable for the "All Inspiration" link'),
     '#default_value' => variable_get('elib_block_categories_inspiration_title', ''),
   );
+
   $form['elib_block_categories']['elib_block_categories_inspiration_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Link to "Inspiration" page'),
@@ -55,13 +57,9 @@ function elib_block_categories_admin() {
   return system_settings_form($form);
 }
 
-
 /**
- * hook_block implementation
+ * Implements hook_block().
  *
- * @param string $op
- * @param mixed $delta
- * @return string
  */
 function elib_block_categories_block($op = 'list', $delta = 0) {
   $block = array();
@@ -70,8 +68,8 @@ function elib_block_categories_block($op = 'list', $delta = 0) {
   }
   elseif ($op == 'view') {
 
-    $cache_name = 'elib_block_categories_cache' . $delta;
-    $cache = cache_get($cache_name, 'cache');
+    $cid = 'elib_block_categories_cache' . $delta;
+    $cache = cache_get($cid, 'cache');
 
     if (isset($cache->data)) {
       $data = $cache->data;
@@ -109,7 +107,7 @@ function elib_block_categories_block($op = 'list', $delta = 0) {
       $data .= '</ul></div>';
       $data .= $addon;
 
-      cache_set($cache_name, $data, 'cache', CACHE_TEMPORARY);
+      cache_set($cid, $data, 'cache');
     }
 
     $block['subject'] = t('eLIB categories');
