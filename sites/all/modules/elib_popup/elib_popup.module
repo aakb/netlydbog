@@ -14,12 +14,20 @@ function elib_popup_init() {
     define('ELIB_POPUP_PATH', drupal_get_path('module', 'elib_popup'));
   }
 
-  drupal_add_js(ELIB_POPUP_PATH . '/js/elib_popup_download.js', 'file');
-  drupal_add_js(ELIB_POPUP_PATH . '/js/elib_popup_sample.js', 'file');
-  drupal_add_js(ELIB_POPUP_PATH . '/js/jquery.form.js', 'file');
-  drupal_add_js(drupal_get_path('theme', 'ebog') . '/js/audio-player/audio-player.js', 'file');
-  drupal_add_js(array('elib_popup' => array('theme_path' => drupal_get_path('theme', 'ebog'))), 'setting');
-  drupal_add_css(ELIB_POPUP_PATH . '/css/elib_popup_style.css', 'file');
+  drupal_add_js(ELIB_POPUP_PATH . '/js/elib_popup_download.js');
+  drupal_add_js(ELIB_POPUP_PATH . '/js/elib_popup_sample.js');
+  drupal_add_js(ELIB_POPUP_PATH . '/js/jquery.form.js');
+  drupal_add_js(drupal_get_path('theme', 'ebog') . '/js/audio-player/audio-player.js');
+
+  drupal_add_js(array(
+    'elib_popup' => array(
+      'theme_path' => drupal_get_path('theme', 'ebog'),
+    ),
+  ), 'setting');
+
+  drupal_add_css(ELIB_POPUP_PATH . '/css/elib_popup_style.css');
+
+  // Add ui dialog.
   jquery_ui_add(array('ui.dialog', 'ui.draggable'));
   jquery_ui_theme_load();
 }
