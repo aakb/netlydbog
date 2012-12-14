@@ -481,6 +481,10 @@ voxb h3 {
   padding-top: 0;
 }
 
+#main-content ul.publizon-products-list {
+  margin-left: 0;
+}
+
 .display-book .left {
   margin-right: 12px;
 }
@@ -925,5 +929,5 @@ input[type=submit]:hover {
 
 #elib-popup-login-form p {
   width: 380px;
-  margin-right: 0px; 
+  margin-right: 0px;
 }
