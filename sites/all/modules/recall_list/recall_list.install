@@ -1,0 +1,60 @@
+<?php
+/**
+ * @file
+ * Defines the table used to store ISBN numbers for the products that the users
+ * puts on the list for later usage.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function recall_list_install() {
+  drupal_install_schema('recall_list');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function recall_list_uninstall() {
+  drupal_uninstall_schema('recall_list');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function recall_list_schema() {
+  $schema = array();
+
+  // Add the database schema that the module uses to store the recall lists.
+  // It's base on ISBN numbers as they can be used to load publizon product
+  // rater the ting_object_ids, which would require datawell access.
+  $schema['recall_list'] = array(
+    'description' => t('Recall list used to store products for later usage.'),
+    'fields' => array(
+      'isbn' => array(
+        'type' => 'text',
+        'description' => 'The identifier for the product.',
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'description' => 'Drupal user id.',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+    ),
+  );
+
+  // Add cache table.
+  $schema['cache_recall_list'] = drupal_get_schema_unprocessed('system', 'cache');
+
+  return $schema;
+}

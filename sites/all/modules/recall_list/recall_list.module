@@ -1,0 +1,249 @@
+<?php
+/**
+ * @file
+ * Implements a simple cart function (or recall list) that users can use to
+ * store products they want to look at later on.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function recall_list_menu() {
+  $items = array();
+
+  $items['recall_list/%/add'] = array(
+    'title' => 'Add to recall list',
+    'page callback' => 'recall_list_modify',
+    'page arguments' => array(1, 'add'),
+    'access arguments' => array('access content'),
+  );
+
+  $items['recall_list/%/delete'] = array(
+    'title' => 'Delete from recall list',
+    'page callback' => 'recall_list_modify',
+    'page arguments' => array(1, 'delete'),
+    'access arguments' => array('access content'),
+  );
+
+  $items['admin/settings/recall_list_migrate'] = array(
+    'title' => 'Migrate elib lists',
+    'page callback' => 'recall_list_migrate',
+    'access arguments' => array('administre site'),
+  );
+
+  return $items;
+}
+
+/**
+ * Modify the contents of a given users netsound cart.
+ *
+ * @param type $isbn
+ *  Product identifier ISBN.
+ * @param type $op
+ *  Operation to preform on the cart.
+ */
+function recall_list_modify($isbn, $op, $rewrite = TRUE) {
+  // If the current user is valid and logged in to Publizon.
+  global $user;
+  if ($user->uid != 0) {
+    $product = new PublizonProduct($isbn);
+
+    // Check that we got a ting object
+    $record = array(
+        'uid' => $user->uid,
+        'isbn' => $isbn,
+    );
+    switch ($op) {
+      case 'add':
+        $record['timestamp'] = time();
+        $result = drupal_write_record('recall_list', $record);
+
+        // TIME STAMP IS NEW; SO MANY WILL BE SAVED..
+
+        if ($result == SAVED_UPDATED) {
+          drupal_set_message(t('"!book" is allready on your recall list', array('!book' => $product->title)));
+        }
+        else {
+          drupal_set_message(t('"!book" have been add to your recall list', array('!book' => $product->title)));
+        }
+        break;
+
+      case 'delete':
+        db_query('DELETE FROM {recall_list}
+                        WHERE uid = %s
+                          AND isbn = "%s"', $user->uid, $isbn);
+        drupal_set_message(t('"!book" have been removed from your recall list', array('!book' => $product->title)));
+        break;
+    }
+    _recall_list_cache_clear($user->uid);
+    if ($rewrite) {
+      drupal_goto();
+    }
+  }
+}
+
+/**
+ * Creates a add to cart link.
+ *
+ * @param type $isbn
+ * @return type
+ */
+function recall_list_add_link($isbn) {
+  $options = array(
+    'query' => drupal_get_destination(),
+    'attributes' => array(
+      'class' => 'recall-list-add'
+    )
+  );
+  return l(t('Remember'), 'recall_list/' . $isbn . '/add', $options);
+}
+
+/**
+ * Creates a add to cart link.
+ *
+ * @param type $isbn
+ * @return type
+ */
+function recall_list_delete_link($isbn) {
+  $options = array(
+    'query' => drupal_get_destination(),
+    'attributes' => array(
+      'class' => 'recall-list-add'
+    )
+  );
+  return l(t('Remove'), 'recall_list/' . $isbn . '/delete', $options);
+}
+
+/**
+ * Implements hook_block().
+ *
+ * Provides the "My lists" block with information about the books placed in the
+ * cart.
+ *
+ * @TODO implement cache for this list.
+ */
+function recall_list_block($op = 'list', $delta = 0, $edit = array()) {
+  $blocks = array();
+  switch ($op) {
+    case 'list':
+      $blocks['cart']['info'] = t("Recall list (cart)");
+      break;
+
+    case 'view':
+      // Get current logged in user.
+      global $user;
+
+      // Set default block title.
+      $blocks['subject'] = t('My recall list');
+
+      $content = _recall_list_cache_get($user->uid);
+      if ($content == FALSE) {
+        // Load cart form the database and extra information form the datawell.
+        $products = array();
+        $result = db_query('SELECT DISTINCT isbn FROM {recall_list} WHERE uid = %d', array('%d' => $user->uid));
+        while ($row = db_fetch_array($result)) {
+
+          try {
+            $product = new PublizonProduct($row['isbn']);
+
+            // HACK XXXX, the objects saved in the cart may not longer exists
+            // in the datawell. So if they do not have ISBN number, we have to
+            // remove them from the cart.
+            if (empty($product->teaser_link)) {
+              recall_list_modify($row['isbn'], 'delete', FALSE);
+              continue;
+            }
+
+            $products[] = $product;
+          }
+          catch (Exception $e) {
+            drupal_set_message($e->getMessage(), 'error', FALSE);
+          }
+        }
+
+        // Build content and cache the result.
+        if (!empty($products)) {
+          $content = theme('publizon_products_list', $products, 'cart');
+          _recall_list_cache_set($content, $user->uid);
+        }
+      }
+
+      if ($content == '') {
+        $blocks['content'] = t('There is no products in your recall list.');
+      }
+      else {
+        $blocks['content'] = $content;
+      }
+      break;
+  }
+  return $blocks;
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function recall_list_flush_caches() {
+  return array('cache_recall_list');
+}
+
+/**
+ * Helper function to store rendered "remember" lists based on user ID.
+ *
+ * @param type $data
+ * @param type $uid
+ */
+function _recall_list_cache_set($data, $uid) {
+  cache_set($uid,  $data, 'cache_recall_list', time() + 43200); // 12 hours
+}
+
+/**
+ * Helper function to retrive rendered "remember" lists based on user ID.
+ *
+ * @param type $uid
+ * @param type $reset
+ * @return boolean
+ */
+function _recall_list_cache_get($uid, $reset = FALSE) {
+  if (!$reset && ($cache = cache_get($uid, 'cache_recall_list')) && !empty($cache->data)) {
+    return $cache->data;
+  }
+  return FALSE;
+}
+
+/**
+ * Helper function to clear a single stored "remember" list for a single user.
+ *
+ * @param type $uid
+ */
+function _recall_list_cache_clear($uid) {
+  cache_clear_all($uid, 'cache_recall_list');
+}
+
+/***
+ * THE STUFF BELOW SHOULD BE REMOVED AFTER MIGRATION FROM ELIB.
+ */
+function recall_list_migrate() {
+  $result = db_query('SELECT DISTINCT * FROM {netsound_cart}');
+  while ($row = db_fetch_array($result)) {
+    $isbn = recall_list_get_isbn_from_object_id($row['ting_object_id']);
+    if (isset($isbn)) {
+      $record = array(
+        'uid' => $row['uid'],
+        'isbn' => $isbn,
+        'timestamp' => $row['tstamp'],
+      );
+      drupal_write_record('recall_list', $record);
+    }
+  }
+}
+
+function recall_list_get_isbn_from_object_id($object_id) {
+  module_load_include('client.inc', 'ting');
+  try {
+    $object = ting_get_object_by_id($object_id);
+  } catch (TingClientException $e) {
+    echo 'øv';
+    return NULL;
+  }
+  return $object->record['dc:identifier']['oss:PROVIDER-ID'][0];
+}
