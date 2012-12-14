@@ -7,25 +7,28 @@
  */
 
 /**
- * Implementation of hook_init.
+ * Implements hook_init().
+ *
+ * @todo: Is this need one every page on the site ?
+ * @todo: Fix this....
+ *
  */
 function elib_popup_init() {
-  if (!defined('ELIB_POPUP_PATH')) {
-    define('ELIB_POPUP_PATH', drupal_get_path('module', 'elib_popup'));
-  }
+  $path = drupal_get_path('module', 'elib_popup');
 
-  drupal_add_js(ELIB_POPUP_PATH . '/js/elib_popup_download.js');
-  drupal_add_js(ELIB_POPUP_PATH . '/js/elib_popup_sample.js');
-  drupal_add_js(ELIB_POPUP_PATH . '/js/jquery.form.js');
-  drupal_add_js(drupal_get_path('theme', 'ebog') . '/js/audio-player/audio-player.js');
+  drupal_add_js($path . '/js/elib_popup_download.js');
+  drupal_add_js($path . '/js/elib_popup_sample.js');
+  drupal_add_js($path . '/js/jquery.form.js');
 
+  drupal_add_css($path . '/css/elib_popup_style.css');
+
+  $theme_path = drupal_get_path('theme', 'ebog');
+  drupal_add_js($theme_path . '/js/audio-player/audio-player.js');
   drupal_add_js(array(
     'elib_popup' => array(
-      'theme_path' => drupal_get_path('theme', 'ebog'),
+      'theme_path' => $theme_path,
     ),
   ), 'setting');
-
-  drupal_add_css(ELIB_POPUP_PATH . '/css/elib_popup_style.css');
 
   // Add ui dialog.
   jquery_ui_add(array('ui.dialog', 'ui.draggable'));
@@ -151,6 +154,35 @@ function elib_popup_theme($existing, $type, $theme, $path) {
   );
 
   return $hooks;
+}
+
+
+/**
+ * Implements hook_preprocess_publizon_actions().
+ *
+ * Adds stream ation to all action links lists.
+ */
+function elib_popup_preprocess_publizon_actions(&$vars) {
+  $isbn = $vars['product']->isbn;
+
+  // Add stream action to links.
+  $vars['actions'][] = array(
+    '#link' => l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'stream'))),
+    '#class' => 'stream',
+    '#weight' => -8,
+  );
+
+  // Ensure that samples are not downloaded, but streamed.
+  if ($vars['type'] == 'default') {
+    foreach ($vars['actions'] as $key => $action) {
+      if ($action['#class'] == 'sample') {
+        $vars['actions'][$key]['#link'] = l(t('Sample'), 'publizon/' . $isbn . '/sample', array('html' => TRUE, 'attributes' => array('target' => '_blank', 'action' => 'sample')));
+      }
+    }
+  }
+
+  // Sort the elements to get the stream action in between the other links.
+  usort($vars['actions'], 'element_sort');
 }
 
 /**
