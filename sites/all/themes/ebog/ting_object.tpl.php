@@ -9,12 +9,7 @@
  */
 
 module_load_include('isbn_static_func.inc', 'elib');
-
-foreach ($object->record['dc:identifier']['oss:PROVIDER-ID'] as $isbn) {
-  if (preg_match('/^[0-9]{13}/', $isbn, $matches)) {
-    break;
-  }
-}
+$isbn = $object->record['dc:identifier']['oss:PROVIDER-ID'][0];
 
 if (module_exists('ding_voxb')) {
   drupal_add_css(VOXB_PATH . '/css/voxb-pager.css');
@@ -41,21 +36,16 @@ if (module_exists('ding_voxb')) {
 <div id="ting-object" class="line rulerafter">
 
   <div class="picture unit grid-3 alpha">
-    <?php $image_url = elib_book_cover($object->record['dc:identifier']['oss:PROVIDER-ID'], '170_x'); ?>
-    <?php if (strpos($image_url,'imagecache')): ?>
+
       <div class="inner left" style="margin-bottom:10px;">
-        <?php print theme('image', $image_url, $object->title, $object->title, null, false); ?>
+        <?php print theme('image', $cover, $object->title, $object->title, null, FALSE); ?>
       </div>
-    <?php else: ?>
-      <div class="inner left nopicture" style="height:270px;margin-bottom:10px;">
-        <?php print theme('image', $image_url, $object->title, $object->title, null, false); ?>
-      </div>
-    <?php endif;?>
+
   </div>
   <div class="meta unit grid-9 omega">
     <div class="inner">
       <h1 class="book-title"><?php print check_plain($object->record['dc:title'][''][0]); ?></h1>
-      <div class="author"><?php echo t('By !creator_name', array('!creator_name' => l($object->creators_string,'ting/search/'.$object->creators_string,array('html' => true)))) ?></div>
+      <div class="author"><?php echo t('By !author', array('!author' => $author)); ?></div>
       <?php if (module_exists('ding_voxb')) { ?>
       <div class="ratingsContainer">
         <?php
@@ -79,7 +69,7 @@ if (module_exists('ding_voxb')) {
       </div>
       <?php } ?>
       <div class="facebook-like">
-        <iframe src="//www.facebook.com/plugins/like.php?href=https%3A%2F%2Fnetlydbog.dk%2Fting%2Fobject%2F150015%3A<?php echo $isbn; ?>&amp;send=false&amp;layout=box_count&amp;width=130&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=75" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:130px; height:75px;" allowTransparency="true"></iframe>
+        <iframe src="//www.facebook.com/plugins/like.php?href=https%3A%2F%2Fereolen.dk%2Fting%2Fobject%2F<?php echo $object->id; ?>&amp;send=false&amp;layout=box_count&amp;width=130&amp;show_faces=false&amp;action=recommend&amp;colorscheme=light&amp;font&amp;height=75" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:130px; height:75px;" allowTransparency="true"></iframe>
       </div>
       <div class="abstract"><?php print check_plain($object->record['dcterms:abstract'][''][0]); ?></div>
       <div class="description">
@@ -164,23 +154,25 @@ if (module_exists('ding_voxb')) {
       </div>
       <div class="icons">
         <ul>
-          <li class="sample"><?php print l(t('Sample'), $object->url.'/sample', array('html' => true, 'attributes' => array('action' => 'sample'))) ?><li>
+          <li class="sample"><?php print l(t('Sample'), 'publizon/' . $isbn . '/sample', array('html' => TRUE, 'attributes' => array('target' => '_blank', 'action' => 'sample'))) ?></li>
           <li class="seperator"></li>
-          <li class="stream"><?php print l(t('Stream'), $object->url.'/stream', array('html' => true, 'attributes' => array('action' => 'stream'))) ?></li>
+          <li class="stream"><?php print l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'stream'))) ?></li>
           <?php
-          $platform = elib_check_platform();
-          if ($platform == PLATFORM_GENERIC) {
-            print '<li class="seperator"></li>';
-            print '<li class="fetch">';
-            print l(t('Fetch'), $object->url.'/download', array('html' => true, 'attributes' => array('action' => 'download')));
-            print '</li>';
+          $platform = publizon_get_client_platform();
+          if ($platform == PUBLIZON_PLATFORM_GENERIC) {
+            if ($is_loan) {
+              print '<li>' . l(t('Download'), 'publizon/' . $isbn . '/download', array('html' => true, 'attributes' => array('class' => 'ting-object-loan'))) . '</li>';
+            }
+            else {
+              print '<li>' . l(t('Loan'), 'publizon/' . $isbn . '/download', array('html' => true, 'attributes' => array('class' => 'ting-object-loan'))) . '</li>';
+            }
           }
           ?>
           <?php
             if($user->uid){
               print '<li class="seperator"></li>';
-              print '<li class="husk">';
-              print l(t('Husk'), $object->url.'/huskeliste?'.drupal_get_destination(), array('html' => true));
+              print '<li>';
+              print recall_list_add_link($object->record['dc:identifier']['oss:PROVIDER-ID'][0]);
               print '</li>';
             }
           ?>
@@ -194,6 +186,7 @@ if (module_exists('ding_voxb')) {
     </div>
   </div>
  </div>
+
 <?php if (module_exists('ding_voxb')) { ?>
 <div class="jqmWindow" id="dialog">
   <a href="#" class="jqmClose">Close</a>

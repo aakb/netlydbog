@@ -8,54 +8,42 @@
 
 module_load_include('isbn_static_func.inc', 'elib');
 foreach ($collection->objects as $obj){
-    // @todo
-    // Skip elib check
-	if(TRUE/*$obj->type == 'Netdokument'*/) {
-		$Obj = $obj;
-
-   foreach ($obj->record['dc:identifier']['oss:PROVIDER-ID'] as $isbn) {
-    if (preg_match('/^[0-9]{13}/', $isbn, $matches)) {
-      break;
-    }
-  }
-  $alttext = t('@titel af @forfatter',array('@titel' => $Obj->title, '@forfatter' => $Obj->creators_string));
-
+  $ting_object = $obj;
+  $isbn = $obj->record['dc:identifier']['oss:PROVIDER-ID'][0];
+  $alttext = t('@titel af @forfatter',array('@titel' => $ting_object->title, '@forfatter' => $ting_object->creators_string));
 ?>
-  <li class="display-book ting-collection ruler-after line clear-block" id="<?php print $Obj->id ?>">
-
-    <div class="picture">
-      <?php $image_url = elib_book_cover($obj->record['dc:identifier']['oss:PROVIDER-ID'], '80_x'); ?>
-      <?php if ($image_url) { ?>
-        <?php print l(theme('image', $image_url, $alttext, $alttext, null, false), $Obj->url, array('html' => true)); ?>
-      <?php } ?>
-    </div>
-
+  <li class="display-book ting-collection ruler-after line clear-block" id="<?php print $ting_object->id ?>">
+    <?php if ($elib[$isbn]['elib_book_cover']) { ?>
+      <div class="picture">
+        <?php print l(theme('image', $elib[$isbn]['elib_book_cover'], $alttext, $alttext, null, false), $ting_object->url, array('html' => true)); ?>
+      </div>
+    <?php } ?>
     <div class="record">
       <div class="left">
         <h3>
-          <?php print l($Obj->title, $Obj->url, array('attributes' => array('class' =>'title'))) ;?>
+          <?php print l($ting_object->title, $ting_object->url, array('attributes' => array('class' =>'title'))) ;?>
         </h3>
         <div class="meta">
-          <?php if ($Obj->creators_string) : ?>
+          <?php if ($ting_object->creators_string) : ?>
             <span class="creator">
-              <?php echo t('By !creator_name', array('!creator_name' => l($Obj->creators_string,'ting/search/'.$Obj->creators_string,array('html' => true)))); ?>
+              <?php echo t('By !creator_name', array('!creator_name' => $elib[$isbn]['author'])); ?>
             </span>
           <?php endif; ?>
-          <div id="<?php print $Obj->objects[0]->localId ?>"></div>
-          <?php if ($Obj->date) : ?>
+          <div id="<?php print $ting_object->objects[0]->localId ?>"></div>
+          <?php if ($ting_object->date) : ?>
             <span class="publication_date">
-              <?php echo t('(%publication_date%)', array('%publication_date%' => $Obj->date)) /* TODO: Improve date handling, localizations etc. */ ?>
+              <?php echo t('(%publication_date%)', array('%publication_date%' => $ting_object->date)) /* TODO: Improve date handling, localizations etc. */ ?>
             </span>
           <?php endif; ?>
         </div>
         <div class="rating-for-faust">
-          <div class="<?php print $Obj->localId; ?>"></div>
+          <div class="<?php print $ting_object->localId; ?>"></div>
         </div>
-        <?php if ($Obj->subjects) : ?>
+        <?php if ($ting_object->subjects) : ?>
           <div class="subjects">
             <h4><?php echo t('Subjects:') ?></h4>
             <ul>
-              <?php foreach ($Obj->subjects as $subject) : ?>
+              <?php foreach ($ting_object->subjects as $subject) : ?>
                 <li><?php echo $subject ?></li>
               <?php endforeach; ?>
             </ul>
@@ -63,25 +51,27 @@ foreach ($collection->objects as $obj){
         <?php endif; ?>
       </div>
       <div class="right">
-        <?php if ($Obj->abstract) : ?>
+        <?php if ($ting_object->abstract) : ?>
           <div class="abstract">
             <p>
-              <?php print drupal_substr(check_plain($Obj->abstract), 0, 200) . '...'; ?>
+              <?php print drupal_substr(check_plain($ting_object->abstract), 0, 200) . '...'; ?>
             </p>
           </div>
         <?php endif; ?>
         <div class="icons">
           <ul>
-            <li class="sample"><?php print l(t('Sample'), $Obj->url.'/sample', array('html' => true, 'attributes' => array('action' => 'sample'))) ?></li>
+            <li class="sample"><?php print l(t('Sample'), 'publizon/' . $isbn . '/sample', array('html' => TRUE, 'attributes' => array('target' => '_blank', 'action' => 'sample'))) ?></li>
             <li class="seperator"></li>
-            <li class="stream"><?php print l(t('Stream'), $Obj->url.'/stream', array('html' => true, 'attributes' => array('action' => 'stream'))) ?></li>
+            <li class="stream"><?php print l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'stream'))) ?></li>
             <?php
-              $platform = elib_check_platform();
-              if ($platform == PLATFORM_GENERIC) {
-                print '<li class="seperator"></li>';
-                print '<li class="fetch">';
-                print l(t('Fetch'), $Obj->url.'/download', array('html' => true, 'attributes' => array('action' => 'download')));
-                print '</li>';
+              $platform = publizon_get_client_platform();
+              if ($platform == PUBLIZON_PLATFORM_GENERIC) {
+                if ($is_loan) {
+                  print '<li>' . l(t('Download'), 'publizon/' . $isbn . '/download', array('html' => true, 'attributes' => array('class' => 'ting-object-loan'))) . '</li>';
+                }
+                else {
+                  print '<li>' . l(t('Loan'), 'publizon/' . $isbn . '/download', array('html' => true, 'attributes' => array('class' => 'ting-object-loan'))) . '</li>';
+                }
               }
             ?>
           </ul>
@@ -93,4 +83,3 @@ foreach ($collection->objects as $obj){
 
 <?php
 	}
-}

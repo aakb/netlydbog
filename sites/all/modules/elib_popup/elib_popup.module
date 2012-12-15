@@ -173,11 +173,9 @@ function elib_popup_preprocess_publizon_actions(&$vars) {
   );
 
   // Ensure that samples are not downloaded, but streamed.
-  if ($vars['type'] == 'default') {
-    foreach ($vars['actions'] as $key => $action) {
-      if ($action['#class'] == 'sample') {
-        $vars['actions'][$key]['#link'] = l(t('Sample'), 'publizon/' . $isbn . '/sample', array('html' => TRUE, 'attributes' => array('target' => '_blank', 'action' => 'sample')));
-      }
+  foreach ($vars['actions'] as $key => $action) {
+    if ($action['#class'] == 'sample') {
+      $vars['actions'][$key]['#link'] = l(t('Sample'), 'publizon/' . $isbn . '/sample', array('html' => TRUE, 'attributes' => array('target' => '_blank', 'action' => 'sample')));
     }
   }
 
@@ -213,10 +211,10 @@ function _elib_popup_return_content($type = 'download', $downloadUrl, $title = '
       /*
        *  Get client platform and use flash or livestream for iOS devices
        */
-      $platform = elib_check_platform();
+      $platform = publizon_get_client_platform();
       $response = array();
 
-      if ($platform == PLATFORM_IOS) {
+      if ($platform == PUBLIZON_PLATFORM_IOS) {
         $stream = elib_client()->getStreamUrl($key[1], 'livestream');
         $response['content'] = theme('elib_popup_stream_ios', array('link' => $stream, 'title' => $title));
       } else {
@@ -256,8 +254,8 @@ function elib_popup_download_sample($ting_id) {
   if (!empty($teasersamplelink)) {
     $title = (string)$book->data->title;
 
-    $platform = elib_check_platform();
-    if ($platform == PLATFORM_GENERIC) {
+    $platform = publizon_get_client_platform();
+    if ($platform == PUBLIZON_PLATFORM_GENERIC) {
       $status = array(
         'status' => TRUE,
         'title' => t('Sample'),
