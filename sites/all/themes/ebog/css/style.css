@@ -619,9 +619,9 @@ voxb h3 {
   padding: 4px;
 }
 
-#user-login #edit-library-wrapper label {
+#user-login #edit-retailer-id-wrapper label {
   float: left;
-  margin-right: 15px;
+  margin-right: 8px;
 }
 
 #user-login #edit-name-wrapper label,
