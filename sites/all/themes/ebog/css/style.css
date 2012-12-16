@@ -481,7 +481,8 @@ voxb h3 {
   padding-top: 0;
 }
 
-#main-content ul.publizon-products-list {
+#main-content ul.publizon-products-list,
+#main-content ul.publizon-loans-list {
   margin-left: 0;
 }
 
