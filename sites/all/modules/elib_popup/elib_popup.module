@@ -197,9 +197,9 @@ function elib_popup_stream_redirect() {
  * Return content for download or stream
  *
  * @param type $type
- * @param type $downloadUrl
+ * @param type $download_url
  */
-function _elib_popup_return_content($type, $downloadUrl, $title = '') {
+function _elib_popup_return_content($type, $download_url, $title = '') {
   switch ($type) {
     case 'download':
       return array(
@@ -207,13 +207,15 @@ function _elib_popup_return_content($type, $downloadUrl, $title = '') {
         'title' => t('Download'),
         'content' => theme('elib_popup_download_info', array(
           'message' => t('Book download url.'),
-          'link' => $downloadUrl,
+          'link' => $download_url,
         )),
         'final' => true
       );
+      break;
+
     case 'stream':
       // it can be void= or id=, we explode by "id=" that correcponds to both situations.
-      $key = explode('id=', (string)$downloadUrl);
+      $key = explode('id=', (string)$download_url);
       /*
        *  Get client platform and use flash or livestream for iOS devices
        */
@@ -221,10 +223,10 @@ function _elib_popup_return_content($type, $downloadUrl, $title = '') {
       $response = array();
 
       if ($platform == PUBLIZON_PLATFORM_IOS) {
-        $stream = elib_client()->getStreamUrl($key[1], 'livestream');
+        $stream = elib_popup_stream_url($key[1], 'livestream');
         $response['content'] = theme('elib_popup_stream_ios', array('link' => $stream, 'title' => $title));
       } else {
-        $stream = elib_client()->getStreamUrl($key[1]);
+        $stream = elib_popup_stream_url($key[1]);
         $response['stream'] = url('publizon/stream/redirect', array('query' => 'url=' . $stream));
       }
 
@@ -234,6 +236,11 @@ function _elib_popup_return_content($type, $downloadUrl, $title = '') {
       $response['platform'] = $platform;
       return $response;
   }
+}
+
+function elib_popup_stream_url($key, $player = 'flash') {
+  $url =  "http://service.pubhub.dk/Download.aspx?id=";
+  return $url . $key .'&player=' . $player . '&stream=true';
 }
 
 /**
@@ -256,7 +263,7 @@ function elib_popup_download_sample($isbn) {
           ),
           'file' => $product->teaser_link,
           'itemTitle' => $product->title,
-          'itemAuthor' =>  $product->author,
+          'itemAuthor' =>  $product->author['firstname'] . ' ' . $product->author['lastname'],
         );
       } elseif ($platform == PLATFORM_IOS) {
         $status = array(

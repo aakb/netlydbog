@@ -6,7 +6,6 @@
  * Template to render a Ting collection of books.
  */
 
-module_load_include('isbn_static_func.inc', 'elib');
 foreach ($collection->objects as $obj){
   $ting_object = $obj;
   $isbn = $obj->record['dc:identifier']['oss:PROVIDER-ID'][0];

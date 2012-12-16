@@ -8,7 +8,6 @@
  * - $object: The TingClientObject instance we're rendering.
  */
 
-module_load_include('isbn_static_func.inc', 'elib');
 $isbn = $object->record['dc:identifier']['oss:PROVIDER-ID'][0];
 
 if (module_exists('ding_voxb')) {

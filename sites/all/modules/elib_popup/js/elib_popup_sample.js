@@ -45,7 +45,7 @@
           clicked.show();
 
           if (response.status == false) {
-            popup_buttons = {};
+            var popup_buttons = {};
             popup_buttons[ok_button] = function() {
               $('#ting-download-popup').dialog('close');
             }
@@ -81,7 +81,7 @@
 
           AudioPlayer.embed("audio-player", {
             soundFile: response.file,
-            titles: response.itemIitle,
+            titles: response.itemTitle,
             artists: response.itemAuthor
           });
         }
