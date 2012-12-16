@@ -161,10 +161,10 @@ if (module_exists('ding_voxb')) {
           $platform = publizon_get_client_platform();
           if ($platform == PUBLIZON_PLATFORM_GENERIC) {
             if ($is_loan) {
-              print '<li>' . l(t('Download'), 'publizon/' . $isbn . '/download', array('html' => true, 'attributes' => array('class' => 'ting-object-loan'))) . '</li>';
+              print '<li>' . l(t('Download'), 'publizon/' . $isbn . '/download', array('html' => true, 'attributes' => array('class' => 'download'))) . '</li>';
             }
             else {
-              print '<li>' . l(t('Loan'), 'publizon/' . $isbn . '/download', array('html' => true, 'attributes' => array('class' => 'ting-object-loan'))) . '</li>';
+              print '<li>' . l(t('Loan'), 'publizon/' . $isbn . '/download', array('html' => true, 'attributes' => array('class' => 'download'))) . '</li>';
             }
           }
           ?>

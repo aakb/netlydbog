@@ -24,6 +24,8 @@ function elib_popup_init() {
 
   $theme_path = drupal_get_path('theme', 'ebog');
   drupal_add_js($theme_path . '/js/audio-player/audio-player.js');
+
+  // Why is the theme path needed in the frontend ?
   drupal_add_js(array(
     'elib_popup' => array(
       'theme_path' => $theme_path,
@@ -41,52 +43,52 @@ function elib_popup_init() {
 function elib_popup_menu() {
   $menu = array();
 
-  $menu['ting/object/%/download/request'] = array(
+  $menu['publizon/%/download/request'] = array(
     'title' => 'Download ting ebook',
     'description' => 'Checker for download abilities regarding selected ebook for specific user.',
     'page callback' => 'elib_popup_download_loan_initial',
-    'page arguments' => array(2),
+    'page arguments' => array(1),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
 
-  $menu['ting/object/%/download/popup'] = array(
+  $menu['publizon/%/download/popup'] = array(
     'title' => 'Show a popup before download',
     'description' => 'Display some user specific text and perform some check before download.',
     'page callback' => 'elib_popup_loan_popup',
-    'page arguments' => array(2),
+    'page arguments' => array(1),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
 
-  $menu['ting/object/%/stream/popup'] = array(
+  $menu['publizon/%/stream/popup'] = array(
     'title' => 'Show a popup before stream',
     'description' => 'Display some user specific text and perform some check before stream.',
     'page callback' => 'elib_popup_loan_popup',
-    'page arguments' => array(2, 'stream'),
+    'page arguments' => array(1, 'stream'),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
 
-  $menu['ting/object/%/stream/request'] = array(
+  $menu['publizon/%/stream/request'] = array(
     'title' => 'Download ting ebook',
     'description' => 'Checker for stream abilities regarding selected book for specific user.',
     'page callback' => 'elib_popup_download_loan_initial',
-    'page arguments' => array(2, 'stream'),
+    'page arguments' => array(1, 'stream'),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
 
-  $menu['ting/object/%/sample/popup'] = array(
+  $menu['publizon/%/sample/popup'] = array(
     'title' => 'Stream sample book',
     'description' => 'Stream sample audio book.',
     'page callback' => 'elib_popup_download_sample',
-    'page arguments' => array(2),
+    'page arguments' => array(1),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
 
-  $menu['elib/stream/redirect'] = array(
+  $menu['publizon/stream/redirect'] = array(
     'title' => 'Stream sample book',
     'description' => 'Redirect to external stream domain.',
     'page callback' => 'elib_popup_stream_redirect',
@@ -95,7 +97,7 @@ function elib_popup_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $menu['elib/popup/login'] = array(
+  $menu['publizon/popup/login'] = array(
     'title' => 'Login user',
     'description' => 'Try to login user into the libray system.',
     'page callback' => 'elib_popup_login',
@@ -110,7 +112,7 @@ function elib_popup_menu() {
 /**
  * Implementation of hook_theme.
  */
-function elib_popup_theme($existing, $type, $theme, $path) {
+function elib_popup_theme() {
   $hooks = array();
 
   $hooks['elib_popup_download_approve'] = array(
@@ -187,22 +189,26 @@ function elib_popup_preprocess_publizon_actions(&$vars) {
  * Redirect streaming to pubhub
  */
 function elib_popup_stream_redirect() {
-  header("location:".$_GET['url'] . '&player=' . $_GET['player'] . '&stream=' . $_GET['stream']);
+  header("location:" . $_GET['url'] . '&player=' . $_GET['player'] . '&stream=' . $_GET['stream']);
   exit();
 }
 
 /**
  * Return content for download or stream
+ *
  * @param type $type
  * @param type $downloadUrl
  */
-function _elib_popup_return_content($type = 'download', $downloadUrl, $title = '') {
+function _elib_popup_return_content($type, $downloadUrl, $title = '') {
   switch ($type) {
     case 'download':
       return array(
         'status' => TRUE,
         'title' => t('Download'),
-        'content' => theme('elib_popup_download_info', array('message' => t('Book download url.'), 'link' => $downloadUrl)),
+        'content' => theme('elib_popup_download_info', array(
+          'message' => t('Book download url.'),
+          'link' => $downloadUrl,
+        )),
         'final' => true
       );
     case 'stream':
@@ -219,7 +225,7 @@ function _elib_popup_return_content($type = 'download', $downloadUrl, $title = '
         $response['content'] = theme('elib_popup_stream_ios', array('link' => $stream, 'title' => $title));
       } else {
         $stream = elib_client()->getStreamUrl($key[1]);
-        $response['stream'] = url('elib/stream/redirect', array('query' => 'url=' . $stream));
+        $response['stream'] = url('publizon/stream/redirect', array('query' => 'url=' . $stream));
       }
 
       $response['status'] = TRUE;
@@ -233,50 +239,46 @@ function _elib_popup_return_content($type = 'download', $downloadUrl, $title = '
 /**
  *
  */
-function elib_popup_download_sample($ting_id) {
-  module_load_include('client.inc', 'ting');
-  module_load_include('isbn_static_func.inc', 'elib');
-  $object = ting_get_object_by_id($ting_id);
-
-  $c = elib_client();
-  $c->setLibrary(variable_get('elib_retailer_id', ''));
+function elib_popup_download_sample($isbn) {
 
   try {
-    $book = $c->getBook($object);
+    $product = new PublizonProduct($isbn);
+
+    if (!empty($product->teaser_link)) {
+      $platform = publizon_get_client_platform();
+      if ($platform == PUBLIZON_PLATFORM_GENERIC) {
+        $status = array(
+          'status' => TRUE,
+          'title' => t('Sample'),
+          'content' => theme('elib_popup_sample_generic', array(
+              'title' => $product->title,
+              'link' => $product->teaser_link)
+          ),
+          'file' => $product->teaser_link,
+          'itemTitle' => $product->title,
+          'itemAuthor' =>  $product->author,
+        );
+      } elseif ($platform == PLATFORM_IOS) {
+        $status = array(
+          'status' => TRUE,
+          'title' => t('Sample'),
+          'content' => theme('elib_popup_sample_ios', array(
+            'title' => $product->title,
+            'link' => $product->teaser_link,
+          )),
+        );
+      }
+    }
   }
   catch (Exception $e) {
-    error_log(__FILE__ . ' +' . __LINE__ . ' ' . print_r($e, 1));
-    return;
-  }
-
-  $teasersamplelink = (string)$book->data->teaser->link;
-
-  if (!empty($teasersamplelink)) {
-    $title = (string)$book->data->title;
-
-    $platform = publizon_get_client_platform();
-    if ($platform == PUBLIZON_PLATFORM_GENERIC) {
-      $status = array(
-        'status' => TRUE,
-        'title' => t('Sample'),
-        'content' => theme('elib_popup_sample_generic', array(
-            'title' => $title,
-            'link' => $teasersamplelink)
-        ),
-        'file' => $teasersamplelink,
-        'itemTitle' => $title,
-        'itemAuthor' =>  (string)$book->data->contributors[0]->first_name . ' ' . (string)$book->data->contributors[0]->family_name
-       );
-    } elseif ($platform == PLATFORM_IOS) {
-      $status = array(
-        'status' => TRUE,
-        'title' => t('Sample'),
-        'content' => theme('elib_popup_sample_ios', array(
-          'title' => $title,
-          'link' => (string)$book->data->teaser->link)
-        ),
-      );
-    }
+    // User was not logged in.
+    $status = array(
+      'status' => FALSE,
+      'title' => t('Error'),
+      'content' => theme('elib_popup_notice', array(
+        'message' => $e->getMessage(),
+      )),
+    );
   }
 
   drupal_json($status);
@@ -288,31 +290,23 @@ function elib_popup_download_sample($ting_id) {
  *
  * @global $user
  *   Logged in user data
- * @param $ting_id Ting object id
- * @param $type string
+ * @param string $isbn
+ *  Product ISBN number
+ * @param string $type
+ *  The type of action to take.
  */
-function elib_popup_download_loan_initial($ting_id, $type = "download") {
+function elib_popup_download_loan_initial($isbn, $type = "download") {
   global $user;
   $status = array();
 
   // Whether user authenticated in drupal
-  if ($user->uid) {
-    $isbn = elib_get_isbn_from_object_id($ting_id);
-    $ean = convertToEAN($isbn);
-
-    $userinfo = elib_user_get_cred();
-    $client = elib_client();
-    $client->setLoaner($userinfo['cpr'], $userinfo['pin'], $userinfo['lib']);
-
-    $book = $client->getBook($ean);
-    $down_link = get_download_url($client->getLoans(), $ean);
-    $loaned = (is_string($down_link)) ? TRUE : FALSE;
-
-    // Whether book fetched well
-    if ((int)$book->status->code == 101) {
-      if ($loaned) {
+  if ($uid = publizon_user_is_logged_in()) {
+    try {
+      $loans = new PublizonUserLoans($uid);
+      if ($loans->isLoan($isbn)) {
+        $down_link = $loans->loans[$isbn]->download_url;
         if ($down_link != '') {
-          $status = _elib_popup_return_content($type, $down_link, (string)$book->data->title);
+          $status = _elib_popup_return_content($type, $down_link, $loans->loans[$isbn]->title);
         }
         else {
           $status = array(
@@ -325,36 +319,20 @@ function elib_popup_download_loan_initial($ting_id, $type = "download") {
         }
       }
       else {
-        $loan = elib_client()->makeLoan($ean);
+         // Not a loan, yet.
+        $down_link = $loans->createLoan($isbn);
 
-        // Whether book loaned well
-        if ((int)$loan->status->code == 101) {
-
-          // Clear loan cache for the user.
-          global $user;
-          elib_user_clear_loans_cache($user->uid);
-
-          $down_link = $loan->data->downloadurl;
-          $status = _elib_popup_return_content($type, $down_link, (string)$book->data->title);
-        }
-        else {
-          $status = array(
-            'status' => FALSE,
-            'title' => t('Error'),
-            'content' => theme('elib_popup_notice', array(
-              'message' => t('@message', array('@message' => $loan->status->message)))
-            )
-          );
-        }
+        // If no exception was thrown, the loan went through.
+        $status = _elib_popup_return_content($type, $down_link, $loans->loans[$isbn]->title);
       }
     }
-    else {
+    catch (Exception $e) {
       $status = array(
         'status' => FALSE,
         'title' => t('Error'),
         'content' => theme('elib_popup_notice', array(
-          'message' => t('@message', array('@message' => $book->status->message)))
-        )
+          'message' => t('@message', array('@message' => $e->getMessage()))
+        )),
       );
     }
   }
@@ -373,58 +351,20 @@ function elib_popup_download_loan_initial($ting_id, $type = "download") {
 }
 
 /**
- * Fetch specific book download url.
- *
- * @param SimpleXMLElement $loans
- *   User loans object
- * @param String $ean
- *   Searched item isbn
- * @return String
- *   Download url
- */
-function get_download_url($loans, $ean) {
-  if ($loans instanceof SimpleXMLElement) {
-    foreach ($loans->data->orderitem as $book) {
-      if ($book->book['id'] == $ean) {
-        return (string)$book->data->data->downloadurl;
-      }
-    }
-  }
-
-  return FALSE;
-}
-
-/**
- * Check if the book is loaned
- */
-function _elib_popup_is_loaned($ting_id) {
-  $isbn = elib_get_isbn_from_object_id($ting_id);
-  $ean = convertToEAN($isbn);
-
-  $userinfo = elib_user_get_cred();
-  $client = elib_client();
-  $client->setLoaner($userinfo['cpr'], $userinfo['pin'], $userinfo['lib']);
-
-  $book = $client->getBook($ean);
-  $down_link = get_download_url($client->getLoans(), $ean);
-  return (is_string($down_link)) ? array('book' => $book, 'download_link' => $down_link) : FALSE;
-}
-/**
  * More a dummy method, used only for confirmation dialog retrieval.
  *
- * @param $ting_object_id
- *   Ting object id.
+ * @param $isbn
+ *  Product ISBN number.
  */
-function elib_popup_loan_popup($ting_object_id, $type = 'download') {
-  global $user;
+function elib_popup_loan_popup($isbn, $type = 'download') {
   $status = array();
 
   // Whether user is logged in.
-  if ($user->uid) {
+  if ($uid = publizon_user_is_logged_in()) {
     // Check if item is already loaned
-    $loan = _elib_popup_is_loaned($ting_object_id);
-    if (($loan)) {
-      $status = _elib_popup_return_content($type, $loan['download_link'], $loan['book']->data->title);
+    $loans = new PublizonUserLoans($uid);
+    if ($loans->isLoan($isbn)) {
+      $status = _elib_popup_return_content($type, $loans->loans[$isbn]->download_url, $loans->loans[$isbn]->title);
     } else {
       $status = array(
         'title' => t('Confirm loan'),
@@ -495,7 +435,7 @@ function elib_popup_login_form_validate($form, &$form_state) {
 
   // Try to login to the library, this will create the user if login succeed
   // and the user do not exists in Drupal.
-  $account = elib_check_credentials($card, $form_state['values']['pass'], $form_state['values']['library']);
+  $account = publizon_user_authentication($login_id, $form_state['values']['pass'], $form_state['values']['retailer_id']);
   if ($account) {
     global $user;
     $user = $account;

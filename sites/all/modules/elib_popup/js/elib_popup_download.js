@@ -15,7 +15,7 @@
 
   // Handle clicked loan link, those matching 'ting/object/%/download' pattern
   $(document).ready(function() {
-    $('a[action="download"], a[action="stream"]').live('click', function() {
+    $('.icons a.download, .icons a.stream').live('click', function() {
       href = $(this).attr('href');
 
       clicked = $(this);
@@ -144,7 +144,7 @@
                     link.attr("href", "/min_side");
 
                     // Add logout block to the site.
-                    var block = $('<div class="block block-elib_block_lastloans" id="block-elib_block_lastloans-5"><h2>'+Drupal.t('My profile')+'</h2><div class="content"><p>'+Drupal.t('You are now logged in')+': <a class="biglogoutbutton" href="/logout">'+Drupal.t('Logout')+'</a></p></div></div>');
+                    var block = $('<div id="block-publizon_user-logout" class="block block-publizon_user"><h2>' + Drupal.t('My profile') + '</h2><div class="content"><p>' + Drupal.t('You are now logged in') + ': <a class="biglogoutbutton" href="/logout">' + Drupal.t('Logout') + '</a></p></div></div>');
                     $('#sidebar-first').prepend(block);
 
                     // Try to process the loan once more.
