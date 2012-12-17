@@ -28,7 +28,7 @@ foreach ($collection->objects as $obj){
               <?php echo t('By !creator_name', array('!creator_name' => $elib[$isbn]['author'])); ?>
             </span>
           <?php endif; ?>
-          <div id="<?php print $ting_object->objects[0]->localId ?>"></div>
+          <div id="<?php print $ting_object->id ?>"></div>
           <?php if ($ting_object->date) : ?>
             <span class="publication_date">
               <?php echo t('(%publication_date%)', array('%publication_date%' => $ting_object->date)) /* TODO: Improve date handling, localizations etc. */ ?>
@@ -59,20 +59,26 @@ foreach ($collection->objects as $obj){
         <?php endif; ?>
         <div class="icons">
           <ul>
-            <li class="sample"><?php print l(t('Sample'), 'publizon/' . $isbn . '/sample', array('html' => TRUE, 'attributes' => array('target' => '_blank', 'action' => 'sample'))) ?></li>
-            <li class="seperator"></li>
-            <li class="stream"><?php print l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'stream'))) ?></li>
             <?php
-              $platform = publizon_get_client_platform();
-              if ($platform == PUBLIZON_PLATFORM_GENERIC) {
-                if ($is_loan) {
-                  print '<li>' . l(t('Download'), 'publizon/' . $isbn . '/download', array('html' => true, 'attributes' => array('class' => 'download'))) . '</li>';
-                }
-                else {
+            if (isset($elib[$isbn]['elib_sample_link'])) {
+            ?>
+              <li class="sample"><?php print l(t('Sample'), 'publizon/' . $isbn . '/sample', array('html' => TRUE, 'attributes' => array('target' => '_blank', 'action' => 'sample'))) ?></li>
+              <li class="seperator"></li>
+              <li class="stream"><?php print l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'stream'))) ?></li>
+              <?php
+                $platform = publizon_get_client_platform();
+                if ($platform == PUBLIZON_PLATFORM_GENERIC) {
                   print '<li>' . l(t('Loan'), 'publizon/' . $isbn . '/download', array('html' => true, 'attributes' => array('class' => 'download'))) . '</li>';
                 }
+              ?>
+              <?php
               }
-            ?>
+              else {
+              ?>
+                <li class="unavailable"><span><?php echo t('Unavailable') ?></span></li>
+              <?php
+              }
+              ?>
           </ul>
         </div>
       </div>

@@ -15,6 +15,24 @@ class TingClientObjectRequest extends TingClientRequest {
   protected $relationData;
   protected $identifier;
   protected $profile;
+  protected $outputType;
+  protected $objectFormat;
+
+  public function setObjectFormat($objectFormat) {
+    $this->objectFormat = $objectFormat;
+  }
+
+  public function getObjectFormat() {
+    return $this->objectFormat;
+  }
+
+  public function setOutputType($outputType) {
+    $this->outputType = $outputType;
+  }
+
+  public function getOutputType() {
+    return $this->outputType;
+  }
 
   public function getProfile() {
     return $this->profile;
@@ -72,31 +90,34 @@ class TingClientObjectRequest extends TingClientRequest {
 
   public function getRequest() {
     $parameters = $this->getParameters();
-    //
     // These defaults are always needed.
     $this->setParameter('action', 'getObjectRequest');
+
     if (!isset($parameters['format']) || empty($parameters['format'])) {
-      $this->setParameter('format', 'dkabm');
+      $this->setParameter('format', $this->format);
     }
 
     // Determine which id to use and the corresponding index
     if ($this->identifier) {
       $this->setParameter('identifier', $this->identifier);
     }
+
     // If we have both localId and ownerId, combine them to get
     elseif ($this->getAgency() && $this->localId) {
-      $this->setParameter('identifier', implode(':', array(
-        $this->getAgency(),
+      $this->setParameter('identifier', implode('|', array(
         $this->localId,
+        $this->getAgency(),
       )));
     }
 
     $methodParameterMap = array(
-      'format' => 'objectFormat',
+      'format' => 'format',
       'allRelations' => 'allRelations',
       'relationData' => 'relationData',
       'agency' => 'agency',
       'profile' => 'profile',
+      'outputType' => 'outputType',
+      'objectFormat' => 'objectFormat',
     );
 
     foreach ($methodParameterMap as $method => $parameter) {
@@ -121,7 +142,6 @@ class TingClientObjectRequest extends TingClientRequest {
     $response = $searchRequest->processResponse($response);
 
     if (isset($response->collections[0]->objects[0])) {
-      //  print_r($response->collections);
       return $response->collections[0]->objects[0];
     }
   }
