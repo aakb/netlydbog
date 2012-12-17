@@ -1,7 +1,0 @@
-; $Id$
-name = eLIB New Books
-description = Extends eLib
-package = Ding!
-core = 6.x
-dependencies[] = elib
-
