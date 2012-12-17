@@ -1,15 +1,22 @@
 <?php
+/**
+ * @file
+ * Implementation of the infinite carousel used one the page.
+ */
 
+/**
+ * Implements hook_block().
+ */
 function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array()) {
   $block = array();
   $cache_name = 'elib_infinite_carousel_cache' . $delta;
   $cache_table = 'cache';
-
+  
   if ($op == 'list') {
-    $block[0]['info'] = t('eLIB infinite carousel');
+    $block[0]['info'] = 'Infinite carousel';
     $block[0]['cache'] = BLOCK_NO_CACHE;
   }
-  else if ($op == 'configure' && $delta == 0) {
+  else if ($op == 'configure') {
     $form = array();
 
     $form['items'] = array(
@@ -17,15 +24,16 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
       '#title' => t('Number of items in the carousel'),
       '#default_value' => variable_get('elib_infinite_carousel_block_items', 49),
     );
+
     $form['search'] = array(
       '#type' => 'textfield',
       '#title' => t('Search query string'),
-      '#default_value' => variable_get('elib_infinite_carousel_block_query', '(dc.date = 2011) AND dc.type = "Lydbog (net)"'),
+      '#default_value' => variable_get('elib_infinite_carousel_block_query', '(dc.date = 2012) AND dc.type = "Lydbog (net)"'),
     );
 
     return $form;
   }
-  else if ($op == 'save' && $delta == 0) {
+  else if ($op == 'save') {
     variable_set('elib_infinite_carousel_block_items',  (int) $edit['items']);
     variable_set('elib_infinite_carousel_block_query',  $edit['search']);
     variable_set('elib_infinite_carousel_block_title',  $edit['title']);
@@ -33,18 +41,20 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
     // Clear the cache.
     cache_clear_all($cache_name, $cache_table);
   }
-  else if ($op == 'view' && $delta == 0) {
+  else if ($op == 'view') {
+    // Add CSS and JS to the frontend.
+    drupal_add_css(drupal_get_path('module', 'elib_infinite_carousel') . '/elib_infinite_carousel.css');
+    drupal_add_js(drupal_get_path('module', 'elib_infinite_carousel') . '/elib_infinite_carousel.js');
 
-    module_load_include('client.inc', 'ting');
-    drupal_add_css( drupal_get_path('module', 'elib_infinite_carousel') . '/elib_infinite_carousel.css' );
-    drupal_add_js( drupal_get_path('module', 'elib_infinite_carousel') . '/elib_infinite_carousel.js' );
-
-    $cache = cache_get($cache_name, $cache_table);
-
-    if (isset($cache->data)) {
+    // Check if cached data exists.
+    if ($cache = cache_get($cache_name, $cache_table)) {
       $items = $cache->data;
     }
     else {
+      // Load ting client.
+      module_load_include('client.inc', 'ting');
+
+      // Load configuraion.
       $query = variable_get('elib_infinite_carousel_block_query', '(dc.date = 2012) AND dc.type = "Lydbog (net)"');
       $limit = variable_get('elib_infinite_carousel_block_items', 49);
 
@@ -52,17 +62,19 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
       $iterations = ceil($limit/$newlimit);
 
       $ting_objects = array();
-      for ($i=0; $i < $iterations; $i++){
+      for ($i = 0; $i < $iterations; $i++) {
 
         $result = array();
-        $page = ($i+1);
+        $page = $i + 1;
 
         if (($newlimit * $page) > $limit) {
           $newlimit =  $limit % $newlimit;
         }
 
+        // Search the datawell.
         $result = ting_do_search($query, $page, $newlimit);
 
+        // Loop over the result and break all loops if limit is reached.
         if (($result instanceof TingClientSearchResult) && ($result->numTotalObjects)) {
           foreach ($result->collections as $collection) {
             foreach ($collection->objects as $object) {
@@ -105,8 +117,7 @@ function elib_infinite_carousel_block($op = 'list', $delta = 0, $edit = array())
         <div class="wrapper">
           <ul>' . $content .'</ul>
         </div>
-      </div>
-    ';
+      </div>';
   }
 
   return $block;
