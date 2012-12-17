@@ -1,5 +1,4 @@
 <?php
-// $Id: imagecache_autorotate.install,v 1.1.2.2 2009/09/07 07:29:14 dman Exp $
 /**
  * @file
  * Ensure Imagecache recognises our new actions, per http://drupal.org/node/290101.

@@ -1,5 +1,4 @@
 <?php
-// $Id: imagecache_textactions.module,v 1.2.2.9 2009/09/04 23:28:04 dman Exp $
 /**
  * @file Provide text manipulation process for imagecache.
  * 

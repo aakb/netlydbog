@@ -1,5 +1,4 @@
 <?php
-// $Id: imagecache_coloractions.install,v 1.1.2.3 2009/08/31 04:12:20 dman Exp $
 /**
  * @file Set up new color actions. Tell imagecache.module about them
  */

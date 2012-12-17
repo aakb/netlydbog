@@ -1,5 +1,4 @@
 <?php
-// $Id: imagecache_autorotate.module,v 1.1.2.1 2009/09/04 23:28:04 dman Exp $
 /**
  * @file
  * Autorotate image based on EXIF Orientation tag.

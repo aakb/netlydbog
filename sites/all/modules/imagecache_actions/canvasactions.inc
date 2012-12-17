@@ -1,5 +1,4 @@
 <?php
-// $Id: canvasactions.inc,v 1.1.4.21 2009/12/28 03:26:53 dman Exp $
 /**
  * @file Helper functions for the text2canvas action for imagecache
  * 
@@ -278,8 +277,8 @@ function imageapi_gd_image_definecanvas(&$image, $action = array()) {
       'info' => array(
         'width' => $targetsize['width'], 
         'height' => $targetsize['height'],
-        'mime_type' => 'image/png',
-        'extension' => 'png',
+        'mime_type' => $image->info['mime_type'],
+        'extension' => $image->info['extension'],
       ),
       'toolkit' => $image->toolkit,
     );

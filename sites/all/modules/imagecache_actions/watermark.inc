@@ -1,5 +1,4 @@
 <?php
-// $Id: watermark.inc,v 1.1.4.6 2009/10/30 14:03:54 dman Exp $
 /**
  * @file routine for image layering
  * 

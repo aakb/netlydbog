@@ -1,5 +1,4 @@
 <?php
-// $Id: imagefilter.inc,v 1.1.4.1 2009/08/31 04:12:20 dman Exp $
 /**
  * @file Third-party library to assist image blending on older GD toolkits
  */

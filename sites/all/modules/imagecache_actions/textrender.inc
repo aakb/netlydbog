@@ -1,5 +1,4 @@
 <?php
-// $Id: textrender.inc,v 1.1.2.5 2009/10/30 13:55:59 dman Exp $
 /**
  * @file Helper functions for imagecache_textactions
  * 

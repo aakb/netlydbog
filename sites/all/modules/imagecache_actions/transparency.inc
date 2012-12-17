@@ -1,5 +1,4 @@
 <?php
-// $Id: transparency.inc,v 1.3.2.5 2009/10/30 14:03:54 dman Exp $
 /**
  * @file Helper functions for the alpha action for imagecache
  * 

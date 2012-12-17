@@ -1,5 +1,4 @@
 <?php
-// $Id: textactions.inc,v 1.1.2.16 2009/09/04 23:28:04 dman Exp $
 /**
  * @file Helper functions for imagecache_textactions
  * 
