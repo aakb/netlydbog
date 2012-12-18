@@ -4,6 +4,22 @@
  * Wrapper functions for Ting client.
  */
 
+// Ting client has a ton of includes. Let's load them.
+$includes = array(
+  'addi-client/AdditionalInformationService.php',
+  'ting-client/lib/TingClient.php',
+  'ting-client/lib/adapter/TingClientRequestAdapter.php',
+  'ting-client/lib/request/TingClientRequestFactory.php',
+  'ting-client/lib/log/TingClientDrupalWatchDogLogger.php'
+
+);
+
+$path = drupal_get_path('module', 'ting') . '/lib/';
+
+foreach ($includes as $include) {
+  require_once($path . $include);
+}
+
 /**
  * Load an object from Ting by ID.
  *
@@ -314,7 +330,7 @@ function ting_get_client() {
   static $client;
 
   if (!isset($client)) {
-    $logger = (variable_get('ting_enable_logging', FALSE)) ? new TingClientDrupalWatchDogLogger() : new TingClientVoidLogger();
+    $logger = (variable_get('ting_enable_logging', false)) ? new TingClientDrupalWatchDogLogger() : new TingClientVoidLogger();
     $client = new TingClient(new TingClientRequestAdapter(), $logger);
   }
 
@@ -388,7 +404,7 @@ function ting_add_collection_info(TingClientObjectCollection $collection) {
 }
 
 function ting_add_object_info(TingClientObject $object) {
-  $object->type = $object->record['dc:type']['dkdcplus:BibDK-Type'][0];
+  $object->type = isset($object->record['dc:type']['dkdcplus:BibDK-Type'][0]) ? $object->record['dc:type']['dkdcplus:BibDK-Type'][0] : NULL;
   $object->language = !empty($object->record['dc:language'][''][0]) ? $object->record['dc:language'][''][0] : FALSE;
 
   $object->title = $object->record['dc:title'][''][0];
@@ -417,7 +433,7 @@ function ting_add_object_info(TingClientObject $object) {
   $object->url = url('ting/object/'.$object->id, array('absolute' => TRUE));
 
   if (function_exists('ting_proxy_rewrite_download_url')) {
-    if ($object->record['dc:identifier']['dcterms:URI']) {
+    if (isset($object->record['dc:identifier']['dcterms:URI']) && $object->record['dc:identifier']['dcterms:URI']) {
       foreach ($object->record['dc:identifier']['dcterms:URI'] as $url) {
         $object->online_url = ting_proxy_rewrite_download_url($url);
       }
@@ -441,26 +457,32 @@ function ting_add_object_info(TingClientObject $object) {
  * @return object
  */
 function ting_add_additional_info($collection) {
-  $faust_numbers = array();
+  /**
+   *
+   * THIS IS A HACK AND SHOULD BE LOOK AT LATER ON. WE DONT USE THE ADDITIONAL.
+   *
+   */
 
+//  $faust_numbers = array();
+//
   $objects = (isset($collection->objects)) ? $collection->objects : $collection;
-
-  foreach ($objects as $object) {
-    if ($object->localId) {
-      $faust_numbers[] = $object->localId;
-    }
-  }
-
-  if (sizeof($faust_numbers) > 0) {
-    foreach (ting_get_additional_info($faust_numbers) as $faust_number => $ai) {
-      foreach ($objects as &$object) {
-        if ($faust_number == $object->localId) {
-          $object->additionalInformation = $ai;
-        }
-      }
-    }
-  }
-
+//
+//  foreach ($objects as $object) {
+//    if ($object->localId) {
+//      $faust_numbers[] = $object->localId;
+//    }
+//  }
+//
+//  if (sizeof($faust_numbers) > 0) {
+//    foreach (ting_get_additional_info($faust_numbers) as $faust_number => $ai) {
+//      foreach ($objects as &$object) {
+//        if ($faust_number == $object->localId) {
+//          $object->additionalInformation = $ai;
+//        }
+//      }
+//    }
+//  }
+//
   if (isset($collection->objects)) {
     $collection->objects = $objects;
   }

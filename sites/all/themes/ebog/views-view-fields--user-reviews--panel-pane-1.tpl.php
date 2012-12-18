@@ -38,14 +38,13 @@
       // the field is a 'block' element type or 'inline' element type.
       ?>
       <<?php print $field->element_type; ?> class="field-content">
-      
+
       <?php if($id == 'uid') {
-        $u = elib_user_get_cred($field->raw);
-        print $u['user'];
+        print netsound_get_username($field->raw);
       } else {
         print $field->content;
       } ?>
-      
+
       </<?php print $field->element_type; ?>>
   </<?php print $field->inline_html;?>>
 <?php endforeach; ?>

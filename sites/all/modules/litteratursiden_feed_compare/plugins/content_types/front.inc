@@ -14,6 +14,7 @@ function litteratursiden_feed_compare_front_ctools_content_types() {
     'description' => t('Litteratursiden feed and compare (front), description.'),
     'single' => TRUE,
     'category' => array('INLEAD'),
+    'icon' => '',
   );
 }
 

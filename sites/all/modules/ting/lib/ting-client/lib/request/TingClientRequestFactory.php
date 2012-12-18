@@ -1,10 +1,5 @@
 <?php
 
-$path = drupal_get_path('module', 'ting') . '/lib/';
-require_once($path . 'ting-client/lib/request/TingClientSearchRequest.php');
-require_once($path . 'ting-client/lib/request/TingClientObjectRequest.php');
-require_once($path . 'ting-client/lib/request/TingClientObjectRecommendationRequest.php');
-
 class TingClientRequestFactory {
 	public function __construct($urls) {
 		$this->urls = $urls;
@@ -50,6 +45,20 @@ class TingClientRequestFactory {
 	 */
 	function getObjectRecommendationRequest() {
 		return new TingClientObjectRecommendationRequest($this->urls['recommendation']);
+	}
+
+	/**
+	 * @ return TingClientInfomediaArticleRequest
+	 */
+	function getInfomediaArticleRequest(){
+	  return new TingClientInfomediaArticleRequest($this->urls['infomedia']);
+	}
+	  
+	/**
+	 * @ return TingClientInfomediaReviewRequest
+	 */
+	function getInfomediaReviewRequest(){
+	  return new TingClientInfomediaReviewRequest($this->urls['infomedia']);
 	}
 }
 

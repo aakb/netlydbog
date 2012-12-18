@@ -1,0 +1,3 @@
+[submodule "sites/all/modules/publizon"]
+	path = sites/all/modules/publizon
+	url = git@github.com:aakb/publizon.git

@@ -156,7 +156,7 @@ voxb h3 {
 .panel-pane.pane-embedvideo .pane-content,
 .panel-pane.pane-front .pane-content,
 #sidebar-first #block-views-latest_news-block_1 .content,
-.pane-elib-block-lastloans-3 .pane-content,
+.pane-publizon-user-welcome .pane-content,
 .panel-pane.pane-latest-news .pane-content,
 .page-anmeldelser .pane-content,
 .section-artikel .pane-content,
@@ -466,7 +466,7 @@ voxb h3 {
 
 .display-book:first-child,
 .view-anmeldelser .views-row-first,
-.pane-elib-user-account .pane-content .display-book.biglist:first-child,
+.pane-publizon-loans-myloans .pane-content .display-book.biglist:first-child,
 .view-user-reviews .views-row-first {
   padding-top: 0;
 }
@@ -479,6 +479,11 @@ voxb h3 {
 
 .feed_and_compare_item:first-child {
   padding-top: 0;
+}
+
+#main-content ul.publizon-products-list,
+#main-content ul.publizon-loans-list {
+  margin-left: 0;
 }
 
 .display-book .left {
@@ -615,9 +620,9 @@ voxb h3 {
   padding: 4px;
 }
 
-#user-login #edit-library-wrapper label {
+#user-login #edit-retailer-id-wrapper label {
   float: left;
-  margin-right: 15px;
+  margin-right: 8px;
 }
 
 #user-login #edit-name-wrapper label,
@@ -639,38 +644,38 @@ voxb h3 {
   display: none;
 }
 
-.pane-elib-user-account,
-.pane-netsound-cart-0 {
+.pane-publizon-loans-myloans,
+.pane-recall-list-cart {
   float: left;
   width: 340px;
   margin: 0;
 }
 
-.pane-elib-user-account {
+.pane-publizon-loans-myloans {
   margin-right: 10px;
 }
 
-.pane-netsound-cart-0 {
+.pane-recall-list-cart {
   margin-left: 10px;
 }
 
-.pane-elib-user-account ul {
+.pane-publizon-loans-myloans ul {
   margin: 0;
 }
 
-.pane-elib-block-lastloans-3 {
+.pane-publizon-user-welcome {
   margin-bottom: 35px;
 }
 
-.pane-elib-user-account .loanperiod {
+.pane-publizon-loans-myloans .loanperiod {
   clear: both;
   font-weight: bold;
   padding-top: 10px;
 }
 
-.pane-elib-user-account .loanperiod.short   { color: ##1B75BC; }
-.pane-elib-user-account .loanperiod.medium  { color: #FF8;     }
-.pane-elib-user-account .loanperiod.long    { color: #9BC833;  }
+.pane-publizon-loans-myloans .loanperiod.short   { color: ##1B75BC; }
+.pane-publizon-loans-myloans .loanperiod.medium  { color: #FF8;     }
+.pane-publizon-loans-myloans .loanperiod.long    { color: #9BC833;  }
 
 div.panel-pane.pane-node-content .pane-content div.submitted {
   display: none;
@@ -925,5 +930,117 @@ input[type=submit]:hover {
 
 #elib-popup-login-form p {
   width: 380px;
-  margin-right: 0px; 
+  margin-right: 0px;
+}
+
+/* Nice menus */
+
+.preface {
+  *margin-top: 30px; /* IE 7 */
+}
+
+.block-nice_menus {
+  position: relative;
+  clear: both;
+}
+
+.block-nice_menus h2 {
+  color: #8e96a2;
+  font-weight: normal;
+  left: 30px;
+  position: absolute;
+  top: 11px;
+  z-index: 99;
+}
+
+ul.nice-menu-down,
+ul.nice-menu-down ul {
+  background: #5b6574; /* for non-css3 browsers */
+  background: -webkit-gradient(linear, left top, left bottom, from(#5b6574), to(#485262)); /* for webkit browsers */
+  background: -moz-linear-gradient(top,  #5b6574,  #485262); /* for firefox 3.6+ */
+  border: 0;
+  clear: both;
+  float: none;
+  margin-top: 20px;
+  margin-right: 10px;
+  padding-left: 65px;
+}
+
+ul.nice-menu-down {
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -khtml-border-radius: 4px;
+  border-radius: 4px;
+  margin-left: 10px;
+  max-width: 100%;
+}
+
+ul.nice-menu-down ul {
+  -moz-border-radius: 0 0 4px 4px;
+  -webkit-border-radius: 0 0 4px 4px;
+  -khtml-border-radius: 0 0 4px 4px;
+  border-radius: 0 0 4px 4px;
+  padding-left: 0;
+  top: 19px;
+}
+
+ul.nice-menu-down ul li {
+  max-width: 100%;
+  min-width: 200px;
+  width: 100%;
+}
+
+ul.nice-menu-down li.menuparent.over,
+ul.nice-menu-down ul li.last,
+ul.nice-menu-down ul li.last a {
+  -moz-border-radius: 0 0 4px 4px;
+  -webkit-border-radius: 0 0 4px 4px;
+  -khtml-border-radius: 0 0 4px 4px;
+  border-radius: 0 0 4px 4px;
+}
+
+ul.nice-menu-down li,
+ul.nice-menu-down li.menuparent {
+  background: transparent;
+  border: 0;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -khtml-border-radius: 4px;
+  border-radius: 4px;
+}
+
+ul.nice-menu-down li.menuparent:hover {
+  background: transparent;
+}
+
+ul.nice-menu-down li a,
+ul.nice-menu-down li.menuparent a {
+  border-right: 1px solid #485262;
+  color: #fff;
+  display: block;
+  font-size: 120%;
+  line-height: 120%;
+  padding: 10px 15px 12px;
+}
+
+ul.nice-menu-down ul li a,
+ul.nice-menu-down li.menuparent ul li a {
+  border: 0;
+  font-size: 110%;
+  line-height: 110%;
+}
+
+ul.nice-menu-down li.menuparent ul li a:hover {
+  background: #353f4f;
+}
+
+ul.nice-menu-down li.over,
+ul.nice-menu-down li:hover,
+ul.nice-menu-down li.menuparent.over,
+ul.nice-menu-down li.over a {
+  background: #485262;
+  -moz-border-radius: 4px 4px 0 0;
+  -webkit-border-radius: 4px 4px 0 0;
+  -khtml-border-radius: 4px 4px 0 0;
+  border-radius: 4px 4px 0 0;
 }

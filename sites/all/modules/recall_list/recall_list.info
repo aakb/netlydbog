@@ -1,0 +1,5 @@
+name = Recall list (Simple Cart)
+description = Recall list to store items for later
+dependencies[] = publizon_product
+package = Other
+core = 6.x
