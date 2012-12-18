@@ -941,6 +941,7 @@ input[type=submit]:hover {
 
 .block-nice_menus {
   position: relative;
+  clear: both;
 }
 
 .block-nice_menus h2 {
