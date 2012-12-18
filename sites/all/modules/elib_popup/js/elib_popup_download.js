@@ -15,7 +15,7 @@
 
   // Handle clicked loan link, those matching 'ting/object/%/download' pattern
   $(document).ready(function() {
-    $('.icons a.download, .icons a.stream').live('click', function() {
+    $('.icons a.download, .icons a.stream, .icons a.loan').live('click', function() {
       href = $(this).attr('href');
 
       clicked = $(this);

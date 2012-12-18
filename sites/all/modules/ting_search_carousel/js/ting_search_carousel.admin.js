@@ -1,4 +1,3 @@
-
 Drupal.behaviors.tingSearchCarouselAdmin = function(context)
 {
 	Drupal.tingSearchCarouselAdmin.remove();

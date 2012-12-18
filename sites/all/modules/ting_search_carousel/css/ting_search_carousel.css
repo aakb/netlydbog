@@ -1,0 +1,183 @@
+/* ==========================================================================
+   ting search carousel styling
+   ========================================================================== */
+/* Compass includes
+   ========================================================================== */
+/* Mixins
+   ========================================================================== */
+/* RGBa background (https://gist.github.com/1949202) */
+/* Variables
+   ========================================================================== */
+/* Spacing used to position arrows, below the carousel etc. */
+/* Max width and height for the cover images */
+/* Colors */
+/* Text */
+/* Tabs */
+/* Previous and next buttons
+   ========================================================================== */
+.es-nav-prev,
+.es-nav-next {
+  background-image: url("/sites/all/themes/ebog/images/cycle.png");
+  height: 36px;
+  overflow: hidden;
+  position: absolute;
+  text-indent: -9999px;
+  top: 38%;
+  width: 36px;
+}
+
+.es-nav-next {
+  background-position: -36px 0;
+  right: 20px;
+}
+.es-nav-next:hover {
+  background-position: -36px -36px;
+}
+
+.es-nav-prev {
+  background-position: 0 0;
+  left: 20px;
+}
+.es-nav-prev:hover {
+  background-position: 0 -36px;
+}
+
+.carousel-action-disabled {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=25);
+  opacity: 0.25;
+}
+
+.carousel-disabled .carousel-action-prev,
+.carousel-disabled .carousel-action-next {
+  display: none;
+}
+
+/* Carousel content, mask, title etc.
+   ========================================================================== */
+.carousel-outer {
+  position: relative;
+}
+
+.carousel-inner {
+  overflow: hidden;
+  width: 88%;
+  margin: 0 auto;
+}
+
+.carousel-inner ul {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  list-style: none outside none;
+}
+
+.carousel-inner ul li {
+  float: left;
+  padding: 0;
+  margin: 0;
+  vertical-align: top;
+}
+
+.carousel-wrapper {
+  background-color: rgba(0, 0, 0, 0.1);
+  zoom: 1;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#1A000000,endColorstr=#1A000000);
+  text-align: center;
+  position: relative;
+  min-height: 188px;
+  padding: 20px;
+}
+.carousel-wrapper .ajax-loader {
+  background: transparent url("../images/ajax-loader.gif") no-repeat right top;
+  left: 50%;
+  height: 20px;
+  position: absolute;
+  top: 34%;
+  width: 220px;
+}
+
+/* Carousel tabs
+   ========================================================================== */
+.carousel-tabs ul {
+  margin: 0;
+  padding: 0;
+  position: relative;
+  text-align: center;
+}
+
+.carousel-tabs ul li {
+  border: 1px solid #cccccc;
+  display: table-cell;
+  *float: right;
+  /* IE 7 */
+  min-width: 10%;
+  /* Appearantly this make them have equal width in Firefox */
+  vertical-align: top;
+  text-align: center;
+}
+
+.carousel-tabs ul li a {
+  background-color: white;
+  display: block;
+  padding: 10px;
+  color: #000;
+  text-decoration: none;
+}
+.carousel-tabs ul li a:hover {
+  text-decoration: underline;
+}
+
+.carousel-tabs ul li.active {
+  border-color: #be1f24;
+}
+
+.carousel-tabs ul li.active a {
+  background-color: #be1f24;
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#be1f24, endColorstr=#e82a30);
+  background-image: -moz-linear-gradient(center top, #be1f24, #e82a30);
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#be1f24), to(#e82a30));
+  color: white;
+  position: relative;
+}
+
+/* Create the active arrow using a pseudo element */
+.carousel-tabs ul li.active a:before {
+  content: "";
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #be1f24;
+  height: 0;
+  margin-left: -4px;
+  left: 50%;
+  position: absolute;
+  top: -9px;
+  width: 0;
+}
+
+/* Mediaqueries
+   ========================================================================== */
+/*@media screen and (max-width: 960px) {
+
+  .carousel-inner {
+    min-height: 250px;
+    padding-top: $default-spacing;
+    padding-bottom: $default-spacing;
+
+    .ajax-loader {
+      left: 35%;
+    }
+  }
+
+  .carousel-action-prev {
+    left: $default-spacing;
+  }
+
+  .carousel-action-prev,
+  .carousel-action-next {
+    top: 35%;
+  }
+
+  .carousel-tabs ul li a {
+    padding: $default-spacing $default-spacing / 2;
+  }
+}*/

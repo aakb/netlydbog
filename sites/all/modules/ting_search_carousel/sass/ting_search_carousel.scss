@@ -1,0 +1,218 @@
+/* ==========================================================================
+   ting search carousel styling
+   ========================================================================== */
+
+/* Compass includes
+   ========================================================================== */
+@import "compass/css3";
+
+
+/* Mixins
+   ========================================================================== */
+
+/* RGBa background (https://gist.github.com/1949202) */
+@mixin rgba-background($color, $alpha) {
+  $rgba: rgba($color, $alpha);
+  $ie-hex-str: ie-hex-str($rgba);
+  background-color: $rgba;
+  zoom: 1;
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#{$ie-hex-str},endColorstr=#{$ie-hex-str});
+}
+
+@mixin gradient-bg($color1, $color2) {
+  background-color: $color1;
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#{$color1}, endColorstr=#{$color2});
+  background-image: -moz-linear-gradient(center top, $color1, $color2);
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from($color1), to($color2));
+}
+
+/* Variables
+   ========================================================================== */
+
+/* Spacing used to position arrows, below the carousel etc. */
+$default-spacing:   20px;
+
+/* Max width and height for the cover images */
+$image-max-height:  185px;
+
+/* Colors */
+$background-color: #000;
+$gradient-color-start: #BE1F24;
+$gradient-color-stop: #E82A30;
+
+/* Text */
+$title-font-size: 30px;
+
+/* Tabs */
+$tabs-background-color:         #fff;
+$tabs-active-background-color:  #000;
+$tabs-active-text-color:        #fff;
+
+/* Previous and next buttons
+   ========================================================================== */
+.es-nav-prev,
+.es-nav-next {
+  background-image: url('/sites/all/themes/ebog/images/cycle.png');
+  height: 36px;
+  overflow: hidden;
+  position: absolute;
+  text-indent: -9999px;
+  top: 38%;
+  width: 36px;
+}
+
+.es-nav-next {
+  background-position: -36px 0;
+  right: $default-spacing;
+
+  &:hover {
+    background-position: -36px -36px;
+  }
+}
+
+.es-nav-prev {
+  background-position: 0 0;
+  left: $default-spacing;
+  &:hover {
+    background-position: 0 -36px;
+  }
+}
+
+.carousel-action-disabled {
+  @include opacity(.25);
+}
+
+.carousel-disabled .carousel-action-prev,
+.carousel-disabled .carousel-action-next {
+  display:none;
+}
+
+/* Carousel content, mask, title etc.
+   ========================================================================== */
+
+.carousel-outer {
+	position: relative;
+}
+
+.carousel-inner {
+  overflow: hidden;
+  width: 88%;
+  margin: 0 auto;
+}
+
+.carousel-inner ul {
+  display:  inline-block;
+  margin: 0;
+  padding: 0;
+  list-style: none outside none;
+}
+
+.carousel-inner ul li {
+  float: left;
+  padding: 0;
+  margin: 0;
+  vertical-align: top;
+}
+
+.carousel-wrapper {
+  @include rgba-background($background-color, .1);
+
+  text-align: center;
+  position: relative;
+  min-height: 188px;
+  padding: $default-spacing;
+
+  .ajax-loader {
+    background: transparent url('../images/ajax-loader.gif') no-repeat right top;
+    left: 50%;
+    height: 20px;
+    position: absolute;
+    top: 34%;
+    width: 220px;
+  }
+}
+
+/* Carousel tabs
+   ========================================================================== */
+
+.carousel-tabs ul {
+  margin: 0;
+  padding: 0;
+  position: relative;
+  text-align: center;
+}
+
+.carousel-tabs ul li {
+  border: 1px solid lighten(#000, 80%);
+  display: table-cell;
+  *float: right; /* IE 7 */
+  min-width: 10%; /* Appearantly this make them have equal width in Firefox */
+  vertical-align: top;
+  text-align: center;
+}
+
+.carousel-tabs ul li a {
+  background-color: $tabs-background-color;
+  display: block;
+  padding: $default-spacing / 2;
+  color: #000;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.carousel-tabs ul li.active {
+  border-color: $gradient-color-start;
+}
+
+.carousel-tabs ul li.active a {
+  @include gradient-bg($gradient-color-start, $gradient-color-stop);
+  color: $tabs-active-text-color;
+  position: relative;
+}
+
+/* Create the active arrow using a pseudo element */
+.carousel-tabs ul li.active a:before {
+  content: "";
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid $gradient-color-start;
+  height: 0;
+  margin-left: -4px;
+  left: 50%;
+  position: absolute;
+  top: -9px;
+  width: 0;
+}
+
+
+/* Mediaqueries
+   ========================================================================== */
+
+/*@media screen and (max-width: 960px) {
+
+  .carousel-inner {
+    min-height: 250px;
+    padding-top: $default-spacing;
+    padding-bottom: $default-spacing;
+
+    .ajax-loader {
+      left: 35%;
+    }
+  }
+
+  .carousel-action-prev {
+    left: $default-spacing;
+  }
+
+  .carousel-action-prev,
+  .carousel-action-next {
+    top: 35%;
+  }
+
+  .carousel-tabs ul li a {
+    padding: $default-spacing $default-spacing / 2;
+  }
+}*/
