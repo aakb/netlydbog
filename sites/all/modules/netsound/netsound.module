@@ -94,13 +94,13 @@ function netsound_contact_netlyd_form($form_state){
   $form['contact_library'] = array(
     '#type' => 'select',
     '#title' => t('Vælg dit bibliotek'),
-    '#options' => elib_libraries_get_libraries(),
+    '#options' => publizon_get_libraries(),
   	'#required' => true,
   );
-  global $user;
-  $userinfo = elib_user_get_cred($user->uid);
-  if($userinfo['lib']){
-    $form['contact_library']['#default_value'] = $userinfo['lib'];
+
+  $userinfo = publizon_user_get_credentials();
+  if ($userinfo) {
+    $form['contact_library']['#default_value'] = publizon_get_library($userinfo['retailer_id']);
     $form['contact_library']['#disabled'] = true;
   }
   $form['problem'] = array(
@@ -137,13 +137,13 @@ function netsound_contact_elib_form($form_state){
   $form['contact_library'] = array(
     '#type' => 'select',
     '#title' => t('Vælg dit bibliotek'),
-    '#options' => elib_libraries_get_libraries(),
+    '#options' => publizon_get_libraries(),
   	'#required' => true
   );
-  global $user;
-  $userinfo = elib_user_get_cred($user->uid);
-  if($userinfo['lib']){
-    $form['contact_library']['#default_value'] = $userinfo['lib'];
+
+  $userinfo = publizon_user_get_credentials();
+  if ($userinfo) {
+    $form['contact_library']['#default_value'] = publizon_get_library($userinfo['retailer_id']);
     $form['contact_library']['#disabled'] = true;
   }
   $form['book_title'] = array(
