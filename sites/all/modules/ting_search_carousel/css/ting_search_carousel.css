@@ -128,14 +128,14 @@
 }
 
 .carousel-tabs ul li.active {
-  border-color: #be1f24;
+  border-color: #1b75bc;
 }
 
 .carousel-tabs ul li.active a {
-  background-color: #be1f24;
-  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#be1f24, endColorstr=#e82a30);
-  background-image: -moz-linear-gradient(center top, #be1f24, #e82a30);
-  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#be1f24), to(#e82a30));
+  background-color: #1b75bc;
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#1b75bc, endColorstr=#0082c6);
+  background-image: -moz-linear-gradient(center top, #1b75bc, #0082c6);
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#1b75bc), to(#0082c6));
   color: white;
   position: relative;
 }
@@ -145,7 +145,7 @@
   content: "";
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-bottom: 8px solid #be1f24;
+  border-bottom: 8px solid #1b75bc;
   height: 0;
   margin-left: -4px;
   left: 50%;
