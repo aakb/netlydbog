@@ -1,0 +1,11 @@
+name = Imagecache Autorotate
+description = Autorotate image based on EXIF Orientation.
+dependencies[] = imagecache
+package = ImageCache
+core = 6.x
+; Information added by drupal.org packaging script on 2012-10-03
+version = "6.x-1.9"
+core = "6.x"
+project = "imagecache_actions"
+datestamp = "1349238975"
+

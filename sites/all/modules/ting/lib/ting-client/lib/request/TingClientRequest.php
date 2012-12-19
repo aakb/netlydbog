@@ -4,9 +4,14 @@ abstract class TingClientRequest {
   private $wsdlUrl;
   private $parameters = array();
 
+  abstract public function processResponse(stdClass $response);
+
+  abstract protected function getRequest();
+
   public function __construct($wsdlUrl) {
     $this->wsdlUrl = $wsdlUrl;
   }
+
 
   public function setwsdlUrl($wsdlUrl) {
     $this->wsdlUrl = $wsdlUrl;
@@ -16,14 +21,20 @@ abstract class TingClientRequest {
     $this->parameters[$name] = $value;
   }
 
-  public function setParameters($name, $array) {
+  public function getParameter($name) {
+    return $this->parameters[$name];
+  }
+
+  // pjo removed parameter $name
+  // public function setParameters($name, $array) {
+  public function setParameters($array) {
     $this->parameters = array_merge($this->parameters, $array);
   }
 
   public function getNumResults() {
     return $this->numResults;
   }
-  
+
   public function setNumResults($numResults) {
     $this->numResults = $numResults;
   }
@@ -52,7 +63,7 @@ abstract class TingClientRequest {
     }
     return $this->processResponse($response);
   }
-  
+
   protected static function getValue($object) {
     if (is_array($object)) {
       return array_map(array('RestJsonTingClientRequest', 'getValue'), $object);
@@ -68,7 +79,7 @@ abstract class TingClientRequest {
       return array_map(array('RestJsonTingClientRequest', 'getValue'), $attribute);
     }
     else {
-      return self::getValue($attribute); 
+      return self::getValue($attribute);
     }
   }
 
@@ -77,30 +88,29 @@ abstract class TingClientRequest {
     $attributeName = ($attributeName[0] != '@') ? '@'.$attributeName : $attributeName;
     return self::getBadgerFishValue($object, $attributeName);
   }
-  
+
   protected static function getNamespace($object) {
     return self::getBadgerFishValue($object, '@');
   }
-  
+
   /**
    * Helper to reach JSON BadgerFish values with tricky attribute names.
    */
   protected static function getBadgerFishValue($badgerFishObject, $valueName) {
     $properties = get_object_vars($badgerFishObject);
     if (isset($properties[$valueName])) {
-      $value = $properties[$valueName];     
+      $value = $properties[$valueName];
       if (is_string($value)) {
         //some values contain html entities - decode these
         $value = html_entity_decode($value, ENT_COMPAT, 'UTF-8');
       }
-            
+
       return $value;
     }
     else {
-      return NULL;      
+      return NULL;
     }
   }
-  
-  public abstract function processResponse(stdClass $response); 
+
 }
 

@@ -1,9 +1,5 @@
 <?php
 
-$path = drupal_get_path('module', 'ting') . '/lib/';
-require_once($path . 'ting-client/lib/log/TingClientVoidLogger.php');
-module_load_include('inc', 'nanosoap');
-
 class TingClientRequestAdapter {
   /**
    * @var TingClientLogger

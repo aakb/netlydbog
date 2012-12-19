@@ -1,0 +1,7 @@
+name = Search carousel (backport)
+description = Provides a Infinite Carousel block with latest added books
+package = Ding!
+core = 6.x
+dependencies[] = publizon
+dependencies[] = ting
+dependencies[] = libraries

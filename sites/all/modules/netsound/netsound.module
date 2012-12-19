@@ -34,7 +34,7 @@ function netsound_block($op = 'list', $delta = 0, $edit = array()) {
       case 0:
         $block['subject'] = t('Keywords');
 
-         
+
         $keywords = explode(',',variable_get('netsound_keywords', ''));
         if(is_array($keywords)){
           foreach($keywords as $keyword){
@@ -50,19 +50,19 @@ function netsound_block($op = 'list', $delta = 0, $edit = array()) {
         //$block['content'] = 'dflksæfd';
         break;
       case 2:
-         
-         
+
+
         $content .= faq_page(arg(1));
-         
+
         $block['content'] = $content;
         break;
       case 3:
-         
+
         drupal_set_message('<p style="strong">'.t('Din søgning på <strong>!query</strong> gav ingen resultater. ',array('!query' => strip_tags(arg(1)))).'</p><p>'.t('Hjælp til søgning:<br />- Prøv at bruge synonymer. Du søger måske efter noget, der bruger andre ord. - Gør søgningen mere generel. Prøv mere generelle udtryk i stedet for konkrete udtryk. - Du kan trunkere i netlydbog.dk med "". Skriver du "hund", får du resultat på ord som begynder på "hund", altså hund, hundene, hundens osv.').'</p>');
-        
-        
+
+
         //<p>'.t('Prøv evt din søgning på <a href="http://bibliotek.dk/vis.php?origin=sogning&field1=fritekst&term1=!query&ma=lb">bibliotek.dk</a>',array('!query' => strip_tags(arg(1)))).'</p>');
-         
+
         break;
       case 4:
         $block['content'] = drupal_get_form('netsound_shortcutmenu_form');
@@ -84,23 +84,23 @@ function netsound_contact_netlyd_form($form_state){
     '#type' => 'textfield',
     '#title' => t('Navn'),
   );
- 
+
   $form['contact_mail'] = array(
     '#type' => 'textfield',
     '#title' => t('E-mail'),
     '#required' => true
   );
-  
+
   $form['contact_library'] = array(
     '#type' => 'select',
     '#title' => t('Vælg dit bibliotek'),
-    '#options' => elib_libraries_get_libraries(),
+    '#options' => publizon_get_libraries(),
   	'#required' => true,
   );
-  global $user;
-  $userinfo = elib_user_get_cred($user->uid); 
-  if($userinfo['lib']){
-    $form['contact_library']['#default_value'] = $userinfo['lib'];
+
+  $userinfo = publizon_user_get_credentials();
+  if ($userinfo) {
+    $form['contact_library']['#default_value'] = publizon_get_library($userinfo['retailer_id']);
     $form['contact_library']['#disabled'] = true;
   }
   $form['problem'] = array(
@@ -112,15 +112,15 @@ function netsound_contact_netlyd_form($form_state){
     '#value' => t('Send besked')
   );
   $form['#submit'][] = 'netsound_contact_form_submit';
-  
+
   return $form;
-  
+
 }
 
 
 function netsound_contact_elib_form($form_state){
   $form = array();
-  
+
   $form['contact_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Navn'),
@@ -128,7 +128,7 @@ function netsound_contact_elib_form($form_state){
   $form['contact_ssn'] = array(
     '#type' => 'textfield',
     '#title' => t('Lånerkortnr./CPR'),
-  );  
+  );
   $form['contact_mail'] = array(
     '#type' => 'textfield',
     '#title' => t('E-mail'),
@@ -137,13 +137,13 @@ function netsound_contact_elib_form($form_state){
   $form['contact_library'] = array(
     '#type' => 'select',
     '#title' => t('Vælg dit bibliotek'),
-    '#options' => elib_libraries_get_libraries(),
+    '#options' => publizon_get_libraries(),
   	'#required' => true
   );
-  global $user;
-  $userinfo = elib_user_get_cred($user->uid); 
-  if($userinfo['lib']){
-    $form['contact_library']['#default_value'] = $userinfo['lib'];
+
+  $userinfo = publizon_user_get_credentials();
+  if ($userinfo) {
+    $form['contact_library']['#default_value'] = publizon_get_library($userinfo['retailer_id']);
     $form['contact_library']['#disabled'] = true;
   }
   $form['book_title'] = array(
@@ -196,14 +196,14 @@ function netsound_contact_elib_form($form_state){
     '#value' => t('Send besked')
   );
   $form['#submit'][] = 'netsound_contact_form_submit';
-  
+
   return $form;
 }
 
 
 function netsound_shortcutmenu_form($form_state){
   $form  = array();
-  
+
   $questions = explode("\n",variable_get('netsound_shortcutmenu', ''));
   if(is_array($questions)){
     foreach($questions as $line){
@@ -211,7 +211,7 @@ function netsound_shortcutmenu_form($form_state){
       $options[] = trim($label);
     }
   }
-  
+
   $form['shortcut'] = array(
 		'#type' => 'radios',
 		'#prefix' => '<strong><p>'.t('Drejer din henvendelse sig om et af de følgende punkter?').'</p></strong><p>'.t('Hvis du vælger et af disse punkter istedet for at skrive direkte til os vil ekspeditionstiden være væsentlig kortere. På forhånd tak.').'</p>',
@@ -227,10 +227,10 @@ function netsound_shortcutmenu_form($form_state){
 }
 
 function netsound_contact_form_submit($form, &$form_state){
-  
+
   $header = array('Form Key', 'Value');
   $rows = array();
-  
+
   foreach($form_state['values'] as $key => $value){
     $rows[] = array(
       array(
@@ -245,21 +245,21 @@ function netsound_contact_form_submit($form, &$form_state){
   array_pop($rows);
   array_pop($rows);
   array_pop($rows);
-  //array_pop($rows);  
-  
+  //array_pop($rows);
+
   $out = theme('table', $header, $rows, $table_attributes);
-  
+
   $params['subject'] = t('Support besked fra netlydbog.dk');
   $params['body'] = $out;
-  
+
   $mail = variable_get('netsound_elibmail', '');
   if($form_state['values']['form_id'] == 'netsound_contact_netlyd_form'){
     $mail = variable_get('netsound_supportmail', '');
   }
-  
-  
+
+
   drupal_mail('netsound','somekey',$mail,language_default(),$params,$form_state['values']['contact_mail'],true);
-  
+
   drupal_set_message(t('Tak for din henvendelse. Vi stræber på at behandle den hurtigst muligt.'));
   drupal_goto(); // frontpage
 }
@@ -284,7 +284,7 @@ function netsound_get_genres_from_categories($tid){
       node.vid AS node_vid,
       content_type_category_genre.field_searchphrase_value AS searchphrase,
       node.title AS node_title
-    FROM node node 
+    FROM node node
     LEFT JOIN content_type_category_genre ON node.vid = content_type_category_genre.vid
     INNER JOIN term_node term_node ON node.vid = term_node.vid
     WHERE term_node.tid = %s
@@ -305,13 +305,13 @@ function netsound_form_alter(&$form, $form_state, $form_id) {
     unset($form['name']);
     unset($form['subject']);
     unset($form['copy']);
-     
+
   }
 }
 
 function netsound_show_videolink($tid){
   $res = db_query('SELECT node.nid AS nid
- FROM node node 
+ FROM node node
  INNER JOIN term_node term_node ON node.vid = term_node.vid
  WHERE (node.type in ("helpvideo")) AND (term_node.tid = '.$tid.')
   ');
@@ -336,4 +336,23 @@ function netsound_mail($key, &$message, $params) {
   $message['subject'] = $params['subject'];
   $message['body'] = $params['body'];
 }
-?>
+
+/**
+ * Get username if defined in the database for the current user.
+ *
+ * @global object $user
+ *  Drupal user object for the current logged in user.
+ * @param int $uid
+ *  Drupal user id.
+ * @return mixed
+ *  The users name as an string or FALSE if the user is not found.
+ */
+function netsound_get_username($uid = NULL) {
+  if (!isset($uid)) {
+    global $user;
+    $uid = $user->uid;
+  }
+
+  $data = db_fetch_array(db_query('SELECT username FROM {netsound_user} WHERE uid = %d', $uid));
+  return isset($data['username']) ? check_plain($data['username']) : FALSE;
+}

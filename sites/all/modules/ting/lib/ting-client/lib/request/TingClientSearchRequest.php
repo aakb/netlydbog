@@ -1,20 +1,5 @@
 <?php
 
-$includes = array(
-  'ting-client/lib/request/TingClientRequest.php',
-  'ting-client/lib/result/search/TingClientSearchResult.php',
-  'ting-client/lib/result/search/TingClientFacetResult.php',
-  'ting-client/lib/result/object/TingClientObject.php',
-  'ting-client/lib/result/object/TingClientObjectCollection.php',
-  'ting-client/lib/exception/TingClientException.php'
-);
-
-$path = drupal_get_path('module', 'ting') . '/lib/';
-
-foreach ($includes as $include) {
-  require_once($path . $include);
-}
-
 class TingClientSearchRequest extends TingClientRequest {
   /**
    * Prefix to namespace URI map.
@@ -47,8 +32,8 @@ class TingClientSearchRequest extends TingClientRequest {
   protected $relationData;
   protected $agency;
   protected $profile;
-  protected $userDefinedBoost;
-  protected $userDefinedRanking;
+  var $userDefinedBoost;
+  var $userDefinedRanking;
 
   public function getRequest() {
     $parameters = $this->getParameters();
@@ -71,8 +56,6 @@ class TingClientSearchRequest extends TingClientRequest {
       'relationData' => 'relationData',
       'agency' => 'agency',
       'profile' => 'profile',
-      'userDefinedBoost' => 'userDefinedBoost',
-      'userDefinedRanking' => 'userDefinedRanking',
     );
 
     foreach ($methodParameterMap as $method => $parameter) {
@@ -90,6 +73,16 @@ class TingClientSearchRequest extends TingClientRequest {
         'facetName' => $facets,
         'numberOfTerms' => $this->getNumFacets(),
       ));
+    }
+
+    // Include userDefinedBoost if set on the request.
+    if (is_array($this->userDefinedBoost) && !empty($this->userDefinedBoost)) {
+      $this->setParameter('userDefinedBoost', $this->userDefinedBoost);
+    }
+
+    // Include userDefinedRanking if set on the request.
+    if (is_array($this->userDefinedRanking) && !empty($this->userDefinedRanking)) {
+      $this->setParameter('userDefinedRanking', $this->userDefinedRanking);
     }
 
     return $this;
@@ -199,24 +192,11 @@ class TingClientSearchRequest extends TingClientRequest {
     $this->profile = $profile;
   }
 
-  public function getUserDefinedBoost() {
-    return $this->userDefinedBoost;
-  }
-
-  public function setUserDefinedBoost($userDefinedBoost) {
-    $this->userDefinedBoost = $userDefinedBoost;
-  }
-
-  public function getUserDefinedRanking() {
-    return $this->userDefinedRanking;
-  }
-
-  public function setUserDefinedRanking($userDefinedRanking) {
-    $this->userDefinedRanking = $userDefinedRanking;
-  }
-
   public function processResponse(stdClass $response) {
     $searchResult = new TingClientSearchResult();
+
+//pjo testing
+//print_r($response);
 
     $searchResponse = $response->searchResponse;
     if (isset($searchResponse->error)) {

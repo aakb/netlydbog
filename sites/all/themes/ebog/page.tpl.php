@@ -49,7 +49,12 @@ maximum-scale=3.0" />
       </div><!-- /#header-regions -->
       <?php endif; ?>
     </div><!-- /#header -->
-
+    <?php if($preface): ?>
+      <div class="preface container-<?php print $branding_wrapper_width; ?> clearfix">
+        <?php print $preface; ?>
+      </div>
+    <?php endif; ?>
+    
     <div id="main-content-container" class="container-<?php print $content_container_width; ?> clearfix">
       <div id="main-wrapper" class="column <?php print $main_content_classes; ?>">
         <?php if($help || $messages): ?>

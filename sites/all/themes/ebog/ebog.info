@@ -30,6 +30,8 @@ regions[search] = Search
 
 regions[header_first] = Header
 
+regions[preface] = preface
+
 regions[content_top] = Content
 regions[content_bottom] = Content bottom
 
