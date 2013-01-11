@@ -100,7 +100,7 @@ function netsound_contact_netlyd_form($form_state){
 
   $userinfo = publizon_user_get_credentials();
   if ($userinfo) {
-    $form['contact_library']['#default_value'] = publizon_get_library($userinfo['retailer_id']);
+    $form['contact_library']['#default_value'] = $userinfo['retailer_id'];
     $form['contact_library']['#disabled'] = true;
   }
   $form['problem'] = array(
@@ -143,7 +143,7 @@ function netsound_contact_elib_form($form_state){
 
   $userinfo = publizon_user_get_credentials();
   if ($userinfo) {
-    $form['contact_library']['#default_value'] = publizon_get_library($userinfo['retailer_id']);
+    $form['contact_library']['#default_value'] = $userinfo['retailer_id'];
     $form['contact_library']['#disabled'] = true;
   }
   $form['book_title'] = array(
