@@ -1,9 +1,11 @@
-<div class="clear-block">
-<?php
-  $n = node_load($nid);
-  module_load_include('client.inc', 'ting');
-?>
-<div style="width:230px;margin-left:10px;float:right;"><?php print elib_displaybookNEW(ting_get_object_by_id($n->field_book[0]['ting_object_id']),'','medium')?></div>
+<div class="user-review clear-block">
+  <?php
+    $object = ting_get_object_by_id($node->field_book[0]['ting_object_id']);
+    $product = new PublizonProduct($object->record['dc:identifier']['oss:PROVIDER-ID'][0]);
+  ?>
+  <div style="width:230px;margin-left:10px;float:right;">
+    <?php print theme('publizon_product', $product); ?>
+  </div>
   <?php print $n->field_review[0]['value'] ?>
   <div class="meta">
     <?php $u = user_load($node->uid);?>
