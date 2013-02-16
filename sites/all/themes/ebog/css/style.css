@@ -441,7 +441,8 @@ voxb h3 {
   float: left;
 }
 
-.display-book .icons {
+.display-book .icons,
+#main-content .user-review .icons {
   clear: both;
   float: right;
 }
@@ -524,11 +525,13 @@ voxb h3 {
 }
 
 .display-book .icons,
+#main-content .user-review .icons,
 #ting-search-result .record .icons {
   margin-top: 6px;
 }
 
 .display-book .icons,
+#main-content .user-review .icons,
 #ting-object .inner .icons,
 #ting-search-result .record .icons {
   float: right;
@@ -538,6 +541,7 @@ voxb h3 {
 }
 
 .display-book .icons img,
+#main-content .user-review .icons,
 #ting-object .inner .icons img {
   padding: 4px;
   vertical-align: text-bottom;
@@ -762,6 +766,7 @@ input[type=submit],
 .display-book .icons,
 #ting-object .inner .icons,
 #ting-search-result .record .icons,
+#main-content .user-review .icons,
 #ting-search-form input.form-submit {
   background: #1b75bc;
   background: -webkit-gradient(linear, 0 0, 0 bottom, from(#1b75bc), to(#0082c6));
@@ -785,6 +790,7 @@ div.messages,
 .pane-faq-panel-pane-1 .view-content .item-list ul,
 .panel-pane.pane-latest-news .pane-content .view-content .views-row,
 .display-book .icons,
+#main-content .user-review .icons,
 #ting-object .inner .icons,
 #ting-search-result .record .icons,
 .voxb textarea,
