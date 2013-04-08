@@ -74,10 +74,10 @@ function ebog_preprocess_ting_object(&$vars) {
     $head .= '<meta property="og:url" content="' . $base_url .'/ting/object/' . $vars['object']->id . '" />' . "\n";
     $head .= '<meta property="og:type" content="book" />' . "\n";
     $head .= '<meta property="og:title" content="' . $vars['object']->title .'" />' . "\n";
-    $head .= '<meta property="og:description" content="Lån `' . $vars['object']->title . '` på eReolen.dk: ' . $vars['object']->abstract .'" />' . "\n";
+    $head .= '<meta property="og:description" content="Lån `' . $vars['object']->title . '` på Netlydbog.dk: ' . $vars['object']->abstract .'" />' . "\n";
     $head .= '<meta property="og:image" content="' . $vars['cover'] . '" />' . "\n";
     $head .= '<meta property="og:image:secure_url" content="' . $vars['cover'] . '" />' . "\n";
-    $head .= '<meta property="og:site_name" content="eReolen.dk" />' . "\n";
+    $head .= '<meta property="og:site_name" content="Netlydbog.dk" />' . "\n";
     $head .= '<meta property="og:locale" content="da_DK" />' . "\n";
     $head .= '<meta property="fb:admins" content="694811338" />' . "\n";
     $head .= '<meta property="book:isbn" content="' . $isbn . '" />' . "\n";
