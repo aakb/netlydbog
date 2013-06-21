@@ -105,7 +105,7 @@ function litteratursiden_feed_compare_get_feed($items) {
       }
       foreach ($feed as $key => $val) {
         if (is_numeric($key)) {
-          $query = 'dc.title="' . str_replace('"', '', $val['book_title']) . '" AND dc.type="lydbog (net)"';
+          $query = 'phrase.title="' . str_replace('"', '', $val['book_title']) . '" AND dc.type="lydbog (net)"';
           $search = ting_do_search($query, 1, 25);
           if ($search && $search->numTotalObjects > 0) {
             foreach ($search->collections as $collection) {
