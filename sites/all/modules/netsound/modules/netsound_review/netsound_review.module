@@ -47,9 +47,6 @@ function netsound_review_userreview_form($form_state) {
   $form['author']['#title'] = t('Author');
   $form['author']['#required'] = 1;
 
-  $username = netsound_get_username();
-  $form['author']['#default_value'] = $username;
-
   $form['button']['#type'] = 'submit';
   $form['button']['#value'] = t('send review');
 
@@ -85,83 +82,92 @@ function netsound_review_userreview_form_submit($form, &$form_state) {
 }
 
 function netsound_review_block($op = 'list', $delta = 0) {
-  if ($op == 'list') {
-    $blocks[0]['info'] = t('BOOKDISPLAY: user reviews');
-    $blocks[1]['info'] = t('BOOKDISPLAY: editors reviews');
-    $blocks[2]['info'] = t('BOOKDISPLAY: litteratursiden.dk review');
-    return $blocks;
-  }
-  else if ($op == 'view') {
-    global $user;
-    $block = array();
+  switch ($op) {
+    case 'list':
+      return array(
+        array(
+          'info' => t('BOOKDISPLAY: user reviews'),
+        ),
+        array(
+          'info' => t('BOOKDISPLAY: editors reviews'),
+        ),
+        array(
+          'info' => t('BOOKDISPLAY: litteratursiden.dk review'),
+        ),
+      );
+      break;
 
-    $tingid = arg(2);
+    case 'view':
+      $block = array();
+      $content = '';
+      $ting_id = arg(2);
 
-    switch ($delta) {
-      case 0:
+      switch ($delta) {
+        case 0:
+          $content = '
+            <div class="line clear-block rulerafter">
+              <div class="unit size1of4 review-title">Skriv anmeldelse</div>
+              <div class="unit lastUnit">' . $reviews . drupal_get_form('netsound_review_userreview_form') . '</div>
+            </div>';
 
+          break;
 
-        $out = '
-          <div class="line clear-block rulerafter">
-            <div class="unit size1of4 review-title">Skriv anmeldelse</div>
-            <div class="unit lastUnit">' . $reviews . drupal_get_form('netsound_review_userreview_form') . '</div>
-          </div>';
-
-        break;
-      case 1:
-        $review = netsound_review_get_review_by_ting_object_id($tingid);
-        if (!$review) {
-          return;
-        }
-
-        $out = '
-      	  <div class="line clear-block rulerafter">
-            <div class="unit size1of4 review-title">Vores anmeldelse</div>
-            <div class="unit lastUnit">' . truncate_utf8($review->field_review_value, 500, true, true) . ' ' . l('læs hele anmeldelsen', 'node/' . $review->nid) . '</div>
-          </div>';
-        break;
-      case 2:
-
-
-        if ($review = cache_get('litteratursiden_' . $tingid)) {
-          $review = $review->data;
-        } else {
-
-          module_load_include('client.inc', 'ting');
-          $obj = ting_get_object_by_id($tingid);
-
-          $str = 'http://www.litteratursiden.dk/service/netlydbog?author=' . urlencode(trim($obj->creators_string)) . '&title=' . urlencode(trim($obj->title));
-
-          //dsm($str);
-          //$json = @file_get_contents($str); // removed as it's unsecure and not allowed on the production server
-
-          $request = drupal_http_request($str);
-          $json = $request->data;
-
-          if (!empty($json)) {
-            $review = json_decode($json, true);
+        case 1:
+          $review = netsound_review_get_review_by_ting_object_id($ting_id);
+          if (!$review) {
+            return;
           }
 
-          if (is_array($review)) {
-            cache_set('litteratursiden_' . $tingid, $review, 'cache', time() + (86400 * 30));
+          $content = '
+            <div class="line clear-block rulerafter">
+              <div class="unit size1of4 review-title">Vores anmeldelse</div>
+              <div class="unit lastUnit">' . truncate_utf8($review->field_review_value, 500, true, true) . ' ' . l('læs hele anmeldelsen', 'node/' . $review->nid) . '</div>
+            </div>';
+          break;
+
+        case 2:
+          $cid = 'litteratursiden_' . $ting_id;
+
+          // Try to look review up in the cache
+          if ($review = cache_get($cid.'1')) {
+            $review = $review->data;
           }
-        }
+          else {
+            // Get ting object.
+            module_load_include('client.inc', 'ting');
+            $obj = ting_get_object_by_id($ting_id);
 
-        if ($review['error']) {
-          return;
-        }
+            // Request litteratursiden about the authot and title.
+            $str = 'http://www.litteratursiden.dk/service/netlydbog?author=' . urlencode(trim($obj->creators_string)) . '&title=' . urlencode(trim($obj->title));
+            $request = drupal_http_request($str);
+            $json = $request->data;
 
-        $out = '
-      	   <div class="line clear-block rulerafter">
-             <div class="unit size1of4 review-title">Anmeldelse fra litteratursiden.dk</div>
-             <div class="unit lastUnit">' . netsound_review_tag_safe_truncat($review['description'], 500, true) . ' ' . l('læs hele anmeldelsen på litteratursiden.dk', $review['link'], array('attributes' => array('target' => '_blank'))) . '</div>
-           </div>';
+            // Decode result.
+            if (!empty($json)) {
+              $review = json_decode($json, true);
+            }
 
-        break;
-    }
-    $block['content'] = $out;
+            if (is_array($review)) {
+              cache_set($cid, $review, 'cache', time() + (86400 * 30));
+            }
+          }
 
-    return $block;
+          // Check if there where any error.
+          if ($review['error']) {
+            return;
+          }
+
+          $content = '
+            <div class="line clear-block rulerafter">
+              <div class="unit size1of4 review-title">Anmeldelse fra litteratursiden.dk</div>
+              <div class="unit lastUnit">' . netsound_review_tag_safe_truncat($review['description'], 500, true) . ' ' . l('Læs hele anmeldelsen på litteratursiden.dk', $review['link'], array('attributes' => array('target' => '_blank'))) . '</div>
+            </div>';
+
+          break;
+      }
+
+      $block['content'] = $content;
+      return $block;
   }
 }
 
