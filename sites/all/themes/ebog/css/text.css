@@ -223,6 +223,10 @@ div#sidebar-first div#block-block-12 .content h3 {
 }
 
 #sidebar-first #block-elib_block_categories-0 .content .categories-link a,
+#block-ebog_banner-0 .content .see-more a,
+#block-ebog_author_portrait-0 .content .see-more a,
+.pane-ebog-author-portrait-0 .pane-content .see-more a,
+.pane-ebog-banner-0 .bottom-bar .see-more a,
 .pane-front .bottom-bar .see-more a,
 .pane-embedvideo .bottom-bar .see-more a,
 .pane-elib-block-lastloans-2 .bottom-bar .see-more a,
@@ -236,6 +240,9 @@ div#sidebar-first div#block-block-12 .content h3 {
 }
 
 #sidebar-first #block-elib_block_categories-0 .content .categories-link a:hover,
+#block-ebog_banner-0 .content .see-more a:hover,
+.pane-ebog-author-portrait-0 .bottom-bar .see-more a:hover,
+.pane-ebog-banner-0 .bottom-bar .see-more a:hover,
 .pane-front .bottom-bar .see-more a:hover,
 .pane-embedvideo .bottom-bar .see-more a:hover,
 .pane-elib-block-lastloans-2 .bottom-bar .see-more a:hover,

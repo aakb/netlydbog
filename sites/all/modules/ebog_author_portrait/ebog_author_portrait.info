@@ -1,0 +1,5 @@
+name = Ebog Author Portrait
+description = Author portrait block
+package = INLEAD
+core = 6.x
+version = 0.1
