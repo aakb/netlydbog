@@ -1,0 +1,5 @@
+name = Ebog Banner
+description = Simple banner block implementation
+package = INLEAD
+core = 6.x
+version = 0.1

@@ -58,7 +58,11 @@ div.messages.error {
  */
 .pane-content,
 #sidebar-first .block .content,
-#sidebar-first #block-elib_block_categories-0 .content .categories,
+#block-elib_block_categories-0 .content .categories,
+#block-ebog_author_portrait-0 .content .ebog-author-portrait,
+#block-ebog_banner-0 .content .ebog-banner,
+.pane-ebog-author-portrait-0 .pane-content .ebog-author-portrait,
+.pane-ebog-banner-0 .pane-content .ebog-banner,
 #sidebar-first #block-views-latest_news-block_1 .content .view-content,
 .pane-embedvideo .ebog_embed_video,
 .pane-front .feed-and-compare-front,
@@ -74,6 +78,10 @@ div.messages.error {
 }
 /* EXCEPTIONS */
 #sidebar-first #block-elib_block_categories-0 .content .categories,
+#block-ebog_banner-0 .content .ebog-banner,
+#block-ebog_author_portrait-0 .content .ebog-author-portrait,
+.pane-ebog-author-portrait-0 .pane-content .ebog-author-portrait,
+.pane-ebog-banner-0 .pane-content .ebog-banner,
 #sidebar-first #block-views-latest_news-block_1 .content .view-content,
 .panel-pane.pane-embedvideo .pane-content,
 .pane-embedvideo .ebog_embed_video,
@@ -167,6 +175,9 @@ voxb h3 {
 }
 
 #sidebar-first #block-elib_block_categories-0 .content .categories,
+#block-ebog_banner-0 .content .ebog-banner,
+#sidebar-first #block-ebog_author_portrait-0 .content .ebog-author-portrait,
+.pane-ebog-author-portrait-0 .pane-content .ebog-author-portrait,
 .pane-embedvideo .ebog_embed_video,
 .pane-front .feed-and-compare-front,
 #sidebar-first #block-views-latest_news-block_1 .content .view-content,
@@ -175,6 +186,10 @@ voxb h3 {
 }
 
 #sidebar-first #block-elib_block_categories-0 .content .categories-link,
+#block-ebog_banner-0 .content .see-more,
+#sidebar-first #block-ebog_author_portrait-0 .content .see-more,
+.pane-ebog-author-portrait-0 .pane-content .see-more,
+.pane-ebog-banner-0 .pane-content .see-more,
 .pane-front .bottom-bar .see-more,
 .pane-embedvideo .bottom-bar .see-more,
 .pane-elib-block-lastloans-2 .bottom-bar .see-more,
@@ -185,6 +200,8 @@ voxb h3 {
 }
 
 #sidebar-first #block-elib_block_categories-0 .content .categories-links,
+#block-ebog_banner-0 .content .bottom-bar,
+#block-ebog_author_portrait-0 .content .bottom-bar,
 .pane-content .bottom-bar,
 .pane-elib-block-lastloans-2 .bottom-bar,
 #sidebar-first #block-views-latest_news-block_1 .content .view-footer,
@@ -193,6 +210,11 @@ voxb h3 {
 }
 
 #sidebar-first #block-elib_block_categories-0 .content .categories-link a,
+#block-ebog_banner-0 .content .see-more a,
+#block-ebog_author_portrait-0 .content .see-more a,
+#block-ebog_author_portrait-0 .content .see-more a,
+.pane-ebog-author-portrait-0 .pane-content .see-more a,
+.pane-ebog-banner-0 .pane-content .see-more a,
 .pane-front .bottom-bar .see-more a,
 .pane-embedvideo .bottom-bar .see-more a,
 .pane-elib-block-lastloans-2 .bottom-bar .see-more a,
@@ -201,6 +223,7 @@ voxb h3 {
 }
 
 #sidebar-first #block-elib_block_categories-0 .content .categories-link a:hover,
+.pane-ebog-author-portrait-0 .pane-content .see-more a:hover,
 .pane-front .bottom-bar .see-more a:hover,
 .pane-embedvideo .bottom-bar .see-more a:hover,
 .pane-elib-block-lastloans-2 .bottom-bar .see-more a:hover,
@@ -213,6 +236,25 @@ voxb h3 {
 .clear-fix {
   clear: both;
 }
+
+/**
+ * AUTHOR PORTRAIT BLOCK & LOGO BLOCK
+ */
+#sidebar-first #block-ebog_author_portrait-0 .content,
+#sidebar-first #block-ebog_banner-0 .content,
+.pane-ebog-author-portrait-0 .pane-content,
+.pane-ebog-banner-0 .pane-content {
+   border: 0;
+   padding: 0;
+ }
+
+ /**
+  * LOGO BLOCK
+  */
+  .pane-ebog-banner-0 .ebog-banner .ebog-banner-image img {
+    width: 100%;
+    height: auto;
+  }
 
 /**
  * LATEST NEWS BLOCK
@@ -677,9 +719,9 @@ voxb h3 {
   padding-top: 10px;
 }
 
-.pane-publizon-loans-myloans .loanperiod.short   { color: ##1B75BC; }
-.pane-publizon-loans-myloans .loanperiod.medium  { color: #FF8;     }
-.pane-publizon-loans-myloans .loanperiod.long    { color: #9BC833;  }
+.pane-publizon-loans-myloans .loanperiod.short  { color: #1B75BC; }
+.pane-publizon-loans-myloans .loanperiod.medium { color: #FF8;  }
+.pane-publizon-loans-myloans .loanperiod.long { color: #9BC833; }
 
 div.panel-pane.pane-node-content .pane-content div.submitted {
   display: none;
@@ -722,10 +764,10 @@ div.panel-pane.pane-node-content .pane-content div.submitted {
   width: 120px;
 }
 
-.infiniteCarousel .back           { background: url("../images/cycle.png") no-repeat scroll 0    0      transparent; }
-.infiniteCarousel .back:hover     { background: url("../images/cycle.png") no-repeat scroll 0    -36px  transparent; }
-.infiniteCarousel .forward        { background: url("../images/cycle.png") no-repeat scroll -36px 0     transparent; }
-.infiniteCarousel .forward:hover  { background: url("../images/cycle.png") no-repeat scroll -36px -36px transparent; }
+.infiniteCarousel .back { background: url("../images/cycle.png") no-repeat scroll 0  0  transparent; }
+.infiniteCarousel .back:hover { background: url("../images/cycle.png") no-repeat scroll 0  -36px transparent; }
+.infiniteCarousel .forward { background: url("../images/cycle.png") no-repeat scroll -36px 0  transparent; }
+.infiniteCarousel .forward:hover { background: url("../images/cycle.png") no-repeat scroll -36px -36px transparent; }
 
 
 
@@ -760,6 +802,8 @@ div.panel-pane.pane-node-content .pane-content div.submitted {
  */
 input[type=submit],
 #sidebar-first #block-elib_block_categories-0 .content .categories-links,
+#block-ebog_banner-0 .content .bottom-bar,
+#block-ebog_author_portrait-0 .content .bottom-bar,
 .pane-content div.bottom-bar,
 .pane-elib-block-lastloans-2 .bottom-bar,
 #sidebar-first #block-views-latest_news-block_1 .content .view-footer,
@@ -806,6 +850,10 @@ div.messages,
 }
 
 #sidebar-first #block-elib_block_categories-0 .content .categories,
+#block-ebog_author_portrait-0 .content .ebog-author-portrait,
+#block-ebog_banner-0 .content .ebog-banner,
+.pane-ebog-author-portrait-0 .pane-content .ebog-author-portrait,
+.pane-ebog-banner-0 .pane-content .ebog-banner,
 #sidebar-first #block-views-latest_news-block_1 .content .view-content,
 .panel-pane.pane-embedvideo .pane-content,
 .pane-embedvideo .ebog_embed_video,
@@ -842,6 +890,8 @@ div.messages,
 }
 
 #sidebar-first #block-elib_block_categories-0 .content .categories-links,
+#block-ebog_banner-0 .content .bottom-bar,
+#block-ebog_author_portrait-0 .content .bottom-bar,
 .pane-content div.bottom-bar,
 .pane-elib-block-lastloans-2 .bottom-bar,
 #sidebar-first #block-views-latest_news-block_1 .content .view-footer,
@@ -855,6 +905,10 @@ div.messages,
 }
 
 #sidebar-first #block-elib_block_categories-0 .content .categories-link a:hover,
+#block-ebog_banner-0 .content .see-more a:hover,
+#block-ebog_author_portrait-0 .content .see-more a:hover,
+.pane-ebog-author-portrait-0 .pane-content .see-more a:hover,
+.pane-ebog-banner-0 .bottom-bar .see-more a:hover,
 .pane-front .bottom-bar .see-more a:hover,
 .pane-embedvideo .bottom-bar .see-more a:hover,
 .pane-elib-block-lastloans-2 .bottom-bar .see-more a:hover,
@@ -879,7 +933,11 @@ div.messages,
 }
 
 #sidebar-first #block-elib_block_categories-0 .content .categories-link a:hover,
+#block-ebog_banner-0 .content .see-more a:hover,
+#block-ebog_author_portrait-0 .content .see-more a:hover,
 .pane-front .bottom-bar .see-more a:hover,
+.pane-ebog-author-portrait-0 .bottom-bar .see-more a:hover,
+.pane-ebog-banner-0 .bottom-bar .see-more a:hover,
 .pane-embedvideo .bottom-bar .see-more a:hover,
 .pane-elib-block-lastloans-2 .bottom-bar .see-more a:hover,
 #sidebar-first #block-views-latest_news-block_1 .content .view-footer a:hover,
