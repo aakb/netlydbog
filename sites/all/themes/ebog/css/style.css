@@ -32,8 +32,8 @@ input[type=submit]:hover {
 }
 
 /**
- * MESSAGES
-*/
+ * MESSAGES.
+ */
 div.messages {
   padding: 10px;
   margin-top: 0;
@@ -54,8 +54,8 @@ div.messages.error {
 }
 
 /**
- * SIDEBAR FIRST
-*/
+ * SIDEBAR FIRST.
+ */
 .pane-content,
 #sidebar-first .block .content,
 #block-elib_block_categories-0 .content .categories,
@@ -70,10 +70,10 @@ div.messages.error {
 .panel-pane.pane-latest-news .pane-content .view-content .views-row,
 .section-faq div.panel-pane.pane-contact {
   border: 2px solid #DBDDDA;
-  /*
+  /**
    *display: inline-block;
    *zoom: 1; [> ie7 hack for display:inline-block <]
-  */
+   */
   padding: 10px;
 }
 /* EXCEPTIONS */
@@ -148,8 +148,8 @@ voxb h3 {
 }
 
 /**
- * SUBJECTS BLOCK
-*/
+ * SUBJECTS BLOCK.
+ */
 #sidebar-first #block-elib_block_categories-0 ul, #block-elib_block_categories-0 li {
   display: inline;
   margin: 0;
@@ -238,8 +238,8 @@ voxb h3 {
 }
 
 /**
- * AUTHOR PORTRAIT BLOCK & LOGO BLOCK
-*/
+ * AUTHOR PORTRAIT BLOCK & LOGO BLOCK.
+ */
 #sidebar-first #block-ebog_author_portrait-0 .content,
 #sidebar-first #block-ebog_banner-0 .content,
 .pane-ebog-author-portrait-0 .pane-content,
@@ -249,16 +249,16 @@ voxb h3 {
 }
 
 /**
- * LOGO BLOCK
-*/
+ * LOGO BLOCK.
+ */
 .pane-ebog-banner-0 .ebog-banner .ebog-banner-image img {
   width: 100%;
   height: auto;
 }
 
 /**
- * LATEST NEWS BLOCK
-*/
+ * LATEST NEWS BLOCK.
+ */
 .view-latest-news .views-row {
   margin-top: 15px;
 }
@@ -268,8 +268,8 @@ voxb h3 {
 }
 
 /**
- * PRIMARY NAVIGATION
-*/
+ * PRIMARY NAVIGATION.
+ */
 #site-menu ul,
 #site-menu ul li {
   padding: 0;
@@ -346,8 +346,8 @@ voxb h3 {
 }
 
 /**
- * SEARCH FORM
-*/
+ * SEARCH FORM.
+ */
 #ting-search-form,
 #ting-search-form .form-item,
 #ting-search-form .form-text,
@@ -403,8 +403,8 @@ voxb h3 {
 }
 
 /**
- * RECOMMENDATIONS
-*/
+ * RECOMMENDATIONS.
+ */
 .view-anmeldelser h2,
 .view-anmeldelser .submitted,
 .view-anmeldelser .field-field-date,
@@ -484,8 +484,8 @@ voxb h3 {
 }
 
 /**
- * VIDEO BLOCK
-*/
+ * VIDEO BLOCK.
+ */
 .ebog_embed_youtube,
 .ebog_embed_vimeo,
 .ebog_embed_title,
@@ -501,8 +501,8 @@ voxb h3 {
 
 
 /**
- * BOOK ITEM
-*/
+ * BOOK ITEM.
+ */
 .display-book .left,
 .display-book .right,
 .display-book .picture,
@@ -620,8 +620,8 @@ voxb h3 {
 }
 
 /**
- * VOXB
-*/
+ * VOXB.
+ */
 .rating-for-faust {
   clear: both;
 }
@@ -684,8 +684,8 @@ voxb h3 {
 }
 
 /**
- * LOGIN
-*/
+ * LOGIN.
+ */
 #user-login {
   width: 500px;
 }
@@ -712,8 +712,8 @@ voxb h3 {
 }
 
 /**
- * MIN SIDE
-*/
+ * MIN SIDE.
+ */
 .page-min-side .panel-separator,
 .page-min-side .panel-region-separator {
   clear: none;
@@ -764,8 +764,8 @@ div.panel-pane.pane-node-content .pane-content div.submitted {
 }
 
 /**
- * FOOTER
-*/
+ * FOOTER.
+ */
 #footer #footer-first {
   padding: 30px 10px 100px;
 }
@@ -781,8 +781,8 @@ div.panel-pane.pane-node-content .pane-content div.submitted {
 }
 
 /**
- * CAROUSEL
-*/
+ * CAROUSEL.
+ */
 .infiniteCarousel {
   width: 940px;
 }
@@ -805,8 +805,6 @@ div.panel-pane.pane-node-content .pane-content div.submitted {
 .infiniteCarousel .forward { background: url("../images/cycle.png") no-repeat scroll -36px 0  transparent; }
 .infiniteCarousel .forward:hover { background: url("../images/cycle.png") no-repeat scroll -36px -36px transparent; }
 
-
-
 .panel-separator {
   margin: 0 0 20px 0;
 }
@@ -820,8 +818,8 @@ div.panel-pane.pane-node-content .pane-content div.submitted {
 }
 
 /**
- * EMNER
-*/
+ * EMNER.
+ */
 .page-emner #main-content ul,
 .page-emner #main-content ul li {
   margin: 0;
@@ -834,8 +832,8 @@ div.panel-pane.pane-node-content .pane-content div.submitted {
 }
 
 /**
- * CSS3
-*/
+ * CSS3.
+ */
 input[type=submit],
 #sidebar-first #block-elib_block_categories-0 .content .categories-links,
 #block-ebog_banner-0 .content .bottom-bar,
