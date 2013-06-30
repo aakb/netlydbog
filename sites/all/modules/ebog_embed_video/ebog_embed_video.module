@@ -133,3 +133,36 @@ function _ebog_embed_video_block_save($settings) {
     variable_set('ebog_embed_video_embed_type', $embed['type']);
   }
 }
+/**
+ * Parse video URL's.
+ *
+ * @param $url
+ *   URL to parse.
+ * @return
+ *   Array with parsed URL and service type.
+ */
+function ebog_embed_video_parse_url($url) {
+  $embed_url = $url;
+  $embed_code = '';
+
+  if (strpos($embed_url, 'youtube')) {
+    $type = 'youtube';
+    $query = parse_url($embed_url, PHP_URL_QUERY);
+    $query = explode('&', $query);
+    foreach ($query as $param) {
+      if (strrpos($param, 'v=') == 0) {
+        $embed_code = drupal_substr($param, 2);
+        break;
+      }
+    }
+  }
+  elseif (strpos($embed_url, 'vimeo')) {
+    $type = 'vimeo';
+    $embed_code = str_replace('http://vimeo.com/', '', $embed_url);
+  }
+  else {
+    $type = 'undefined';
+  }
+
+  return array('type' => $type, 'embed_code' => $embed_code);
+}
