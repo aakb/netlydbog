@@ -1171,3 +1171,11 @@ ul.nice-menu-down li.over a {
   -khtml-border-radius: 4px 4px 0 0;
   border-radius: 4px 4px 0 0;
 }
+
+.block-ebog_author_portrait .ebog-author-portrait .ebog-author-portrait-descr {
+  width: 125px;
+}
+
+.pane-ebog-author-portrait-0 .ebog-author-portrait .ebog-author-portrait-descr {
+  width: 155px;
+}

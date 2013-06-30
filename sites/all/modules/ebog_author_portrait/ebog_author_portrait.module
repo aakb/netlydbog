@@ -157,7 +157,8 @@ function _ebog_author_portrait_block_save($values) {
     // Handle uploads.
     $file_type = $_FILES['files']['type'][$source];
     if (in_array($file_type, $allowed_types)) {
-      $file = file_save_upload('ebog_author_portrait_image', 'sites/default/files', FILE_EXISTS_REPLACE);
+      $file = file_save_upload('ebog_author_portrait_image', array(), 'sites/default/files', FILE_EXISTS_REPLACE);
+      file_set_status($file, FILE_STATUS_PERMANENT);
 
       if (is_object($file)) {
         variable_set('ebog_author_portrait_image', $file->filepath);
