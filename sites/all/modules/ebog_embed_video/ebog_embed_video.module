@@ -80,33 +80,33 @@ function _ebog_embed_video_block_configure() {
 
   $form['ebog_embed_video_video'] = array(
     '#type' => 'textfield',
-    '#title' => t('URL to YouTube OR Vimeo video:'),
+    '#title' => t('URL to YouTube OR Vimeo video'),
     '#description' => t('example: http://www.youtube.com/watch?v=XwmHoWfwHiw OR http://vimeo.com/3535418'),
     '#default_value' => variable_get('ebog_embed_video_video', ''),
   );
 
   $form['ebog_embed_video_short_description'] = array(
     '#type' => 'textfield',
-    '#title' => t('Short description:'),
+    '#title' => t('Short description'),
     '#default_value' => variable_get('ebog_embed_video_short_description', ''),
   );
 
   $form['ebog_embed_video_content_title'] = array(
     '#type' => 'textfield',
-    '#title' => t('Content title:'),
+    '#title' => t('Content title'),
     '#default_value' => variable_get('ebog_embed_video_content_title', ''),
   );
 
   $form['ebog_embed_video_see_more_title'] = array(
     '#type' => 'textfield',
-    '#title' => t('Title for "see more link":'),
+    '#title' => t('Title for "see more link"'),
     '#required' => TRUE,
     '#default_value' => variable_get('ebog_embed_video_see_more_title', ''),
   );
 
   $form['ebog_embed_video_see_more_link'] = array(
     '#type' => 'textfield',
-    '#title' => t('Link for "see more link":'),
+    '#title' => t('Link for "see more link"'),
     '#maxlength' => 255,
     '#required' => TRUE,
     '#default_value' => variable_get('ebog_embed_video_see_more_link', ''),

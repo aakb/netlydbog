@@ -121,6 +121,7 @@ ul li h5 {
 #ting-object .inner .author,
 .panel-pane.pane-block.pane-netsound-review-1 a,
 .panel-pane.pane-block.pane-netsound-review-2 a,
+.block-ebog_embed_video .ebog_embed_title,
 .panel-pane.pane-embedvideo .ebog_embed_title {
   font: 14px/18px 'DroidSerifRegular', Helvetica, Arial, sans-serif;
 }
