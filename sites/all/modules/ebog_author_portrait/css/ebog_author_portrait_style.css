@@ -1,0 +1,26 @@
+.ebog-author-portrait .ebog-author-portrait-image,
+.ebog-author-portrait .ebog-author-portrait-descr {
+  float: left;
+}
+
+.ebog-author-portrait .ebog-author-portrait-image {
+  margin-right: 10px;
+  width: 120px;
+}
+
+.ebog-author-portrait .ebog-author-portrait-image img {
+  background-color: #fff;
+  border: 1px solid #dddfdc;
+  height: auto;
+  padding: 3px;
+  width: 110px;
+}
+
+.ebog-author-portrait .ebog-author-portrait-descr .teaser {
+  margin: 10px 0 10px 0;
+}
+
+.ebog-author-portrait .clear {
+  clear: both;
+  float: none;
+}
