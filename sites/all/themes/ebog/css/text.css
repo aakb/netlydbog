@@ -121,6 +121,7 @@ ul li h5 {
 #ting-object .inner .author,
 .panel-pane.pane-block.pane-netsound-review-1 a,
 .panel-pane.pane-block.pane-netsound-review-2 a,
+.block-ebog_embed_video .ebog_embed_title,
 .panel-pane.pane-embedvideo .ebog_embed_title {
   font: 14px/18px 'DroidSerifRegular', Helvetica, Arial, sans-serif;
 }
@@ -164,6 +165,8 @@ h1#page-title.title,
 }
 
 .display-book h3.title,
+.pane-ebog-author-portrait-0 h3.title,
+.block-ebog_author_portrait h3.title,
 .view-latest-news .views-field-title,
 #ting-search-result h3,
 #ting-result #pager a {
@@ -232,7 +235,8 @@ div#sidebar-first div#block-block-12 .content h3 {
 .pane-elib-block-lastloans-2 .bottom-bar .see-more a,
 #sidebar-first #block-views-latest_news-block_1 .content .view-footer a,
 #main-content .icons ul li a,
-#main-content .pane-faq-panel-pane-1 .view-content .item-list .views-field-tid span.field-content a {
+#main-content .pane-faq-panel-pane-1 .view-content .item-list .views-field-tid span.field-content a,
+.panel-panel .pane-latest-news .view-footer a {
   line-height: 26px;
   text-decoration: none;
   font-size: 12px;
