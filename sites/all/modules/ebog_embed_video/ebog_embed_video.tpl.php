@@ -9,7 +9,7 @@
   <div class="ebog_embed_video">
 		<?php if ($conf['type'] == 'youtube') { ?>
 			<div class="ebog_embed_youtube">
-				<object style="width:100%;">
+				<object>
 					<param name="movie" value="http://www.youtube.com/v/<?php echo $conf['embed_code']; ?>" />
 					<param name="allowFullScreen" value="true" />
 					<param name="allowScriptAccess" value="always" />
@@ -19,8 +19,7 @@
 						type="application/x-shockwave-flash"
 						allowfullscreen="true"
 						allowScriptAccess="always"
-            wmode="opaque"
-						width="100%"
+                                                wmode="opaque"
 					>
 				</object>
 			</div>
@@ -30,7 +29,6 @@
 			<div class="ebog_embed_vimeo">
 				<iframe
 					src="http://player.vimeo.com/video/<?php echo $conf['embed_code']; ?>"
-					width="100%"
 					frameborder="0"
           wmode="opaque"
 					webkitAllowFullScreen

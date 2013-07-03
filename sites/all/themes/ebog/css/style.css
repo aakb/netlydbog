@@ -78,6 +78,7 @@ div.messages.error {
    */
   padding: 10px;
 }
+
 /* EXCEPTIONS */
 .panel-panel .pane-latest-news .view-content {
   border-bottom:0;
@@ -265,6 +266,31 @@ voxb h3 {
   width: 100%;
   height: auto;
 }
+
+/**
+ * EMBED VIDEO BLOCK
+ */
+
+#block-ebog_banner-0 .content .ebog-banner {
+   padding-bottom: 30px;
+ }
+
+ .block-ebog_embed_video iframe {
+   height: 135px;
+   width: 195px;
+ }
+
+ .block-ebog_embed_video embed,
+ .block-ebog_embed_video object {
+   height: 135px;
+   width: 195px;
+ }
+
+ .pane-embedvideo .ebog_embed_youtube object,
+ .pane-embedvideo .ebog_embed_youtube embed {
+   height: 235px;
+   width: 315px;
+ }
 
 /**
  * LATEST NEWS BLOCK.
