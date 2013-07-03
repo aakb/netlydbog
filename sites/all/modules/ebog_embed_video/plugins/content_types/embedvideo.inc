@@ -82,30 +82,11 @@ function ebog_embed_video_embedvideo_content_type_edit_form(&$form, &$form_state
 function ebog_embed_video_embedvideo_content_type_edit_form_submit(&$form, &$form_state) {
 
   $embed_url = $form_state['values']['embed_url'];
-  $embed_code = '';
-
-  if (strpos($embed_url, 'youtube')) {
-    $type = 'youtube';
-    $query = parse_url($embed_url, PHP_URL_QUERY);
-    $query = explode('&', $query);
-    foreach ($query as $param) {
-      if (strrpos($param, 'v=') == 0) {
-        $embed_code = drupal_substr($param, 2);
-        break;
-      }
-    }
-  }
-  elseif (strpos($embed_url, 'vimeo')) {
-    $type = 'vimeo';
-    $embed_code = str_replace('http://vimeo.com/', '', $embed_url);
-  }
-  else {
-    $type = 'undefined';
-  }
+  $embed = ebog_embed_video_parse_url($embed_url);
 
   $form_state['conf']['embed_url'] = $form_state['values']['embed_url'];
-  $form_state['conf']['embed_code'] = $embed_code;
-  $form_state['conf']['type'] = $type;
+  $form_state['conf']['embed_code'] = $embed['embed_code'];
+  $form_state['conf']['type'] = $embed['type'];
   $form_state['conf']['title'] = $form_state['values']['title'];
   $form_state['conf']['descr'] = $form_state['values']['descr'];
   $form_state['conf']['see_more_title'] = $form_state['values']['see_more_title'];
