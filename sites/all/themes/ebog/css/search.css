@@ -37,11 +37,11 @@
 }
 
 #ting-search-result ul li.display-book .record {
-  width: 600px;
+  width: 540px;
 }
 
 #ting-search-result ul li.display-book .record .left {
-  width: 260px;
+  width: 200px;
   float: left;
 }
 
