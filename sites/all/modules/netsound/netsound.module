@@ -356,3 +356,23 @@ function netsound_get_username($uid = NULL) {
   $data = db_fetch_array(db_query('SELECT username FROM {netsound_user} WHERE uid = %d', $uid));
   return isset($data['username']) ? check_plain($data['username']) : FALSE;
 }
+
+/**
+ * Implements hook_preprocess_publizon_actions().
+ *
+ * Adds extra action link to loan function on loan lists. This is due to the
+ * fact that eReolen that shares the publizon client do not have loans anymore.
+ */
+function netsound_preprocess_publizon_actions(&$vars) {
+  if ($vars['type'] == 'loan' || isset($vars['product']->teaser_link)) {
+    $isbn = $vars['product']->isbn;
+    $vars['actions'][] =  array(
+      '#link' => l(t('Download'), 'publizon/' . $isbn . '/download', array('html' => TRUE, 'attributes' => array('class' => 'loan'))),
+      '#class' => 'download',
+      '#weight' => 2,
+    );
+
+    // Re-sort the actions based on weight.
+    usort($vars['actions'], 'element_sort');
+  }
+}
