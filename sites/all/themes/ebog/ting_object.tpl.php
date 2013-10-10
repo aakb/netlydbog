@@ -41,7 +41,7 @@ if (module_exists('ding_voxb')) {
       </div>
 
   </div>
-  <div class="meta unit grid-9 omega">
+  <div class="meta unit grid-8 omega">
     <div class="inner">
       <h1 class="book-title"><?php print check_plain($object->record['dc:title'][''][0]); ?></h1>
       <div class="author"><?php echo t('By !author', array('!author' => $author)); ?></div>
