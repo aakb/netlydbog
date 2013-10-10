@@ -10,7 +10,7 @@ elseif (!empty($conf['embed_code']) AND !empty($conf['embed_url'])) { ?>
   <div class="ebog_embed_video">
   <?php if ($conf['type'] == 'youtube') { ?>
       <div class="ebog_embed_youtube">
-        <object style="width:207px;height:144px;">
+        <object style="width:100%; height:225px;">
           <param name="movie" value="http://www.youtube.com/v/<?php echo $conf['embed_code']; ?>" />
           <param name="allowFullScreen" value="true" />
           <param name="allowScriptAccess" value="always" />
@@ -21,7 +21,9 @@ elseif (!empty($conf['embed_code']) AND !empty($conf['embed_url'])) { ?>
             allowfullscreen="true"
             allowScriptAccess="always"
             wmode="opaque"
-            >
+            width="100%"
+            height="225px"
+          >
         </object>
       </div>
     <?php } ?>
@@ -30,6 +32,8 @@ elseif (!empty($conf['embed_code']) AND !empty($conf['embed_url'])) { ?>
       <div class="ebog_embed_vimeo">
         <iframe
           src="http://player.vimeo.com/video/<?php echo $conf['embed_code']; ?>"
+          width="100%"
+          height="225px"
           frameborder="0"
           wmode="opaque"
           webkitAllowFullScreen
