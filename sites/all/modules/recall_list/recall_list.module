@@ -149,7 +149,8 @@ function recall_list_block($op = 'list', $delta = 0, $edit = array()) {
             // HACK XXXX, the objects saved in the cart may not longer exists
             // in the datawell. So if they do not have ISBN number, we have to
             // remove them from the cart.
-            if (empty($product->teaser_link)) {
+            $object = $product->getTingObject();
+            if ($object === FALSE || empty($product->teaser_link)) {
               recall_list_modify($row['isbn'], 'delete', FALSE);
               continue;
             }
