@@ -96,7 +96,7 @@ function litteratursiden_feed_compare_get_feed($items) {
   $feed_main_url = variable_get('litteratursiden_feed_compare_feed_url', 'http://www.litteratursiden.dk/service/recommendations');
 
   while ($i != 25) {
-    $feed_url = $feed_main_url . '?count=20&offset=' . $i*25;
+    $feed_url = $feed_main_url . '?count=20&offset=' . $i * 25;
     $feed_json_data = _litteratursiden_feed_compare_file_get_contents_curl($feed_url);
     $feed = json_decode($feed_json_data, TRUE);
     if (is_array($feed)) {
@@ -107,7 +107,7 @@ function litteratursiden_feed_compare_get_feed($items) {
         if (is_numeric($key)) {
           $query = 'phrase.title="' . str_replace('"', '', $val['book_title']) . '" AND dc.type="lydbog (net)"';
           $search = ting_do_search($query, 1, 25);
-          if ($search && $search->numTotalObjects > 0) {
+          if ($search && $search->numTotalObjects == 1) {
             foreach ($search->collections as $collection) {
               foreach ($collection->objects as $object) {
                 $isbn = $object->record['dc:identifier']['oss:PROVIDER-ID'][0];
@@ -128,7 +128,7 @@ function litteratursiden_feed_compare_get_feed($items) {
                       'author' => publizon_get_authors($object),
                       'abstract' => $val['description'],
                       'image' => $book->getCover('120_x'),
-                      'url' => $object->url
+                      'url' => $object->url,
                     );
                     $amount++;
 
