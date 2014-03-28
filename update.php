@@ -644,7 +644,6 @@ ini_set('display_errors', TRUE);
 
 // Access check:
 if (!empty($update_free_access) || $user->uid == 1) {
-  drupal_session_start();
 
   include_once './includes/install.inc';
   include_once './includes/batch.inc';
@@ -656,13 +655,13 @@ if (!empty($update_free_access) || $user->uid == 1) {
   $op = isset($_REQUEST['op']) ? $_REQUEST['op'] : '';
   switch ($op) {
     case 'selection':
-      if (isset($_GET['token']) && $_GET['token'] == drupal_get_token('update')) {
+      if (isset($_GET['token']) && drupal_valid_token($_GET['token'], 'update')) {
         $output = update_selection_page();
         break;
       }
 
     case 'Update':
-      if (isset($_GET['token']) && $_GET['token'] == drupal_get_token('update')) {
+      if (isset($_GET['token']) && drupal_valid_token($_GET['token'], 'update')) {
         update_batch();
         break;
       }

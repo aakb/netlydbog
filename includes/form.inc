@@ -101,7 +101,7 @@ function drupal_get_form($form_id) {
       array_unshift($args_temp, $form_id);
 
       $form = call_user_func_array('drupal_retrieve_form', $args_temp);
-      $form_build_id = 'form-'. md5(uniqid(mt_rand(), TRUE));
+      $form_build_id = 'form-'. drupal_random_key();
       $form['#build_id'] = $form_build_id;
       drupal_prepare_form($form_id, $form, $form_state);
       // Store a copy of the unprocessed form for caching and indicate that it
@@ -196,7 +196,7 @@ function drupal_rebuild_form($form_id, &$form_state, $args, $form_build_id = NUL
 
   if (!isset($form_build_id)) {
     // We need a new build_id for the new version of the form.
-    $form_build_id = 'form-'. md5(uniqid(mt_rand(), TRUE));
+    $form_build_id = 'form-'. drupal_random_key();
   }
   $form['#build_id'] = $form_build_id;
   drupal_prepare_form($form_id, $form, $form_state);
@@ -302,7 +302,7 @@ function drupal_execute($form_id, &$form_state) {
 
   // Make sure $form_state is passed around by reference.
   $args[1] = &$form_state;
-  
+
   $form = call_user_func_array('drupal_retrieve_form', $args);
   $form['#post'] = $form_state['values'];
 
@@ -590,6 +590,12 @@ function drupal_validate_form($form_id, $form, &$form_state) {
     if (!drupal_valid_token($form_state['values']['form_token'], $form['#token'])) {
       // Setting this error will cause the form to fail validation.
       form_set_error('form_token', t('Validation error, please try again. If this error persists, please contact the site administrator.'));
+
+      // Stop here and don't run any further validation handlers, because they
+      // could invoke non-safe operations which opens the door for CSRF
+      // vulnerabilities.
+      $validated_forms[$form_id] = TRUE;
+      return;
     }
   }
 
@@ -773,8 +779,8 @@ function form_execute_handlers($type, &$form, &$form_state) {
 
   foreach ($handlers as $function) {
     if (function_exists($function))  {
-      // Check to see if a previous _submit handler has set a batch, but 
-      // make sure we do not react to a batch that is already being processed 
+      // Check to see if a previous _submit handler has set a batch, but
+      // make sure we do not react to a batch that is already being processed
       // (for instance if a batch operation performs a drupal_execute()).
       if ($type == 'submit' && ($batch =& batch_get()) && !isset($batch['current_set'])) {
         // Some previous _submit handler has set a batch. We store the call
@@ -1997,7 +2003,7 @@ function theme_image_button($element) {
     (!empty($element['#value']) ? ('value="'. check_plain($element['#value']) .'" ') : '') .
     'id="'. $element['#id'] .'" '.
     drupal_attributes($element['#attributes']) .
-    ' src="'. file_create_url($element['#src']) .'" '.
+    ' src="'. base_path() . $element['#src'] .'" '.
     (!empty($element['#title']) ? 'alt="'. check_plain($element['#title']) .'" title="'. check_plain($element['#title']) .'" ' : '' ) .
     "/>\n";
 }
@@ -2425,8 +2431,8 @@ function form_clean_id($id = NULL, $flush = FALSE) {
  *   - 'init_message': Message displayed while the processing is initialized.
  *     Defaults to t('Initializing.').
  *   - 'progress_message': Message displayed while processing the batch.
- *     Available placeholders are @current, @remaining, @total, @percentage,
- *     @estimate and @elapsed. Defaults to t('Completed @current of @total.').
+ *     Available placeholders are @current, @remaining, @total, and
+ *     @percentage. Defaults to t('Completed @current of @total.').
  *   - 'error_message': Message displayed if an error occurred while processing
  *     the batch. Defaults to t('An error has occurred.').
  *   - 'finished': Name of a function to be executed after the batch has
