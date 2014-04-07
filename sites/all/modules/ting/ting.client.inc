@@ -99,12 +99,14 @@ function ting_get_object_by_local_id($local_id, $enrich = FALSE) {
 /**
  * Display a Ting collection of objects.
  *
- * @param string $collection_id
- *    Ting collection ID.
+ * @param string $object_id
+ *   Ting object ID.
  * @param bool $enrich
- *    Whether to enrich objects in the collection with additional information, covers etc.
+ *   Whether to enrich objects in the collection with additional information,
+ *   covers etc.
+ *
  * @return mixed
- *    Collection object, if found - boolean FALSE if not.
+ *   Collection object, if found - boolean FALSE if not.
  */
 function ting_get_collection_by_id($object_id, $enrich = FALSE) {
   // If passed object_id is empty, save ourselves the trouble of trying
@@ -459,7 +461,7 @@ function ting_add_object_info(TingClientObject $object) {
 function ting_add_additional_info($collection) {
   /**
    *
-   * THIS IS A HACK AND SHOULD BE LOOK AT LATER ON. WE DONT USE THE ADDITIONAL.
+   * THIS IS A HACK AND SHOULD BE LOOK AT LATER ON. WE DON'T USE THE ADDITIONAL.
    *
    */
 
