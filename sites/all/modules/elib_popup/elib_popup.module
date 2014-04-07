@@ -16,6 +16,7 @@
 function elib_popup_init() {
   $path = drupal_get_path('module', 'elib_popup');
 
+  drupal_add_js($path . '/js/elib_popup_login.js');
   drupal_add_js($path . '/js/elib_popup_download.js');
   drupal_add_js($path . '/js/elib_popup_sample.js');
   drupal_add_js($path . '/js/jquery.form.js');
@@ -156,7 +157,7 @@ function elib_popup_stream_redirect() {
 }
 
 /**
- * Return content for download or stream
+ * Return content for download or stream.
  *
  * @param type $type
  * @param type $download_url

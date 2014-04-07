@@ -87,6 +87,9 @@ function ebog_preprocess_ting_object(&$vars) {
   catch (Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
   }
+
+  // Add Javascript to handle stream links.
+  drupal_add_js(drupal_get_path('module', 'netsound_stream') . '/js/netsound_stream.js');
 }
 
 /**

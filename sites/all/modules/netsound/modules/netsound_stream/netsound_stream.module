@@ -46,10 +46,13 @@ function netsound_stream_preprocess_publizon_actions(&$vars) {
 
   // Add stream action to links.
   $vars['actions'][] = array(
-    '#link' => l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'stream'))),
+    '#link' => l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'js-stream'))),
     '#class' => 'stream',
     '#weight' => -8,
   );
+
+  // Add Javascript to handle stream links.
+  drupal_add_js(drupal_get_path('module', 'netsound_stream') . '/js/netsound_stream.js');
 
   // Sort the elements to get the stream action in between the other links.
   usort($vars['actions'], 'element_sort');
