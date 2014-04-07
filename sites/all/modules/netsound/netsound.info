@@ -1,5 +1,5 @@
 name = Netsound specific module
 description = functions, blocks and settings
 dependencies[] = ting
-package = Ding!
+package = NetSound
 core = 6.x

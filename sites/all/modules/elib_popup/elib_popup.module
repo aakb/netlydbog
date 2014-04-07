@@ -61,38 +61,11 @@ function elib_popup_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $menu['publizon/%/stream/popup'] = array(
-    'title' => 'Show a popup before stream',
-    'description' => 'Display some user specific text and perform some check before stream.',
-    'page callback' => 'elib_popup_loan_popup',
-    'page arguments' => array(1, 'stream'),
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $menu['publizon/%/stream/request'] = array(
-    'title' => 'Download ting ebook',
-    'description' => 'Checker for stream abilities regarding selected book for specific user.',
-    'page callback' => 'elib_popup_download_loan_initial',
-    'page arguments' => array(1, 'stream'),
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
-
   $menu['publizon/%/sample/popup'] = array(
     'title' => 'Stream sample book',
     'description' => 'Stream sample audio book.',
     'page callback' => 'elib_popup_download_sample',
     'page arguments' => array(1),
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $menu['publizon/stream/redirect'] = array(
-    'title' => 'Stream sample book',
-    'description' => 'Redirect to external stream domain.',
-    'page callback' => 'elib_popup_stream_redirect',
-    'page arguments' => array(),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
@@ -158,7 +131,6 @@ function elib_popup_theme() {
   return $hooks;
 }
 
-
 /**
  * Implements hook_preprocess_publizon_actions().
  *
@@ -167,26 +139,16 @@ function elib_popup_theme() {
 function elib_popup_preprocess_publizon_actions(&$vars) {
   $isbn = $vars['product']->isbn;
 
-  // Add stream action to links.
-  $vars['actions'][] = array(
-    '#link' => l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'stream'))),
-    '#class' => 'stream',
-    '#weight' => -8,
-  );
-
   // Ensure that samples are not downloaded, but streamed.
   foreach ($vars['actions'] as $key => $action) {
     if ($action['#class'] == 'sample') {
       $vars['actions'][$key]['#link'] = l(t('Sample'), 'publizon/' . $isbn . '/sample', array('html' => TRUE, 'attributes' => array('target' => '_blank', 'action' => 'sample')));
     }
   }
-
-  // Sort the elements to get the stream action in between the other links.
-  usort($vars['actions'], 'element_sort');
 }
 
 /**
- * Redirect streaming to pubhub
+ * Redirect streaming to pubhub.
  */
 function elib_popup_stream_redirect() {
   header("location:" . $_GET['url'] . '&player=' . $_GET['player'] . '&stream=' . $_GET['stream']);
