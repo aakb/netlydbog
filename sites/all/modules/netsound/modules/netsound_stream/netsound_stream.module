@@ -6,7 +6,7 @@
 function netsound_stream_menu() {
   $items = array();
 
-  $menu['publizon/%/stream'] = array(
+  $items['publizon/%/stream'] = array(
     'title' => 'Show a popup before stream',
     'description' => 'Display some user specific text and perform some check before stream.',
     'page callback' => 'elib_popup_loan_popup',
@@ -15,7 +15,7 @@ function netsound_stream_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $menu['publizon/%/stream/request'] = array(
+  $items['publizon/%/stream/request'] = array(
     'title' => 'Download ting ebook',
     'description' => 'Checker for stream abilities regarding selected book for specific user.',
     'page callback' => 'elib_popup_download_loan_initial',
@@ -24,7 +24,7 @@ function netsound_stream_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $menu['publizon/stream/redirect'] = array(
+  $items['publizon/stream/redirect'] = array(
     'title' => 'Stream sample book',
     'description' => 'Redirect to external stream domain.',
     'page callback' => 'elib_popup_stream_redirect',

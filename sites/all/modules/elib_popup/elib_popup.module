@@ -52,7 +52,7 @@ function elib_popup_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $menu['publizon/%/download/popup'] = array(
+  $menu['publizon/%/download'] = array(
     'title' => 'Show a popup before download',
     'description' => 'Display some user specific text and perform some check before download.',
     'page callback' => 'elib_popup_loan_popup',
@@ -61,7 +61,7 @@ function elib_popup_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $menu['publizon/%/sample/popup'] = array(
+  $menu['publizon/%/sample'] = array(
     'title' => 'Stream sample book',
     'description' => 'Stream sample audio book.',
     'page callback' => 'elib_popup_download_sample',
