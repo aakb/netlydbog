@@ -69,9 +69,6 @@ function elib_popup_process_loan(response) {
           // Close dialog and call the function once more with the new response.
           $('#ting-download-popup').dialog('close');
           elib_popup_process_loan(response);
-
-          // Remove spinner from the button.
-          elib_popup_spinner(false, undefined);
         }
       });
     };
@@ -86,6 +83,9 @@ function elib_popup_process_loan(response) {
     height: 'auto',
     buttons: popup_buttons
   });
+
+  // Remove spinner from the button.
+  elib_popup_spinner(false, undefined);
 }
 
 

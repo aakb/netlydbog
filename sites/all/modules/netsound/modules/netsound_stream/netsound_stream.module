@@ -3,6 +3,8 @@
  * NetSound/Publizon stream player integration.
  */
 
+define('NETSOUND_SERVICE_KEY', 'B7933301-2F27-4682-88EE-108A2DB0E5B1');
+
 function netsound_stream_menu() {
   $items = array();
 
@@ -27,13 +29,34 @@ function netsound_stream_menu() {
   $items['publizon/stream/redirect'] = array(
     'title' => 'Stream sample book',
     'description' => 'Redirect to external stream domain.',
-    'page callback' => 'elib_popup_stream_redirect',
+    'page callback' => 'netsound_stream_redirect',
     'page arguments' => array(),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
 
   return $items;
+}
+
+/**
+ * Create URL to stream service.
+ *
+ * @param string $order_id
+ *   The ID of the order to stream.
+ *
+ * @return string
+ *  The URL at the stream service.
+ */
+function netsound_stream_url($order_id) {
+  return 'http://play.pubhub.dk/redirect/?o=' . $order_id . '&s=' . NETSOUND_SERVICE_KEY;
+}
+
+/**
+ * Redirect streaming to stream service.
+ */
+function netsound_stream_redirect() {
+  header("location:" . $_GET['url'] . '&o=' . $_GET['o'] . '&s=' . $_GET['s']);
+  exit();
 }
 
 /**

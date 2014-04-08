@@ -150,14 +150,6 @@ function elib_popup_preprocess_publizon_actions(&$vars) {
 }
 
 /**
- * Redirect streaming to pubhub.
- */
-function elib_popup_stream_redirect() {
-  header("location:" . $_GET['url'] . '&player=' . $_GET['player'] . '&stream=' . $_GET['stream']);
-  exit();
-}
-
-/**
  * Return content for download or stream.
  *
  * @param string $type
@@ -188,10 +180,10 @@ function _elib_popup_return_content($type, $download_url, $title = '') {
       $response = array();
 
       if ($platform == PUBLIZON_PLATFORM_IOS) {
-        $stream = elib_popup_stream_url($key[1], 'livestream');
+        $stream = netsound_stream_url($key[1], 'livestream');
         $response['content'] = theme('elib_popup_stream_ios', array('link' => $stream, 'title' => $title));
       } else {
-        $stream = elib_popup_stream_url($key[1]);
+        $stream = netsound_stream_url($key[1]);
         $response['stream'] = url('publizon/stream/redirect', array('query' => 'url=' . $stream));
         $response['content'] = t('Click on the Strem link in order to start streaming of this audiobook.') . '<br />';
         $response['content'] .= l('Stream', 'publizon/stream/redirect', array('query' => 'url=' . $stream));
@@ -204,11 +196,6 @@ function _elib_popup_return_content($type, $download_url, $title = '') {
 
       return $response;
   }
-}
-
-function elib_popup_stream_url($key, $player = 'flash') {
-  $url =  "http://service.pubhub.dk/Download.aspx?id=";
-  return $url . $key .'&player=' . $player . '&stream=true';
 }
 
 /**

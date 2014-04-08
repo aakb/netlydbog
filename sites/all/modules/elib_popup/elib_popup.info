@@ -3,3 +3,4 @@ description = Implements download/stream flow for audio books.
 version = 1.0
 core = 6.x
 dependencies[] = jquery_ui
+dependencies[] = netsound_stream

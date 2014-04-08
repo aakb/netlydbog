@@ -74,7 +74,7 @@ function elib_popup_login_open(title, login_form, callback) {
           $('#sidebar-first').prepend(block);
 
           // Try to process the loan once more.
-          callback();
+          callback(response);
         }
       }
     });
