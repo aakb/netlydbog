@@ -3,7 +3,17 @@
  * Handle login dialog.
  */
 
-function elib_popup_login_open(title, content, callback) {
+/**
+ * Display login form and handle AJAX login request
+ *
+ * @param title
+ *   Dialog title to use.
+ * @param login_form
+ *   Login form returned from Drupal.
+ * @param callback
+ *   Function to call when login succeed.
+ */
+function elib_popup_login_open(title, login_form, callback) {
   "use strict";
 
   var popup_buttons = {};
@@ -11,8 +21,8 @@ function elib_popup_login_open(title, content, callback) {
   var login_button = Drupal.t('Login');
 
   // Hide login button from the form.
-  content = $(content);
-  $('#edit-submit', content).remove();
+  login_form = $(login_form);
+  $('#edit-submit', login_form).remove();
 
   // Add action to the login dialog button.
   popup_buttons[login_button] = function() {
@@ -56,11 +66,11 @@ function elib_popup_login_open(title, content, callback) {
           var link = $('.menu .login-link');
           link.removeClass('login-link').addClass('account-link');
           link = $('a', link);
-          link.val(Drupal.t('My page'));
+          link.val(Drupal.t('My page', {}));
           link.attr("href", "/min_side");
 
           // Add logout block to the site (HACK).
-          var block = $('<div id="block-publizon_user-logout" class="block block-publizon_user"><h2>' + Drupal.t('My profile') + '</h2><div class="content"><p>' + Drupal.t('You are now logged in') + ': <a class="biglogoutbutton" href="/logout">' + Drupal.t('Logout') + '</a></p></div></div>');
+          var block = $('<div id="block-publizon_user-logout" class="block block-publizon_user"><h2>' + Drupal.t('My profile', {}) + '</h2><div class="login_form"><p>' + Drupal.t('You are now logged in', {}) + ': <a class="biglogoutbutton" href="/logout">' + Drupal.t('Logout', {}) + '</a></p></div></div>');
           $('#sidebar-first').prepend(block);
 
           // Try to process the loan once more.
@@ -73,23 +83,20 @@ function elib_popup_login_open(title, content, callback) {
   };
 
   popup_buttons[cancel_button] = function() {
-    // Close the form an remove it from the dom or close will not work
-    // if displayed once more.
-    $('#ting-login-popup').dialog('close');
-    $('#ting-login-popup').remove();
+    elib_popup_login_close();
   };
 
-  var options = {
+  $('<div id="ting-login-popup" title="' + title + '">' + login_form[0].outerHTML + '</div>').dialog({
     modal: true,
     width: 'auto',
     height: 'auto',
     buttons: popup_buttons
-  };
-
-  $('<div id="ting-login-popup" title="' + title + '">' + content[0].outerHTML + '</div>').dialog(options);
+  });
 }
 
-
+/**
+ * Close the login dialog.
+ */
 function elib_popup_login_close() {
   "use strict";
 
