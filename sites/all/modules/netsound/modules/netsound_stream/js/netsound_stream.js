@@ -71,7 +71,7 @@
     if (response.processed && response.processed == true) {
       // Prepare the stream popup.
       popup_buttons = {};
-      popup_buttons[cancel_button] = function() {
+      popup_buttons[download_button] = function() {
         $('#ting-download-popup').dialog('close');
       };
 
