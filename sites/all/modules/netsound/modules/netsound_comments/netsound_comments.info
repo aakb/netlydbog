@@ -2,6 +2,5 @@ name = Netsound Comments
 description = functions, blocks and settings
 dependencies[] = ting
 dependencies[] = netsound
-dependencies[] = elib
-package = Ding!
+package = NetSound
 core = 6.x
