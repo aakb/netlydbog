@@ -155,7 +155,7 @@ if (module_exists('ding_voxb')) {
         <ul>
           <li class="sample"><?php print l(t('Sample'), 'publizon/' . $isbn . '/sample', array('html' => TRUE, 'attributes' => array('target' => '_blank', 'action' => 'sample'))) ?></li>
           <li class="seperator"></li>
-          <li class="stream"><?php print l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'stream'))) ?></li>
+          <li class="stream"><?php print l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'js-stream'))) ?></li>
           <?php
           $platform = publizon_get_client_platform();
           if ($platform == PUBLIZON_PLATFORM_GENERIC) {

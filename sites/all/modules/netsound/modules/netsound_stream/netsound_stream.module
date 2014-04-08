@@ -1,0 +1,82 @@
+<?php
+/**
+ * NetSound/Publizon stream player integration.
+ */
+
+define('NETSOUND_SERVICE_KEY', 'B7933301-2F27-4682-88EE-108A2DB0E5B1');
+
+function netsound_stream_menu() {
+  $items = array();
+
+  $items['publizon/%/stream'] = array(
+    'title' => 'Show a popup before stream',
+    'description' => 'Display some user specific text and perform some check before stream.',
+    'page callback' => 'elib_popup_loan_popup',
+    'page arguments' => array(1, 'stream'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['publizon/%/stream/request'] = array(
+    'title' => 'Download ting ebook',
+    'description' => 'Checker for stream abilities regarding selected book for specific user.',
+    'page callback' => 'elib_popup_download_loan_initial',
+    'page arguments' => array(1, 'stream'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['publizon/stream/redirect'] = array(
+    'title' => 'Stream sample book',
+    'description' => 'Redirect to external stream domain.',
+    'page callback' => 'netsound_stream_redirect',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Create URL to stream service.
+ *
+ * @param string $order_id
+ *   The ID of the order to stream.
+ *
+ * @return string
+ *  The URL at the stream service.
+ */
+function netsound_stream_url($order_id) {
+  return 'http://play.pubhub.dk/redirect/?o=' . $order_id . '&s=' . NETSOUND_SERVICE_KEY;
+}
+
+/**
+ * Redirect streaming to stream service.
+ */
+function netsound_stream_redirect() {
+  header("location:" . $_GET['url'] . '&o=' . $_GET['o'] . '&s=' . $_GET['s']);
+  exit();
+}
+
+/**
+ * Implements hook_preprocess_publizon_actions().
+ *
+ * Adds stream ation to all action links lists.
+ */
+function netsound_stream_preprocess_publizon_actions(&$vars) {
+  $isbn = $vars['product']->isbn;
+
+  // Add stream action to links.
+  $vars['actions'][] = array(
+    '#link' => l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'js-stream'))),
+    '#class' => 'stream',
+    '#weight' => -8,
+  );
+
+  // Add Javascript to handle stream links.
+  drupal_add_js(drupal_get_path('module', 'netsound_stream') . '/js/netsound_stream.js');
+
+  // Sort the elements to get the stream action in between the other links.
+  usort($vars['actions'], 'element_sort');
+}
