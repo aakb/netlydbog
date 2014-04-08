@@ -43,8 +43,30 @@
     }
 
     var popup_buttons = {};
-    var download_button = Drupal.t('Proceed to download');
+    var download_button = Drupal.t('Ok');
     var cancel_button = Drupal.t('Cancel');
+
+    if (response.final === undefined) {
+      popup_buttons[download_button] = function() {
+        var button = $('#ting-download-popup').parents('.ui-dialog:first').find('button');
+        button.css('visibility', 'hidden');
+        button.parent().append('<div class="ajax-loader"></div>');
+
+        // Finalize the loan.
+        $.ajax({
+          type : 'post',
+          url : $('.js-clicked').attr('href') + '/request',
+          dataType : 'json',
+          success : function(response) {
+            $('#ting-download-popup').dialog('close');
+            netsound_stream_process(response);
+          }
+        });
+      };
+      popup_buttons[cancel_button] = function() {
+        $('#ting-download-popup').dialog('close');
+      };
+    }
 
     if (response.processed && response.processed == true) {
       // Prepare the stream popup.
@@ -55,29 +77,6 @@
 
       // Remove spinner from the button.
       elib_popup_spinner(false, undefined);
-    }
-    else {
-      if (!response.final) {
-        popup_buttons[download_button] = function() {
-          var button = $('#ting-download-popup').parents('.ui-dialog:first').find('button');
-          button.css('visibility', 'hidden');
-          button.parent().append('<div class="ajax-loader"></div>');
-
-          // Finalize the loan.
-          $.ajax({
-            type : 'post',
-            url : $('.js-clicked').attr('href') + '/request',
-            dataType : 'json',
-            success : function(response) {
-              $('#ting-download-popup').dialog('close');
-              netsound_stream_process(response);
-            }
-          });
-        };
-      }
-      popup_buttons[cancel_button] = function() {
-        $('#ting-download-popup').dialog('close');
-      };
     }
 
     $('<div id="ting-download-popup" title="' + response.title + '">' + response.content + '</div>').dialog({

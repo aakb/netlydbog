@@ -48,14 +48,14 @@ function netsound_stream_menu() {
  *  The URL at the stream service.
  */
 function netsound_stream_url($order_id) {
-  return 'http://play.pubhub.dk/redirect/?o=' . $order_id . '&s=' . NETSOUND_SERVICE_KEY;
+  return 'http://play.pubhub.dk/redirect/?o=' . $order_id . '&k=' . NETSOUND_SERVICE_KEY;
 }
 
 /**
  * Redirect streaming to stream service.
  */
 function netsound_stream_redirect() {
-  header("location:" . $_GET['url'] . '&o=' . $_GET['o'] . '&s=' . $_GET['s']);
+  header("location:" . $_GET['url'] . '&o=' . $_GET['o'] . '&k=' . $_GET['k']);
   exit();
 }
 

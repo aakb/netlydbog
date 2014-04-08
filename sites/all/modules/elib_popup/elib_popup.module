@@ -179,20 +179,17 @@ function _elib_popup_return_content($type, $download_url, $title = '') {
       $platform = publizon_get_client_platform();
       $response = array();
 
-      if ($platform == PUBLIZON_PLATFORM_IOS) {
-        $stream = netsound_stream_url($key[1], 'livestream');
-        $response['content'] = theme('elib_popup_stream_ios', array('link' => $stream, 'title' => $title));
-      } else {
-        $stream = netsound_stream_url($key[1]);
-        $response['stream'] = url('publizon/stream/redirect', array('query' => 'url=' . $stream));
-        $response['content'] = t('Click on the Strem link in order to start streaming of this audiobook.') . '<br />';
-        $response['content'] .= l('Stream', 'publizon/stream/redirect', array('query' => 'url=' . $stream));
-      }
+
+      $stream = netsound_stream_url($key[1]);
+      $response['stream'] = url('publizon/stream/redirect', array('query' => 'url=' . $stream));
+      $response['content'] = t('Click on the Strem link in order to start streaming of this audiobook.') . '<br />';
+      $response['content'] .= l('Stream', 'publizon/stream/redirect', array('query' => 'url=' . $stream));
 
       $response['status'] = TRUE;
       $response['title'] = t('Stream');
       $response['processed'] = TRUE;
       $response['platform'] = $platform;
+      $response['final'] = TRUE;
 
       return $response;
   }
@@ -403,7 +400,7 @@ function elib_popup_login_form_validate($form, &$form_state) {
     $status = array(
       'status' => 'loggedin',
       'title' => t('Login'),
-      'content' => t('You are now logged in an can procceed'),
+      'content' => t('You are now logged in an can procceed') . '<br />' . theme('elib_popup_download_approve', array('item' => ''))
     );
   }
 
