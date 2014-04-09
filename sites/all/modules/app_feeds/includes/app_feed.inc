@@ -84,11 +84,14 @@ class AppFeed {
    *        'text' => 'value',
    *      ),
    *      'key' =>  array(
-   *        'tag' = 'fausts',
+   *        'tag' = 'isbns',
    *        'children' => array (
    *          array(
-   *            'tag' = 'faust',
+   *            'tag' = 'isbn',
    *            'text' => 'value',
+   *            'attributes' => array(
+       *          'type' => 'content',
+   *            ),
    *          ),
    *          array(),
    *          .
