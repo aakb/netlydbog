@@ -1,0 +1,50 @@
+<?php
+/**
+ * @file
+ * Generates feeds to use with the iOS/Android application.
+ */
+
+include_once 'includes/app_feed.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function app_feeds_menu() {
+  $items = array();
+
+  $items['feeds/frontpage.xml'] = array(
+    'title' => 'Frontpage application feed',
+    'description' => 'Generated feed with news, video, author portraits and recommandations',
+    'page callback' => 'app_feeds_frontpage',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['feeds/books.xml'] = array(
+    'title' => 'Selected books',
+    'description' => 'Generated feed with items from the frontpage carousel.',
+    'page callback' => 'app_feeds_books',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['feeds/searches.xml'] = array(
+    'title' => 'Menu keyword menu search strings',
+    'description' => 'Generated feed with dropdown keyword menu search strings.',
+    'page callback' => 'app_feeds_key_searchs',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+
+function app_feeds_frontpage() {
+  $feed = new AppFeed();
+  $feed->send();
+}
+
+
+
+
