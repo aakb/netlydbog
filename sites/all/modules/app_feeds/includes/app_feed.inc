@@ -34,7 +34,7 @@ class AppFeed {
   private function createItem($guid) {
     $item = $this->feed->createElement('item');
 
-    $item->appendChild($this->feed->createElement('GUID', $guid));
+    $item->appendChild($this->feed->createElement('guid', $guid));
 
     $this->root->appendChild($item);
     return $item;
