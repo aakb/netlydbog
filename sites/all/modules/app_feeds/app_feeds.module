@@ -39,12 +39,148 @@ function app_feeds_menu() {
   return $items;
 }
 
-
+/**
+ * Menu callback to generate frontpage feed.
+ */
 function app_feeds_frontpage() {
   $feed = new AppFeed();
+
+  app_feeds_build_news($feed);
+
   $feed->send();
 }
 
+/**
+ * Generate GUID based on private key and ID.
+ *
+ * @param $id
+ *   The id to used to generate GUID.
+ *
+ * @return string
+ *   MD5 hash of the GUID.
+ */
+function app_feeds_get_guid($id) {
+  return md5(drupal_get_private_key() + $id);
+}
 
+/**
+ * Filter content string to make it ready for the feed.
+ *
+ * This is mainly the nodes body field and is an hack that should be fixed
+ * later and use ting reference field in the frontend.
+ *
+ * @param string $content
+ *   The content to filter.
+ *
+ * @return string
+ *   The filter content as HTML string.
+ */
+function app_feeds_filter_content($content) {
+  // Remove "books" div from the HTML (HACK REMOVE LATER - jeskr).
+  $content = preg_replace('/\<div id="books"\>.*\<\/div\>/' , ' ', $content);
 
+  // Fix nbsp.
+  $content = str_replace('&nbsp', '&amp;nbsp', check_plain($content));
 
+  return $content;
+}
+
+/**
+ * Helper function to generate news items and add the to the feed.
+ *
+ * @param AppFeed $feed
+ *   The feed object to which the items are added.
+ */
+function app_feeds_build_news(AppFeed $feed) {
+  // Get last news nodes.
+  $nodes = app_feeds_load_news_nodes();
+
+  // Add each node to the feed.
+  foreach ($nodes as $node) {
+    // Build content array.
+    $content = array(
+      'source' => array(
+        'tag' => 'source',
+        'text' => 'netlydbog',
+      ),
+      'type' => array(
+        'tag' => 'type',
+        'text' => 'news',
+      ),
+      'title' =>  array(
+        'tag' => 'title',
+        'text' => $node->title,
+      ),
+      'description' =>  array(
+        'tag' => 'description',
+        'text' => app_feeds_filter_content($node->teaser),
+      ),
+      'content' => array(
+        'tag' => 'content',
+        'text' =>  app_feeds_filter_content($node->body),
+      ),
+      'date' =>  array(
+        'tag' => 'date',
+        'text' => $node->created,
+      ),
+      'link_content' => array(
+        'tag' => 'link',
+        'text' => url('node/' . $node->nid, array('absolute' => TRUE)),
+        'attributes' => array(
+          'type' => 'content',
+        ),
+      ),
+      'link_thumbnail' => array(
+        'tag' => 'link',
+        'text' => url($node->field_image[0]['filepath'], array('absolute' => TRUE)),
+        'attributes' => array(
+          'type' => 'thumbnail',
+        ),
+      ),
+    );
+
+    // Add object id's if any.
+    if (!is_null($node->field_books[0]['ting_object_id'])) {
+      module_load_include('client.inc', 'ting');
+      $content['books'] = array(
+        'tag' => 'isbns',
+        'children' => array(),
+      );
+      foreach ($node->field_books as $book) {
+
+        $object = ting_get_object_by_id($book['ting_object_id']);
+        if ($object) {
+          $isbn = $object->record['dc:identifier']['oss:PROVIDER-ID'][0];
+          $product = new PublizonProduct($isbn);
+          $content['books']['children'][] = array(
+            'tag' => 'isbn',
+            'text' => $isbn,
+            'attributes' => array(
+              'cover' => url($product->cover, array('absolute' => TRUE)),
+              'id' => $object->localId,
+            ),
+          );
+        }
+      }
+    }
+
+    $feed->addItem(app_feeds_get_guid($node->nid), $content);
+  }
+}
+
+/**
+ * Loads x newest news nodes.
+ *
+ * @return array
+ *   Node object index by nid in an array.
+ */
+function app_feeds_load_news_nodes() {
+  $nodes = array();
+  // @TODO add optional limit number.
+  $result = db_query('SELECT nid FROM {node} WHERE type = "article" ORDER BY created DESC LIMIT %d', array(2));
+  while ($row = db_fetch_array($result)) {
+    $nodes[$row['nid']] = node_load($row['nid']);
+  }
+
+  return $nodes;
+}

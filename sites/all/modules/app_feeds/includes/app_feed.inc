@@ -41,6 +41,25 @@ class AppFeed {
   }
 
   /**
+   * Adds attributes to an element.
+   *
+   * @param $attributes
+   *   An array with attributes.
+   * @param $element
+   *   The element to add the attributes to.
+   */
+  private function addAttributes($attributes, &$element) {
+    // Add attributes to the element if they exists.
+    if (!empty($attributes)) {
+      foreach ($attributes as $attribute => $attribute_value) {
+        $att_element = $this->feed->createAttribute($attribute);
+        $att_element->value = $attribute_value;
+        $element->appendChild($att_element);
+      }
+    }
+  }
+
+  /**
    * Sends the XML content by printing it and setting headers.
    */
   public function send() {
@@ -58,27 +77,52 @@ class AppFeed {
    *   should be:
    *    array(
    *      'key' =>  array(
+   *        'tag' => 'title',
    *        'attributes' => array(
    *          'type' => 'content',
    *        ),
    *        'text' => 'value',
+   *      ),
+   *      'key' =>  array(
+   *        'tag' = 'fausts',
+   *        'children' => array (
+   *          array(
+   *            'tag' = 'faust',
+   *            'text' => 'value',
+   *          ),
+   *          array(),
+   *          .
+   *          .
+   *          .
+   *          ),
+   *        ),
    *      ),
    *    )
    */
   public function addItem($guid, array $content) {
     $item = $this->createItem($guid);
 
-    foreach ($content as $key => $value) {
-      $element = $this->feed->createElement($key, $value['text']);
+    foreach ($content as $value) {
+      // Normal element.
+      if (!empty($value['tag'])) {
+        $element = $this->feed->createElement($value['tag'], $value['text']);
 
-      // Add attributes to the element if they exists.
-      if (!empty($value['attributes'])) {
-        foreach ($value['attributes'] as $attribute => $attribute_value) {
-          $element->appendChild(
-            $this->feed->createAttribute($attribute)->appendChild(
-              $this->feed->createTextNode($attribute_value)
-            )
-          );
+        // Add attributes to the element if they exists.
+        if (!empty($value['attributes'])) {
+          $this->addAttributes($value['attributes'], $element);
+        }
+      }
+
+      if (!empty($value['children'])) {
+        $element = $this->feed->createElement($value['tag']);
+        foreach ($value['children'] as $child) {
+          // Create child element.
+          $child_element = $this->feed->createElement($child['tag'], $child['text']);
+          if (!empty($child['attributes'])) {
+            // Add attributes to the child.
+            $this->addAttributes($child['attributes'], $child_element);
+          }
+          $element->appendChild($child_element);
         }
       }
 
