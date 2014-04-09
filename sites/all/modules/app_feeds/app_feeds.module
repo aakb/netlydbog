@@ -2,6 +2,8 @@
 /**
  * @file
  * Generates feeds to use with the iOS/Android application.
+ *
+ * @todo: create admin interface to adjust the number of items in the feed.
  */
 
 include_once 'includes/app_feed.inc';
@@ -48,6 +50,7 @@ function app_feeds_frontpage() {
   app_feeds_build_news($feed);
 
   $feed->send();
+  exit(1);
 }
 
 /**
