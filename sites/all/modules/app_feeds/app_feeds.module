@@ -168,7 +168,7 @@ function app_feeds_build_news(AppFeed $feed) {
             'text' => $isbn,
             'attributes' => array(
               'cover' => url($product->cover, array('absolute' => TRUE)),
-              'id' => $object->localId,
+              'faust' => $object->localId,
             ),
           );
         }
@@ -225,7 +225,7 @@ function app_feeds_build_reviews(AppFeed $feed) {
         'text' => $review['isbn'],
         'attributes' => array(
           'cover' => url($product->cover, array('absolute' => TRUE)),
-          'id' => $object->localId,
+          'faust' => $object->localId,
         ),
       ),
     );
