@@ -47,10 +47,19 @@ function app_feeds_menu() {
 function app_feeds_frontpage() {
   $feed = new AppFeed();
 
+  // Add news to the feed.
   app_feeds_build_news($feed);
 
+  // Add video to the feed.
+
+
+  // Add author portraits to the feed.
+
+
+  // Add recommendations to the feed.
+  app_feeds_build_reviews($feed);
+
   $feed->send();
-  exit(1);
 }
 
 /**
@@ -96,7 +105,7 @@ function app_feeds_filter_content($content) {
  */
 function app_feeds_build_news(AppFeed $feed) {
   // Get last news nodes.
-  $nodes = app_feeds_load_news_nodes();
+  $nodes = app_feeds_load_nodes('article', 2);
 
   // Add each node to the feed.
   foreach ($nodes as $node) {
@@ -110,6 +119,10 @@ function app_feeds_build_news(AppFeed $feed) {
         'tag' => 'type',
         'text' => 'news',
       ),
+      'date' =>  array(
+        'tag' => 'date',
+        'text' => $node->created,
+      ),
       'title' =>  array(
         'tag' => 'title',
         'text' => $node->title,
@@ -121,10 +134,6 @@ function app_feeds_build_news(AppFeed $feed) {
       'content' => array(
         'tag' => 'content',
         'text' =>  app_feeds_filter_content($node->body),
-      ),
-      'date' =>  array(
-        'tag' => 'date',
-        'text' => $node->created,
       ),
       'link_content' => array(
         'tag' => 'link',
@@ -150,7 +159,6 @@ function app_feeds_build_news(AppFeed $feed) {
         'children' => array(),
       );
       foreach ($node->field_books as $book) {
-
         $object = ting_get_object_by_id($book['ting_object_id']);
         if ($object) {
           $isbn = $object->record['dc:identifier']['oss:PROVIDER-ID'][0];
@@ -171,16 +179,76 @@ function app_feeds_build_news(AppFeed $feed) {
   }
 }
 
+function app_feeds_build_reviews(AppFeed $feed) {
+  $reviews = litteratursiden_feed_compare_get_cached_feed(2);
+
+  foreach ($reviews['data'] as $review) {
+    $product = new PublizonProduct($review['isbn']);
+    $object = $product->getTingObject();
+    $content = array(
+      'source' => array(
+        'tag' => 'source',
+        'text' => 'netlydbog',
+      ),
+      'type' => array(
+        'tag' => 'type',
+        'text' => 'review',
+      ),
+      'date' =>  array(
+        'tag' => 'date',
+        'text' => $review['created'],
+      ),
+      'title' =>  array(
+        'tag' => 'title',
+        'text' => $review['title'],
+      ),
+      'description' =>  array(
+        'tag' => 'description',
+        'text' => app_feeds_filter_content($review['abstract']),
+      ),
+      'link_content' => array(
+        'tag' => 'link',
+        'text' => $review['link'],
+        'attributes' => array(
+          'type' => 'content',
+        ),
+      ),
+      'link_thumbnail' => array(
+        'tag' => 'link',
+        'text' => url($product->cover, array('absolute' => TRUE)),
+        'attributes' => array(
+          'type' => 'thumbnail',
+        ),
+      ),
+      'isbn' => array(
+        'tag' => 'isbn',
+        'text' => $review['isbn'],
+        'attributes' => array(
+          'cover' => url($product->cover, array('absolute' => TRUE)),
+          'id' => $object->localId,
+        ),
+      ),
+    );
+
+    $feed->addItem(app_feeds_get_guid($review['isbn']), $content);
+  }
+}
+
 /**
- * Loads x newest news nodes.
+ * Loads x newest nodes.
+ *
+ * @param string $type
+ *   The to of content type to load.
+ * @param int $count
+ *   The number of nodes to load.
  *
  * @return array
  *   Node object index by nid in an array.
  */
-function app_feeds_load_news_nodes() {
+function app_feeds_load_nodes($type, $count) {
   $nodes = array();
   // @TODO add optional limit number.
-  $result = db_query('SELECT nid FROM {node} WHERE type = "article" ORDER BY created DESC LIMIT %d', array(2));
+  $result = db_query('SELECT nid FROM {node} WHERE type = "%s" ORDER BY created DESC LIMIT %d', array($type, $count));
   while ($row = db_fetch_array($result)) {
     $nodes[$row['nid']] = node_load($row['nid']);
   }
