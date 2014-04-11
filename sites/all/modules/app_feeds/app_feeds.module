@@ -51,10 +51,10 @@ function app_feeds_frontpage() {
   app_feeds_build_news($feed);
 
   // Add video to the feed.
-  app_feeds_build_video($feed);
+  app_feeds_build_videos($feed);
 
   // Add author portraits to the feed.
-
+  app_feeds_build_portraits($feed);
 
   // Add recommendations to the feed.
   app_feeds_build_reviews($feed);
@@ -246,7 +246,7 @@ function app_feeds_build_reviews(AppFeed $feed) {
  * @param AppFeed $feed
  *   The feed object to which the items are added.
  */
-function app_feeds_build_video(AppFeed $feed) {
+function app_feeds_build_videos(AppFeed $feed) {
   // Get last news nodes.
   $nodes = app_feeds_load_nodes('video', 2);
 
@@ -312,6 +312,60 @@ function app_feeds_build_video(AppFeed $feed) {
         );
       }
     }
+
+    $feed->addItem(app_feeds_get_guid($node->nid), $content);
+  }
+}
+
+/**
+ * Helper function to generate portrait items and add the to the feed.
+ *
+ * @param AppFeed $feed
+ *   The feed object to which the items are added.
+ */
+function app_feeds_build_portraits(AppFeed $feed) {
+  // Get last news nodes.
+  $nodes = app_feeds_load_nodes('portrait', 2);
+
+  // Add each node to the feed.
+  foreach ($nodes as $node) {
+    // Build content array.
+    $content = array(
+      'source' => array(
+        'tag' => 'source',
+        'text' => 'netlydbog',
+      ),
+      'type' => array(
+        'tag' => 'type',
+        'text' => 'author',
+      ),
+      'date' =>  array(
+        'tag' => 'date',
+        'text' => $node->created,
+      ),
+      'title' =>  array(
+        'tag' => 'title',
+        'text' => $node->field_portrait_author[0]['value'],
+      ),
+      'description' =>  array(
+        'tag' => 'description',
+        'text' => app_feeds_filter_content($node->body),
+      ),
+      'link_content' => array(
+        'tag' => 'link',
+        'text' => $node->field_portrait_more_link_url[0]['value'],
+        'attributes' => array(
+          'type' => 'content',
+        ),
+      ),
+      'link_thumbnail' => array(
+        'tag' => 'link',
+        'text' => url($node->field_portrait_image[0]['filepath'], array('absolute' => TRUE)),
+        'attributes' => array(
+          'type' => 'thumbnail',
+        ),
+      ),
+    );
 
     $feed->addItem(app_feeds_get_guid($node->nid), $content);
   }
