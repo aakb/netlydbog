@@ -179,6 +179,12 @@ function app_feeds_build_news(AppFeed $feed) {
   }
 }
 
+/**
+ * Helper function to generate review items and add the to the feed.
+ *
+ * @param AppFeed $feed
+ *   The feed object to which the items are added.
+ */
 function app_feeds_build_reviews(AppFeed $feed) {
   $reviews = litteratursiden_feed_compare_get_cached_feed(2);
 
