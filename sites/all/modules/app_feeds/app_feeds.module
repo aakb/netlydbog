@@ -331,7 +331,7 @@ function app_feeds_build_video(AppFeed $feed) {
 function app_feeds_load_nodes($type, $count) {
   $nodes = array();
   // @TODO add optional limit number.
-  $result = db_query('SELECT nid FROM {node} WHERE type = "%s" ORDER BY created DESC LIMIT %d', array($type, $count));
+  $result = db_query('SELECT nid FROM {node} WHERE type = "%s" AND status = 1 ORDER BY created DESC LIMIT %d', array($type, $count));
   while ($row = db_fetch_array($result)) {
     $nodes[$row['nid']] = node_load($row['nid']);
   }
