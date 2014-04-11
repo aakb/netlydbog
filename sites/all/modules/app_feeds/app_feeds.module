@@ -51,7 +51,7 @@ function app_feeds_frontpage() {
   app_feeds_build_news($feed);
 
   // Add video to the feed.
-
+  app_feeds_build_video($feed);
 
   // Add author portraits to the feed.
 
@@ -237,6 +237,83 @@ function app_feeds_build_reviews(AppFeed $feed) {
     );
 
     $feed->addItem(app_feeds_get_guid($review['isbn']), $content);
+  }
+}
+
+/**
+ * Helper function to generate video items and add the to the feed.
+ *
+ * @param AppFeed $feed
+ *   The feed object to which the items are added.
+ */
+function app_feeds_build_video(AppFeed $feed) {
+  // Get last news nodes.
+  $nodes = app_feeds_load_nodes('video', 2);
+
+  // Add each node to the feed.
+  foreach ($nodes as $node) {
+    // Build content array.
+    $content = array(
+      'source' => array(
+        'tag' => 'source',
+        'text' => 'netlydbog',
+      ),
+      'type' => array(
+        'tag' => 'type',
+        'text' => 'video',
+      ),
+      'date' =>  array(
+        'tag' => 'date',
+        'text' => $node->created,
+      ),
+      'title' =>  array(
+        'tag' => 'title',
+        'text' => $node->title,
+      ),
+      'description' =>  array(
+        'tag' => 'description',
+        'text' => app_feeds_filter_content($node->field_video_description[0]['value']),
+      ),
+      'link_content' => array(
+        'tag' => 'link',
+        'text' => $node->field_video_url[0]['value'],
+        'attributes' => array(
+          'type' => 'content',
+        ),
+      ),
+    );
+
+
+    // Get video image link.
+    $video = ebog_embed_video_parse_url($node->field_video_url[0]['value']);
+    $content['link_thumbnail'] = array(
+      'tag' => 'link',
+      'text' =>  'http://img.youtube.com/vi/' . $video['embed_code'] . '/0.jpg',
+      'attributes' => array(
+        'type' => 'thumbnail',
+      ),
+    );
+
+    // Add object id's if any.
+    if (!is_null($node->field_video_book[0]['ting_object_id'])) {
+      module_load_include('client.inc', 'ting');
+      $object = ting_get_object_by_id($node->field_video_book[0]['ting_object_id']);
+      if ($object) {
+        $isbn = $object->record['dc:identifier']['oss:PROVIDER-ID'][0];
+        $product = new PublizonProduct($isbn);
+
+        $content['isbn'] = array(
+          'tag' => 'isbn',
+          'text' => $isbn,
+          'attributes' => array(
+            'cover' => url($product->cover, array('absolute' => TRUE)),
+            'faust' => $object->localId,
+          ),
+        );
+      }
+    }
+
+    $feed->addItem(app_feeds_get_guid($node->nid), $content);
   }
 }
 
