@@ -60,7 +60,7 @@ function _ebog_embed_video_block_view() {
   $node = NULL;
   $content = '';
 
-  $result = db_query('SELECT nid FROM {node} WHERE type = "video" ORDER BY created DESC LIMIT 1');
+  $result = db_query('SELECT nid FROM {node} WHERE type = "video" AND status = 1 ORDER BY created DESC LIMIT 1');
   while ($row = db_fetch_array($result)) {
     $node = node_load($row['nid']);
     $embed = ebog_embed_video_parse_url($node->field_video_url[0]['value']);
