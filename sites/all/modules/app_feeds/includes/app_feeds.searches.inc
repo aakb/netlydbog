@@ -45,7 +45,7 @@ function _app_feed_searches_pares_categories($menu_subtree) {
 }
 
 /**
- *
+ * Add item to feed.
  *
  * @param Appfeed $feed
  *   The feed object to which the items are added.
@@ -62,7 +62,7 @@ function _app_feed_searches_add_item(AppFeed $feed, $id, $title, $categories) {
       'tag' => 'source',
       'text' => 'netlydbog',
     ),
-    'title' =>  array(
+    'title' => array(
       'tag' => 'title',
       'text' => $title,
     ),

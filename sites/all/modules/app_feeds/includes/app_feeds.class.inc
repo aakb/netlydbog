@@ -15,7 +15,7 @@ class AppFeed {
     // Create XML dom.
     $this->feed = new DOMDocument('1.0', 'UTF-8');
 
-    // Add some configuration to the XML document
+    // Add some configuration to the XML document.
     $this->feed->formatOutput = TRUE;
 
     // Create the root element.
@@ -42,9 +42,9 @@ class AppFeed {
   /**
    * Adds attributes to an element.
    *
-   * @param $attributes
+   * @param array $attributes
    *   An array with attributes.
-   * @param $element
+   * @param DOMElement $element
    *   The element to add the attributes to.
    */
   private function addAttributes($attributes, &$element) {
@@ -61,14 +61,14 @@ class AppFeed {
   /**
    * Generate GUID based on private key and ID.
    *
-   * @param $id
+   * @param string $id
    *   The id to used to generate GUID.
    *
    * @return string
    *   MD5 hash of the GUID.
    */
   private function createGuid($id) {
-    return md5(drupal_get_private_key() + $id);
+    return md5(drupal_get_private_key() . $id);
   }
 
   /**
@@ -82,7 +82,7 @@ class AppFeed {
   /**
    * Add new item to the feed.
    *
-   * @param $guid
+   * @param string $guid
    *   Global ID for the item.
    * @param array $content
    *   The content to write into the item element. The format of the content

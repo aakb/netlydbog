@@ -58,7 +58,7 @@ function app_feeds_menu() {
  */
 function app_feeds_filter_content($content) {
   // Remove "books" div from the HTML (HACK REMOVE LATER - jeskr).
-  $content = preg_replace('/\<div id="books"\>.*\<\/div\>/' , ' ', $content);
+  $content = preg_replace('/\<div id="books"\>.*\<\/div\>/', ' ', $content);
 
   // Fix content content.
   $content = htmlspecialchars(check_plain($content), ENT_QUOTES);

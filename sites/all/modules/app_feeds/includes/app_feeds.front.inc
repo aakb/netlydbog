@@ -47,21 +47,21 @@ function _app_feeds_build_news(AppFeed $feed) {
         'tag' => 'type',
         'text' => 'news',
       ),
-      'date' =>  array(
+      'date' => array(
         'tag' => 'date',
         'text' => $node->created,
       ),
-      'title' =>  array(
+      'title' => array(
         'tag' => 'title',
         'text' => htmlspecialchars($node->title, ENT_QUOTES),
       ),
-      'description' =>  array(
+      'description' => array(
         'tag' => 'description',
         'text' => app_feeds_filter_content($node->teaser),
       ),
       'content' => array(
         'tag' => 'content',
-        'text' =>  app_feeds_filter_content($node->body),
+        'text' => app_feeds_filter_content($node->body),
       ),
       'link_content' => array(
         'tag' => 'link',
@@ -128,15 +128,15 @@ function _app_feeds_build_reviews(AppFeed $feed) {
         'tag' => 'type',
         'text' => 'review',
       ),
-      'date' =>  array(
+      'date' => array(
         'tag' => 'date',
         'text' => $review['created'],
       ),
-      'title' =>  array(
+      'title' => array(
         'tag' => 'title',
         'text' => htmlspecialchars($review['title'], ENT_QUOTES),
       ),
-      'description' =>  array(
+      'description' => array(
         'tag' => 'description',
         'text' => app_feeds_filter_content($review['abstract']),
       ),
@@ -190,15 +190,15 @@ function _app_feeds_build_videos(AppFeed $feed) {
         'tag' => 'type',
         'text' => 'video',
       ),
-      'date' =>  array(
+      'date' => array(
         'tag' => 'date',
         'text' => $node->created,
       ),
-      'title' =>  array(
+      'title' => array(
         'tag' => 'title',
         'text' => htmlspecialchars($node->title, ENT_QUOTES),
       ),
-      'description' =>  array(
+      'description' => array(
         'tag' => 'description',
         'text' => app_feeds_filter_content($node->field_video_description[0]['value']),
       ),
@@ -216,7 +216,7 @@ function _app_feeds_build_videos(AppFeed $feed) {
     $video = ebog_embed_video_parse_url($node->field_video_url[0]['value']);
     $content['link_thumbnail'] = array(
       'tag' => 'link',
-      'text' =>  'http://img.youtube.com/vi/' . $video['embed_code'] . '/0.jpg',
+      'text' => 'http://img.youtube.com/vi/' . $video['embed_code'] . '/0.jpg',
       'attributes' => array(
         'type' => 'thumbnail',
       ),
@@ -267,15 +267,15 @@ function _app_feeds_build_portraits(AppFeed $feed) {
         'tag' => 'type',
         'text' => 'author',
       ),
-      'date' =>  array(
+      'date' => array(
         'tag' => 'date',
         'text' => $node->created,
       ),
-      'title' =>  array(
+      'title' => array(
         'tag' => 'title',
         'text' => htmlspecialchars($node->field_portrait_author[0]['value'], ENT_QUOTES),
       ),
-      'description' =>  array(
+      'description' => array(
         'tag' => 'description',
         'text' => app_feeds_filter_content($node->body),
       ),

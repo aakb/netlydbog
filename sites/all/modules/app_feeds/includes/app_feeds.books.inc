@@ -23,10 +23,10 @@ function app_feeds_books() {
  * Add search carousel results into XML feed.
  *
  * @param AppFeed $feed
- *  The feed object to which the items are added.
- * @param $id
+ *   The feed object to which the items are added.
+ * @param string $id
  *   The ID in the carousel order (tabs).
- * @param $query
+ * @param string $query
  *   The query information used to find the books in the data well.
  */
 function _app_feed_book_shelf_books(AppFeed $feed, $id, $query) {
@@ -38,11 +38,11 @@ function _app_feed_book_shelf_books(AppFeed $feed, $id, $query) {
       'tag' => 'source',
       'text' => 'netlydbog',
     ),
-    'title' =>  array(
+    'title' => array(
       'tag' => 'title',
       'text' => $query['title'],
     ),
-    'query' =>  array(
+    'query' => array(
       'tag' => 'query',
       'text' => $query['query'],
     ),
