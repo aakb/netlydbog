@@ -25,22 +25,26 @@ function ebog_author_portrait_theme() {
  * Implements hook_block().
  */
 function ebog_author_portrait_block($op = 'list', $delta = 0, $edit = array()) {
+  $block = array();
+
   switch ($op) {
     case 'list':
-      return array(
+      $block = array(
         array(
           'info' => t('Ebog Author Portrait'),
-        )
+        ),
       );
       break;
 
     case 'view':
-      return array(
+      $block = array(
         'subject' => t('Ebog Author Portrait'),
         'content' => _ebog_author_portrait_block_view(),
       );
       break;
   }
+
+  return $block;
 }
 
 /**
@@ -49,7 +53,7 @@ function ebog_author_portrait_block($op = 'list', $delta = 0, $edit = array()) {
  * @return string
  *   Block content markup.
  *
- * @see ebog_author_portrait_block().
+ * @see ebog_author_portrait_block()
  */
 function _ebog_author_portrait_block_view() {
   $node = NULL;
