@@ -75,8 +75,10 @@ class AppFeed {
    * Sends the XML content by printing it and setting headers.
    */
   public function send() {
-    header("Content-Type: application/xml; charset=UTF-8");
+    drupal_set_header('Content-Type', 'text/xml; charset=UTF-8');
+    drupal_set_header('Cache-Control', 'no-store, must-revalidate, no-cache');
     echo $this->feed->saveXML();
+    exit;
   }
 
   /**
