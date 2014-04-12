@@ -11,16 +11,16 @@ function app_feeds_frontpage() {
   $feed = new AppFeed();
 
   // Add news to the feed.
-  app_feeds_build_news($feed);
+  _app_feeds_build_news($feed);
 
   // Add video to the feed.
-  app_feeds_build_videos($feed);
+  _app_feeds_build_videos($feed);
 
   // Add author portraits to the feed.
-  app_feeds_build_portraits($feed);
+  _app_feeds_build_portraits($feed);
 
   // Add recommendations to the feed.
-  app_feeds_build_reviews($feed);
+  _app_feeds_build_reviews($feed);
 
   $feed->send();
 }
@@ -31,7 +31,7 @@ function app_feeds_frontpage() {
  * @param AppFeed $feed
  *   The feed object to which the items are added.
  */
-function app_feeds_build_news(AppFeed $feed) {
+function _app_feeds_build_news(AppFeed $feed) {
   // Get last news nodes.
   $nodes = app_feeds_load_nodes('article', 2);
 
@@ -53,7 +53,7 @@ function app_feeds_build_news(AppFeed $feed) {
       ),
       'title' =>  array(
         'tag' => 'title',
-        'text' => $node->title,
+        'text' => htmlspecialchars($node->title, ENT_QUOTES),
       ),
       'description' =>  array(
         'tag' => 'description',
@@ -113,7 +113,7 @@ function app_feeds_build_news(AppFeed $feed) {
  * @param AppFeed $feed
  *   The feed object to which the items are added.
  */
-function app_feeds_build_reviews(AppFeed $feed) {
+function _app_feeds_build_reviews(AppFeed $feed) {
   $reviews = litteratursiden_feed_compare_get_cached_feed(2);
 
   foreach ($reviews['data'] as $review) {
@@ -134,7 +134,7 @@ function app_feeds_build_reviews(AppFeed $feed) {
       ),
       'title' =>  array(
         'tag' => 'title',
-        'text' => $review['title'],
+        'text' => htmlspecialchars($review['title'], ENT_QUOTES),
       ),
       'description' =>  array(
         'tag' => 'description',
@@ -174,7 +174,7 @@ function app_feeds_build_reviews(AppFeed $feed) {
  * @param AppFeed $feed
  *   The feed object to which the items are added.
  */
-function app_feeds_build_videos(AppFeed $feed) {
+function _app_feeds_build_videos(AppFeed $feed) {
   // Get last news nodes.
   $nodes = app_feeds_load_nodes('video', 2);
 
@@ -196,7 +196,7 @@ function app_feeds_build_videos(AppFeed $feed) {
       ),
       'title' =>  array(
         'tag' => 'title',
-        'text' => $node->title,
+        'text' => htmlspecialchars($node->title, ENT_QUOTES),
       ),
       'description' =>  array(
         'tag' => 'description',
@@ -251,7 +251,7 @@ function app_feeds_build_videos(AppFeed $feed) {
  * @param AppFeed $feed
  *   The feed object to which the items are added.
  */
-function app_feeds_build_portraits(AppFeed $feed) {
+function _app_feeds_build_portraits(AppFeed $feed) {
   // Get last news nodes.
   $nodes = app_feeds_load_nodes('portrait', 2);
 
@@ -273,7 +273,7 @@ function app_feeds_build_portraits(AppFeed $feed) {
       ),
       'title' =>  array(
         'tag' => 'title',
-        'text' => $node->field_portrait_author[0]['value'],
+        'text' => htmlspecialchars($node->field_portrait_author[0]['value'], ENT_QUOTES),
       ),
       'description' =>  array(
         'tag' => 'description',

@@ -16,7 +16,7 @@ class AppFeed {
     $this->feed = new DOMDocument('1.0', 'UTF-8');
 
     // Add some configuration to the XML document
-    $this->feed->formatOutput = true;
+    $this->feed->formatOutput = TRUE;
 
     // Create the root element.
     $this->root = $this->feed->appendChild($this->feed->createElement('feed'));
@@ -102,7 +102,7 @@ class AppFeed {
    *            'tag' = 'isbn',
    *            'text' => 'value',
    *            'attributes' => array(
-       *          'type' => 'content',
+   *              'type' => 'content',
    *            ),
    *          ),
    *          array(),
@@ -119,7 +119,7 @@ class AppFeed {
 
     foreach ($content as $value) {
       // Normal element.
-      if (!empty($value['tag'])) {
+      if (empty($value['children'])) {
         $element = $this->feed->createElement($value['tag'], $value['text']);
 
         // Add attributes to the element if they exists.

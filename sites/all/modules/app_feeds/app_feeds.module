@@ -28,6 +28,7 @@ function app_feeds_menu() {
     'description' => 'Generated feed with items from the frontpage carousel.',
     'page callback' => 'app_feeds_books',
     'access arguments' => array('access content'),
+    'file' => 'includes/app_feeds.books.inc',
     'type' => MENU_CALLBACK,
   );
 
@@ -58,8 +59,8 @@ function app_feeds_filter_content($content) {
   // Remove "books" div from the HTML (HACK REMOVE LATER - jeskr).
   $content = preg_replace('/\<div id="books"\>.*\<\/div\>/' , ' ', $content);
 
-  // Fix nbsp.
-  $content = str_replace('&nbsp', '&amp;nbsp', check_plain($content));
+  // Fix content content.
+  $content = htmlspecialchars(check_plain($content), ENT_QUOTES);
 
   return $content;
 }
