@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function ebog_embed_video_theme() {
   return array(
@@ -22,7 +22,7 @@ function ebog_embed_video_theme() {
 }
 
 /**
- * Implementation of hook_ctools_plugin_directory().
+ * Implements hook_ctools_plugin_directory().
  */
 function ebog_embed_video_ctools_plugin_directory($module, $plugin) {
   if ($module == 'ctools' && !empty($plugin)) {
@@ -31,23 +31,29 @@ function ebog_embed_video_ctools_plugin_directory($module, $plugin) {
 }
 
 /**
- * Implementation of hook_block().
+ * Implements hook_block().
  */
 function ebog_embed_video_block($op = 'list', $delta = 0, $edit = array()) {
+  $block = array();
+
   switch ($op) {
     case 'list':
-      return array(array(
-        'info' => t('Ebog Embed video'),
-      ));
+      $block = array(
+        array(
+          'info' => t('Ebog Embed video'),
+        ),
+      );
       break;
 
     case 'view':
-      return array(
+      $block = array(
         'subject' => t('Ebog Embed video'),
         'content' => _ebog_embed_video_block_view(),
       );
       break;
   }
+
+  return $block;
 }
 
 /**
