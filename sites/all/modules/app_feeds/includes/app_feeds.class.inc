@@ -25,18 +25,17 @@ class AppFeed {
   /**
    * Generates an item tag and add it to the feed.
    *
-   * @param string $guid
-   *   Global ID for the element.
+   * @param string $id
+   *   ID for the element (nid or ISBN could be used).
    *
    * @return DOMElement
    *   A reference to the created DOMElement.
    */
-  private function createItem($guid) {
+  private function createItem($id) {
     $item = $this->feed->createElement('item');
-
-    $item->appendChild($this->feed->createElement('guid', $guid));
-
+    $item->appendChild($this->feed->createElement('guid', $this->createGuid($id)));
     $this->root->appendChild($item);
+
     return $item;
   }
 
@@ -57,6 +56,19 @@ class AppFeed {
         $element->appendChild($att_element);
       }
     }
+  }
+
+  /**
+   * Generate GUID based on private key and ID.
+   *
+   * @param $id
+   *   The id to used to generate GUID.
+   *
+   * @return string
+   *   MD5 hash of the GUID.
+   */
+  private function createGuid($id) {
+    return md5(drupal_get_private_key() + $id);
   }
 
   /**
