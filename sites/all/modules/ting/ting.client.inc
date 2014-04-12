@@ -30,37 +30,59 @@ foreach ($includes as $include) {
  * @return mixed
  *    Object, if found - boolean FALSE if not.
  */
-function ting_get_object_by_id($object_id, $enrich = FALSE) {
-  if (empty($object_id)) { return FALSE; }
-  static $cache = array();
+function ting_get_object_by_id($object_id, $enrich = FALSE, $reset = FALSE) {
+  $object = FALSE;
+  if (!empty($object_id)) {
+    static $static_cache = array();
+    if (!isset($static_cache[$object_id]) || $reset) {
+      if (!$reset && ($cache = cache_get($object_id, 'cache_ting'))) {
+        if ($cache->expire < time()) {
+          // Cache expire, so delete entry and call self once more.
+          cache_clear_all($object_id, 'cache_ting');
+          return ting_get_object_by_id($object_id, $enrich, $reset);
+        }
+        $object =  $cache->data;
+      }
+      else {
+        $request = ting_get_request_factory()->getObjectRequest();
+        $request->setObjectId($object_id);
 
-  if (isset($cache[$object_id])) {
-    $object = $cache[$object_id];
-  }
-  else {
-    $request = ting_get_request_factory()->getObjectRequest();
-    $request->setObjectId($object_id);
+        // Add agency and profile
+        $request = ting_add_agency($request);
+        $request = ting_add_profile($request);
 
-    // Add agency and profile
-    $request = ting_add_agency($request);
-    $request = ting_add_profile($request);
+        if ($enrich) {
+          $request = ting_add_relations($request);
+        }
+        $object = ting_execute($request);
 
-    if ($enrich) {
-      $request = ting_add_relations($request);
+        if ($object) {
+          $object = ting_add_object_info($object);
+        }
+
+        // If object have to be enriched, wait with caching.
+        if (!$enrich) {
+          // Set static cache.
+          $static_cache[$object_id] = $object;
+
+          // Set database cache for 1 hour.
+          cache_set($object_id, $object, 'cache_ting', time() + 3600);
+        }
+      }
     }
-    $object = ting_execute($request);
-
-    if ($object) {
-      $object = ting_add_object_info($object);
+    else {
+      $object = $static_cache[$object_id];
     }
   }
 
   if ($object && $enrich && empty($object->enriched)) {
     $object = array_shift(ting_add_additional_info(array($object)));
     $object->enriched = TRUE;
-  }
 
-  $cache[$object_id] = $object;
+    // Update static and database cache.
+    $static_cache[$object_id] = $object;
+    cache_set($object_id, $object, 'cache_ting', time() + 3600);
+  }
 
   return $object;
 }

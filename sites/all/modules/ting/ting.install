@@ -5,6 +5,31 @@
  */
 
 /**
+ * Implements hook_schema().
+ */
+function ting_schema() {
+  // Create cache table to speed up ting_get_object_by_id().
+  $schema['cache_ting'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function ting_install() {
+  // Create tables.
+  drupal_install_schema('ting');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ting_uninstall() {
+  // Remove tables.
+  drupal_uninstall_schema('ting');
+}
+
+/**
  * Migrate from alma_periodical to ting_periodical.
  */
 function ting_update_6001() {
@@ -80,4 +105,11 @@ function ting_update_6003() {
 function ting_update_6004() {
   // Install NanoSOAP and dependencies.
   drupal_install_modules(array('autoload', 'nanosoap'));
+}
+
+/**
+ * Install cache table.
+ */
+function ting_update_6005() {
+  ting_install();
 }
