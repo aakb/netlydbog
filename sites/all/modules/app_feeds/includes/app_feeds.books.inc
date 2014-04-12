@@ -10,16 +10,25 @@
 function app_feeds_books() {
   $feed = new AppFeed();
 
+  // Get search queries and create book shelf based on theme.
   $queries = variable_get('ting_carousel_search_queries', array());
-
   foreach ($queries as $id => $query) {
-    $books = _ting_search_carousel_get_content($id);
     _app_feed_book_shelf_books($feed, $id, $query);
   }
 
   $feed->send();
 }
 
+/**
+ * Add search carousel results into XML feed.
+ *
+ * @param AppFeed $feed
+ *  The feed object to which the items are added.
+ * @param $id
+ *   The ID in the carousel order (tabs).
+ * @param $query
+ *   The query information used to find the books in the data well.
+ */
 function _app_feed_book_shelf_books(AppFeed $feed, $id, $query) {
   // Get books in the carousel tab with the id given.
   $books = _ting_search_carousel_get_content($id);
