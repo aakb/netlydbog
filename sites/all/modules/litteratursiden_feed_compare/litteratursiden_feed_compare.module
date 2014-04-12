@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function litteratursiden_feed_compare_menu() {
   $items = array();
@@ -21,23 +21,23 @@ function litteratursiden_feed_compare_menu() {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function litteratursiden_feed_compare_theme() {
   return array(
     'litteratursiden_feed_compare_front' => array(
       'arguments' => array('items' => NULL, 'conf' => NULL),
-      'template' => 'litteratursiden_feed_compare_front'
+      'template' => 'litteratursiden_feed_compare_front',
     ),
     'litteratursiden_feed_compare_page' => array(
       'arguments' => array('items' => NULL, 'conf' => NULL),
-      'template' => 'litteratursiden_feed_compare_page'
+      'template' => 'litteratursiden_feed_compare_page',
     ),
   );
 }
 
 /**
- * Implementation of hook_ctools_plugin_directory().
+ * Implements hook_ctools_plugin_directory().
  */
 function litteratursiden_feed_compare_ctools_plugin_directory($module, $plugin) {
   if ($module == 'ctools' && !empty($plugin)) {
@@ -55,7 +55,7 @@ function litteratursiden_feed_compare_get_cached_feed($items, $reset = FALSE, $s
       $data = $cache->data;
     }
     else {
-      $lifetime = variable_get('litteratursiden_feed_compare_cache_lifetime', '43200');
+      $lifetime = variable_get('litteratursiden_feed_compare_cache_lifetime', 43200);
 
       $data = litteratursiden_feed_compare_get_feed(variable_get('litteratursiden_feed_compare_items_on_page', '10'));
       if (isset($data['data'])) {
@@ -111,7 +111,7 @@ function litteratursiden_feed_compare_get_feed($items) {
       }
       foreach ($feed as $key => $val) {
         if (is_numeric($key)) {
-          $query = 'phrase.title="' . str_replace('"', '', $val['book_title']) . '" AND dc.type="lydbog (net)"';
+          $query = 'phrase.title="' . str_replace('"', '', $val['book_title']) . '" AND dc.type="ebog"';
           $search = ting_do_search($query, 1, 25);
           if ($search && $search->numTotalObjects == 1) {
             foreach ($search->collections as $collection) {
@@ -169,8 +169,15 @@ function litteratursiden_feed_compare_get_feed($items) {
 /**
  * Get item data from litteratursiden service.
  *
+ * @param string $title
+ *   Item title.
+ * @param string $author
+ *   The items author.
+ * @param bool $encoded
+ *   Default to FALSE and do not encode the other parameters.
+ *
  * @return array
- *  Item data.
+ *   Item data.
  */
 function litteratursiden_feed_compare_get_item($title, $author, $encoded = FALSE) {
   if (!$encoded) {
