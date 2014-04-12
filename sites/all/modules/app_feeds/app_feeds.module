@@ -35,8 +35,9 @@ function app_feeds_menu() {
   $items['feeds/searches.xml'] = array(
     'title' => 'Menu keyword menu search strings',
     'description' => 'Generated feed with dropdown keyword menu search strings.',
-    'page callback' => 'app_feeds_key_searchs',
+    'page callback' => 'app_feeds_searchs',
     'access arguments' => array('access content'),
+    'file' => 'includes/app_feeds.searches.inc',
     'type' => MENU_CALLBACK,
   );
 
