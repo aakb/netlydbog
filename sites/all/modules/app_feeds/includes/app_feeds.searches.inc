@@ -74,6 +74,11 @@ function _app_feed_searches_add_item(AppFeed $feed, $id, $title, $categories) {
 
   // Loop over categories and build searches.
   foreach ($categories as $title => $query) {
+    // If query is shorten by google, find the query.
+    if (strpos($query, 'http://goo.gl') !== FALSE) {
+      $query = app_feeds_decode_google_urls($query);
+    }
+
     $content['searches']['children'][] = array(
       'tag' => 'query',
       'text' => $query,
@@ -84,4 +89,31 @@ function _app_feed_searches_add_item(AppFeed $feed, $id, $title, $categories) {
   }
 
   $feed->addItem($id, $content);
+}
+
+/**
+ * Helper function to get long URLs from google short urls.
+ *
+ * @param string $url
+ *   The short google url (http://goo.gl/fbsS).
+ *
+ * @return string
+ *   The long URL behind the short URL.
+ */
+function app_feeds_decode_google_urls($url) {
+  // Use CURL to call google API to get long URL.
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/urlshortener/v1/url?shortUrl=' . $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+  $json = curl_exec($ch);
+  curl_close($ch);
+
+  // Decode json and parse URL
+  global $base_url;
+  $json = json_decode($json);
+  $query = str_replace($base_url . '/ting/search/', '', $json->longUrl);
+
+  // return response as object
+  return urldecode($query);
 }
