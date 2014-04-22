@@ -37,14 +37,22 @@ function recall_list_menu() {
 /**
  * Modify the contents of a given users netsound cart.
  *
- * @param type $isbn
- *  Product identifier ISBN.
- * @param type $op
- *  Operation to preform on the cart.
+ * @param string $isbn
+ *   Product identifier ISBN.
+ * @param string $op
+ *   Operation to preform on the cart.
+ * @param bool $rewrite
+ *   If TRUE drupal_goto is called, default to TRUE.
+ * @param object $user
+ *   User object used to defined the users list that is modified.
+ *
+ * @return mixed
+ *   The result of the operation, if it fails its FALSE.
  */
-function recall_list_modify($isbn, $op, $rewrite = TRUE) {
-  // If the current user is valid and logged in to Publizon.
-  global $user;
+function recall_list_modify($isbn, $op, $rewrite = TRUE, $user = NULL) {
+  if (is_null($user)) {
+    global $user;
+  }
   if ($user->uid != 0) {
     $product = new PublizonProduct($isbn);
 
@@ -53,6 +61,8 @@ function recall_list_modify($isbn, $op, $rewrite = TRUE) {
         'uid' => $user->uid,
         'isbn' => $isbn,
     );
+
+    $result = FALSE;
     switch ($op) {
       case 'add':
         $record['timestamp'] = time();
@@ -69,7 +79,7 @@ function recall_list_modify($isbn, $op, $rewrite = TRUE) {
         break;
 
       case 'delete':
-        db_query('DELETE FROM {recall_list}
+        $result = db_query('DELETE FROM {recall_list}
                         WHERE uid = %s
                           AND isbn = "%s"', $user->uid, $isbn);
         drupal_set_message(t('"!book" have been removed from your recall list', array('!book' => $product->title)));
@@ -78,6 +88,9 @@ function recall_list_modify($isbn, $op, $rewrite = TRUE) {
     _recall_list_cache_clear($user->uid);
     if ($rewrite) {
       drupal_goto();
+    }
+    else {
+      return $result;
     }
   }
 }
@@ -142,7 +155,6 @@ function recall_list_block($op = 'list', $delta = 0, $edit = array()) {
         $products = array();
         $result = db_query('SELECT DISTINCT isbn FROM {recall_list} WHERE uid = %d', array('%d' => $user->uid));
         while ($row = db_fetch_array($result)) {
-
           try {
             $product = new PublizonProduct($row['isbn']);
 
