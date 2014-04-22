@@ -85,7 +85,7 @@ function _app_api_recall_get($user) {
   // Check if username and password is set in $_POST.
   $products = array();
 
-  $result = db_query('SELECT DISTINCT isbn FROM {recall_list} WHERE uid = %d', array('%d' => $user->uid));
+  $result = db_query('SELECT DISTINCT isbn, timestamp FROM {recall_list} WHERE uid = %d', array('%d' => $user->uid));
   while ($row = db_fetch_array($result)) {
     try {
       $product = new PublizonProduct($row['isbn']);
@@ -108,6 +108,7 @@ function _app_api_recall_get($user) {
       $products[] = array(
         'title' => $product->title,
         'description' => $product->description,
+        'date' => $row['timestamp'],
         'faust' => $object->localId,
         'isbn' => $product->isbn,
         'cover' => url($product->cover, array('absolute' => TRUE)),
