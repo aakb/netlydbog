@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Generic Service API with API key and flood control.
@@ -136,7 +135,35 @@ function _app_api_recall_get($user) {
   exit();
 }
 
+/**
+ * Add new item to the users recall list.
+ *
+ * @param object $user
+ *   The user to add item to.
+ */
 function _app_api_recall_add($user) {
+  _app_api_modify_list($user, 'add');
+}
+
+/**
+ * Remove item to from the users recall list.
+ *
+ * @param object $user
+ *   The user to add item to.
+ */
+function _app_api_recall_del($user) {
+  _app_api_modify_list($user, 'delete');
+}
+
+/**
+ * Helper function to add/remove items from users recall list.
+ *
+ * @param object $user
+ *   The user which list should be modified.
+ * @param string $op
+ *   The operation to preform.
+ */
+function _app_api_modify_list($user, $op) {
   // Check isbn is set in $_POST.
   if ((isset($_POST['isbn']))) {
     $isbn = $_POST['isbn'];
@@ -167,7 +194,7 @@ function _app_api_recall_add($user) {
     exit();
   }
 
-  $result = recall_list_modify($isbn, 'add', FALSE, $user);
+  $result = recall_list_modify($isbn, $op, FALSE, $user);
   if ($result != FALSE) {
     $status = array(
       'status' => TRUE,
@@ -189,7 +216,6 @@ function _app_api_recall_add($user) {
   drupal_json($status);
   exit();
 }
-
 
 /**
  * Checks if the user can login and gets the Drupal user object.
