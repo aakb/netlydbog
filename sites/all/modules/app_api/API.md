@@ -17,7 +17,7 @@ The API requires an API key to allow access to the methods, which is the _%KEY_ 
 
 ## /service/api/%KEY/recall/get
 
- * Parameters: { username: '', password: '', retailer_id: '' }
+ * Parameters: username=''&password=''&retailer_id=''
  * Type: POST
  * Return: JSON
  * Status: __Implemented__
@@ -69,7 +69,7 @@ Get the users recall list in the following format, where the date is the unix ti
 
 ## /service/api/%KEY/recall/add
 
- * Parameters: { username: '', password: '', retailer_id: '', isbn: '' }
+ * Parameters: username=''&password=''&retailer_id=''&isbn=''
  * Type: POST
  * Return: JSON
  * Status: __Implemented__
@@ -87,7 +87,7 @@ Adds a new item to the users recall list based on ISBN. If the operation is succ
 
 ## /service/api/%KEY/recall/del
 
- * Parameters: { username: '', password: '', retailer_id: '', isbn: '' }
+ * Parameters: username=''&password=''&retailer_id=''&isbn=''
  * Type: POST
  * Return: JSON
  * Status: __Implemented__
