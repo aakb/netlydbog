@@ -183,7 +183,7 @@ function _elib_popup_return_content($type, $download_url, $title = '') {
       $stream_url = netsound_stream_url($key[1]);
       $response['stream'] = url('publizon/stream/redirect', array('query' => 'url=' . $stream_url));
       $response['content'] = t('Click on the Strem link in order to start streaming of this audiobook.') . '<br />';
-      $response['content'] .= l('Stream', 'publizon/stream/redirect', array('query' => 'url=' . $response['stream']));
+      $response['content'] .= l('Stream', 'publizon/stream/redirect', array('query' => 'url=' . $stream_url));
 
       $response['status'] = TRUE;
       $response['title'] = t('Stream');
