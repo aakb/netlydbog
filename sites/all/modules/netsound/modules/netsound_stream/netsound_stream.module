@@ -55,7 +55,9 @@ function netsound_stream_url($order_id) {
  * Redirect streaming to stream service.
  */
 function netsound_stream_redirect() {
-  header("location:" . $_GET['url'] . '&o=' . $_GET['o'] . '&k=' . $_GET['k']);
+  // O parameter is part of URL below.
+  $location = $_GET['url'] . '&k=' . $_GET['k'];
+  header("location:" . $location);
   exit();
 }
 

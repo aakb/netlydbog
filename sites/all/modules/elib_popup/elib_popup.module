@@ -171,10 +171,10 @@ function _elib_popup_return_content($type, $download_url, $title = '') {
       break;
 
     case 'stream':
-      // it can be void= or id=, we explode by "id=" that correcponds to both situations.
+      // it can be void= or id=, we explode by "id=" that corresponds to both situations.
       $key = explode('id=', (string)$download_url);
       /*
-       *  Get client platform and use flash or livestream for iOS devices
+       *  Get client platform and use flash or live stream for iOS devices
        */
       $platform = publizon_get_client_platform();
       $response = array();
@@ -183,7 +183,7 @@ function _elib_popup_return_content($type, $download_url, $title = '') {
       $stream_url = netsound_stream_url($key[1]);
       $response['stream'] = url('publizon/stream/redirect', array('query' => 'url=' . $stream_url));
       $response['content'] = t('Click on the Strem link in order to start streaming of this audiobook.') . '<br />';
-      $response['content'] .= l('Stream', 'publizon/stream/redirect', array('query' => 'url=' . $stream_url));
+      $response['content'] .= l('Stream', 'publizon/stream/redirect', array('attributes' => array('target' => '_blank'), 'query' => 'url=' . $stream_url));
 
       $response['status'] = TRUE;
       $response['title'] = t('Stream');
