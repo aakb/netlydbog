@@ -5,29 +5,46 @@
  */
 
 /**
+ * Implements hook_theme().
+ */
+function ebog_author_portrait_theme() {
+  return array(
+    'ebog_author_portrait_block' => array(
+      'arguments' => array(
+        'image' => NULL,
+        'name' => NULL,
+        'description' => NULL,
+        'more_link' => NULL,
+      ),
+      'template' => 'templates/ebog_author_portrait_block',
+    ),
+  );
+}
+
+/**
  * Implements hook_block().
  */
 function ebog_author_portrait_block($op = 'list', $delta = 0, $edit = array()) {
+  $block = array();
+
   switch ($op) {
     case 'list':
-      return array(
+      $block = array(
         array(
           'info' => t('Ebog Author Portrait'),
-        )
+        ),
       );
       break;
+
     case 'view':
-      return array(
+      $block = array(
         'subject' => t('Ebog Author Portrait'),
         'content' => _ebog_author_portrait_block_view(),
       );
       break;
-    case 'configure':
-      return _ebog_author_portrait_block_configure();
-    case 'save':
-      _ebog_author_portrait_block_save($edit);
-      break;
   }
+
+  return $block;
 }
 
 /**
@@ -36,145 +53,24 @@ function ebog_author_portrait_block($op = 'list', $delta = 0, $edit = array()) {
  * @return string
  *   Block content markup.
  *
- * @see ebog_author_portrait_block().
+ * @see ebog_author_portrait_block()
  */
 function _ebog_author_portrait_block_view() {
-  drupal_add_css(drupal_get_path('module', 'ebog_author_portrait') . '/css/ebog_author_portrait_style.css', 'file');
-  $conf = array();
-  $conf['image'] = variable_get('ebog_author_portrait_image', '');
-  $conf['portrait']['name'] = variable_get('ebog_author_portrait_name', '');
-  $conf['portrait']['teaser'] = variable_get('ebog_author_portrait_teaser', '');
-  $conf['portrait']['url'] = variable_get('ebog_author_portrait_url', '');
-  $conf['portrait']['more'] = variable_get('ebog_author_portrait_read_more', '');
+  $node = NULL;
+  $content = '';
 
-  return theme('ebog_author_portrait_block', $conf);
-}
+  $result = db_query('SELECT nid FROM {node} WHERE type = "portrait" AND status = 1 ORDER BY created DESC LIMIT 1');
+  while ($row = db_fetch_array($result)) {
+    drupal_add_css(drupal_get_path('module', 'ebog_author_portrait') . '/css/ebog_author_portrait_style.css', 'file');
 
-/**
- * Implements hook_form_alter().
- *
- * Alter the form, so it works okay with uploads.
- * Adding such attributes in the context of the block does not work.
- */
-function ebog_author_portrait_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id === 'block_admin_configure' && arg(4) === 'ebog_author_portrait') {
-    // This does not work anywhere except here.
-    $form['#attributes']['enctype'] = 'multipart/form-data';
-  }
-}
+    $node = node_load($row['nid']);
+    $image = $node->field_portrait_image[0]['filepath'];
+    $name = $node->field_portrait_author[0]['value'];
+    $description = $node->body;
+    $more_link = l($node->field_portrait_more_link[0]['value'], $node->field_portrait_more_link_url[0]['value']);
 
-/**
- * Block configuration method.
- *
- * @return Array
- *   Form structure.
- *
- * @see ebog_author_portrait_block().
- */
-function _ebog_author_portrait_block_configure() {
-  $form = array();
-
-  $default_image = variable_get('ebog_author_portrait_image', '');
-  $form['ebog_author_portrait_image'] = array(
-    '#type' => 'file',
-    '#title' => t('Portrait image (jpeg, png, gif), hover to see the default, if any'),
-    '#description' => !empty($default_image) ? theme_image($default_image, '' , '', array('width' => 100, 'height' => 100), FALSE) : t('No image'),
-  );
-
-  $form['ebog_author_portrait_image_remove'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Remove default image'),
-    '#description' => t('Check this to remove the default image, if any.'),
-  );
-
-  $form['ebog_author_portrait_name'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Author name'),
-    '#default_value' => variable_get('ebog_author_portrait_name', ''),
-    '#maxlength' => 1024,
-    '#required' => TRUE,
-  );
-
-  $form['ebog_author_portrait_teaser'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Teaser'),
-    '#default_value' => variable_get('ebog_author_portrait_teaser', ''),
-    '#required' => TRUE,
-  );
-
-  $form['ebog_author_portrait_url'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Read more link'),
-    '#default_value' => variable_get('ebog_author_portrait_url', ''),
-    '#required' => TRUE,
-  );
-
-  $form['ebog_author_portrait_read_more'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Full portrait link'),
-    '#default_value' => variable_get('ebog_author_portrait_read_more', ''),
-    '#required' => TRUE,
-  );
-
-  return $form;
-}
-
-/**
- * Block on-save method.
- *
- * Here values are handled, stored as variables, as well as image uploads.
- *
- * @param Array $values
- *   Values passed from block form.
- *
- * @see ebog_author_portrait_block().
- */
-function _ebog_author_portrait_block_save($values) {
-  $source = 'ebog_author_portrait_image';
-  $fields = array(
-    'ebog_author_portrait_name',
-    'ebog_author_portrait_teaser',
-    'ebog_author_portrait_url',
-    'ebog_author_portrait_read_more'
-  );
-  $allowed_types = array(
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-  );
-
-  // Save the text values.
-  foreach ($values as $key => $value) {
-    if (in_array($key, $fields)) {
-      variable_set($key, trim(check_plain($value)));
-    }
+    $content = theme('ebog_author_portrait_block', $image, $name, $description, $more_link);
   }
 
-  if ($values['ebog_author_portrait_image_remove'] === 1) {
-    variable_del('ebog_author_portrait_image');
-  }
-  else {
-    // Handle uploads.
-    $file_type = $_FILES['files']['type'][$source];
-    if (in_array($file_type, $allowed_types)) {
-      $file = file_save_upload('ebog_author_portrait_image', array(), 'sites/default/files', FILE_EXISTS_REPLACE);
-      file_set_status($file, FILE_STATUS_PERMANENT);
-
-      if (is_object($file)) {
-        variable_set('ebog_author_portrait_image', $file->filepath);
-      }
-    }
-  }
-}
-
-/**
- * Implements hook_theme().
- */
-function ebog_author_portrait_theme() {
-  return array(
-    'ebog_author_portrait_block' => array(
-      'arguments' => array('conf' => NULL),
-      'template' => 'templates/ebog_author_portrait_block',
-    ),
-  );
+  return $content;
 }

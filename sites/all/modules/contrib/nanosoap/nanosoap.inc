@@ -30,6 +30,13 @@ class NanoSOAPClient {
   public $requestBodyString;
 
   /**
+   * List of Curl options.
+   *
+   * @var array
+   */
+  protected $curlOptions = array();
+
+  /**
    * Construct the SOAP client, using the specified options.
    */
   function __construct($endpoint, $options = array()) {
@@ -39,6 +46,10 @@ class NanoSOAPClient {
     }
     else {
       $this->namespaces = array('SOAP-ENV' => 'http://schemas.xmlsoap.org/soap/envelope/');
+    }
+
+    if (isset($options['curl']) && is_array($options['curl'])) {
+      $this->curlOptions = $options['curl'];
     }
   }
 
@@ -68,6 +79,10 @@ class NanoSOAPClient {
       CURLOPT_USERAGENT => self::USER_AGENT,
       CURLOPT_RETURNTRANSFER => TRUE,
     );
+
+    foreach ($this->curlOptions as $option => $value) {
+      $curl_options[$option] = $value;
+    }
 
     if ($method == 'POST') {
       $curl_options[CURLOPT_POST] = TRUE;

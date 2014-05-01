@@ -16,6 +16,8 @@
 function elib_popup_init() {
   $path = drupal_get_path('module', 'elib_popup');
 
+  drupal_add_js($path . '/js/elib_popup_login.js');
+  drupal_add_js($path . '/js/elib_popup_utils.js');
   drupal_add_js($path . '/js/elib_popup_download.js');
   drupal_add_js($path . '/js/elib_popup_sample.js');
   drupal_add_js($path . '/js/jquery.form.js');
@@ -52,7 +54,7 @@ function elib_popup_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $menu['publizon/%/download/popup'] = array(
+  $menu['publizon/%/download'] = array(
     'title' => 'Show a popup before download',
     'description' => 'Display some user specific text and perform some check before download.',
     'page callback' => 'elib_popup_loan_popup',
@@ -61,38 +63,11 @@ function elib_popup_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $menu['publizon/%/stream/popup'] = array(
-    'title' => 'Show a popup before stream',
-    'description' => 'Display some user specific text and perform some check before stream.',
-    'page callback' => 'elib_popup_loan_popup',
-    'page arguments' => array(1, 'stream'),
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $menu['publizon/%/stream/request'] = array(
-    'title' => 'Download ting ebook',
-    'description' => 'Checker for stream abilities regarding selected book for specific user.',
-    'page callback' => 'elib_popup_download_loan_initial',
-    'page arguments' => array(1, 'stream'),
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $menu['publizon/%/sample/popup'] = array(
+  $menu['publizon/%/sample'] = array(
     'title' => 'Stream sample book',
     'description' => 'Stream sample audio book.',
     'page callback' => 'elib_popup_download_sample',
     'page arguments' => array(1),
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $menu['publizon/stream/redirect'] = array(
-    'title' => 'Stream sample book',
-    'description' => 'Redirect to external stream domain.',
-    'page callback' => 'elib_popup_stream_redirect',
-    'page arguments' => array(),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
@@ -158,7 +133,6 @@ function elib_popup_theme() {
   return $hooks;
 }
 
-
 /**
  * Implements hook_preprocess_publizon_actions().
  *
@@ -167,37 +141,20 @@ function elib_popup_theme() {
 function elib_popup_preprocess_publizon_actions(&$vars) {
   $isbn = $vars['product']->isbn;
 
-  // Add stream action to links.
-  $vars['actions'][] = array(
-    '#link' => l(t('Stream'), 'publizon/' . $isbn . '/stream', array('html' => TRUE,  'attributes' => array('class' => 'stream'))),
-    '#class' => 'stream',
-    '#weight' => -8,
-  );
-
   // Ensure that samples are not downloaded, but streamed.
   foreach ($vars['actions'] as $key => $action) {
     if ($action['#class'] == 'sample') {
       $vars['actions'][$key]['#link'] = l(t('Sample'), 'publizon/' . $isbn . '/sample', array('html' => TRUE, 'attributes' => array('target' => '_blank', 'action' => 'sample')));
     }
   }
-
-  // Sort the elements to get the stream action in between the other links.
-  usort($vars['actions'], 'element_sort');
 }
 
 /**
- * Redirect streaming to pubhub
- */
-function elib_popup_stream_redirect() {
-  header("location:" . $_GET['url'] . '&player=' . $_GET['player'] . '&stream=' . $_GET['stream']);
-  exit();
-}
-
-/**
- * Return content for download or stream
+ * Return content for download or stream.
  *
- * @param type $type
- * @param type $download_url
+ * @param string $type
+ * @param string $download_url
+ * @param string $title
  */
 function _elib_popup_return_content($type, $download_url, $title = '') {
   switch ($type) {
@@ -214,33 +171,28 @@ function _elib_popup_return_content($type, $download_url, $title = '') {
       break;
 
     case 'stream':
-      // it can be void= or id=, we explode by "id=" that correcponds to both situations.
+      // it can be void= or id=, we explode by "id=" that corresponds to both situations.
       $key = explode('id=', (string)$download_url);
       /*
-       *  Get client platform and use flash or livestream for iOS devices
+       *  Get client platform and use flash or live stream for iOS devices
        */
       $platform = publizon_get_client_platform();
       $response = array();
 
-      if ($platform == PUBLIZON_PLATFORM_IOS) {
-        $stream = elib_popup_stream_url($key[1], 'livestream');
-        $response['content'] = theme('elib_popup_stream_ios', array('link' => $stream, 'title' => $title));
-      } else {
-        $stream = elib_popup_stream_url($key[1]);
-        $response['stream'] = url('publizon/stream/redirect', array('query' => 'url=' . $stream));
-      }
+
+      $stream_url = netsound_stream_url($key[1]);
+      $response['stream'] = url('publizon/stream/redirect', array('query' => 'url=' . $stream_url));
+      $response['content'] = t('Click on the Strem link in order to start streaming of this audiobook.') . '<br />';
+      $response['content'] .= l('Stream', 'publizon/stream/redirect', array('attributes' => array('target' => '_blank'), 'query' => 'url=' . $stream_url));
 
       $response['status'] = TRUE;
       $response['title'] = t('Stream');
       $response['processed'] = TRUE;
       $response['platform'] = $platform;
+      $response['final'] = TRUE;
+
       return $response;
   }
-}
-
-function elib_popup_stream_url($key, $player = 'flash') {
-  $url =  "http://service.pubhub.dk/Download.aspx?id=";
-  return $url . $key .'&player=' . $player . '&stream=true';
 }
 
 /**
@@ -364,8 +316,6 @@ function elib_popup_download_loan_initial($isbn, $type = "download") {
  *  Product ISBN number.
  */
 function elib_popup_loan_popup($isbn, $type = 'download') {
-  $status = array();
-
   // Whether user is logged in.
   if ($uid = publizon_user_is_logged_in()) {
     // Check if item is already loaned
@@ -450,7 +400,7 @@ function elib_popup_login_form_validate($form, &$form_state) {
     $status = array(
       'status' => 'loggedin',
       'title' => t('Login'),
-      'content' => t('You are now logged in an can procceed'),
+      'content' => t('You are now logged in an can procceed') . '<br />' . theme('elib_popup_download_approve', array('item' => ''))
     );
   }
 

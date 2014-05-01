@@ -1,0 +1,89 @@
+<?php
+/**
+ * @file
+ * Generates feeds to use with the iOS/Android application.
+ *
+ * @todo: create admin interface to adjust the number of items in the feed.
+ */
+
+include_once 'includes/app_feeds.class.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function app_feeds_menu() {
+  $items = array();
+
+  $items['feeds/frontpage.xml'] = array(
+    'title' => 'Frontpage application feed',
+    'description' => 'Generated feed with news, video, author portraits and recommandations',
+    'page callback' => 'app_feeds_frontpage',
+    'access arguments' => array('access content'),
+    'file' => 'includes/app_feeds.front.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['feeds/books.xml'] = array(
+    'title' => 'Selected books',
+    'description' => 'Generated feed with items from the frontpage carousel.',
+    'page callback' => 'app_feeds_books',
+    'access arguments' => array('access content'),
+    'file' => 'includes/app_feeds.books.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['feeds/searches.xml'] = array(
+    'title' => 'Menu keyword menu search strings',
+    'description' => 'Generated feed with dropdown keyword menu search strings.',
+    'page callback' => 'app_feeds_searchs',
+    'access arguments' => array('access content'),
+    'file' => 'includes/app_feeds.searches.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Filter content string to make it ready for the feed.
+ *
+ * This is mainly the nodes body field and is an hack that should be fixed
+ * later and use ting reference field in the frontend.
+ *
+ * @param string $content
+ *   The content to filter.
+ *
+ * @return string
+ *   The filter content as HTML string.
+ */
+function app_feeds_filter_content($content) {
+  // Remove "books" div from the HTML (HACK REMOVE LATER - jeskr).
+  $content = preg_replace('/\<div id="books"\>.*\<\/div\>/', ' ', $content);
+
+  // Fix content content.
+  $content = htmlspecialchars(check_plain($content), ENT_QUOTES);
+
+  return $content;
+}
+
+/**
+ * Loads x newest nodes.
+ *
+ * @param string $type
+ *   The to of content type to load.
+ * @param int $count
+ *   The number of nodes to load.
+ *
+ * @return array
+ *   Node object index by nid in an array.
+ */
+function app_feeds_load_nodes($type, $count) {
+  $nodes = array();
+  // @TODO add optional limit number.
+  $result = db_query('SELECT nid FROM {node} WHERE type = "%s" AND status = 1 ORDER BY created DESC LIMIT %d', array($type, $count));
+  while ($row = db_fetch_array($result)) {
+    $nodes[$row['nid']] = node_load($row['nid']);
+  }
+
+  return $nodes;
+}

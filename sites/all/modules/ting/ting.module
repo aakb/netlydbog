@@ -431,3 +431,10 @@ function ting_boost_field_element_process($element, $form_state) {
 
   return $element;
 }
+
+/**
+ * Implements hook_flush_caches().
+ */
+function ting_flush_caches() {
+  return array('cache_ting');
+}

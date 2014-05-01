@@ -1,24 +1,28 @@
 <?php
 /**
  * @file
- *
+ * Create block with video based on video content type.
  */
 
-
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function ebog_embed_video_theme() {
   return array(
     'ebog_embed_video' => array(
-      'arguments' => array('conf' => NULL),
+      'arguments' => array(
+        'type' => NULL,
+        'embed_code' => NULL,
+        'description' => NULL,
+        'more_link' => NULL,
+      ),
       'template' => 'ebog_embed_video',
     ),
   );
 }
 
 /**
- * Implementation of hook_ctools_plugin_directory().
+ * Implements hook_ctools_plugin_directory().
  */
 function ebog_embed_video_ctools_plugin_directory($module, $plugin) {
   if ($module == 'ctools' && !empty($plugin)) {
@@ -27,118 +31,61 @@ function ebog_embed_video_ctools_plugin_directory($module, $plugin) {
 }
 
 /**
- * Implementation of hook_block().
+ * Implements hook_block().
  */
 function ebog_embed_video_block($op = 'list', $delta = 0, $edit = array()) {
+  $block = array();
+
   switch ($op) {
     case 'list':
-      return array(array(
-        'info' => t('Ebog Embed video'),
-      ));
+      $block = array(
+        array(
+          'info' => t('Ebog Embed video'),
+        ),
+      );
       break;
+
     case 'view':
-      return array(
+      $block = array(
         'subject' => t('Ebog Embed video'),
         'content' => _ebog_embed_video_block_view(),
       );
       break;
-    case 'configure':
-      return _ebog_embed_video_block_configure();
-    case 'save':
-      _ebog_embed_video_block_save($edit);
-      break;
   }
+
+  return $block;
 }
 
 /**
  * Prepare and create block markup.
  *
- * @return
+ * @return string
  *   Block HTML markup.
  */
 function _ebog_embed_video_block_view() {
-  $conf = array();
-  $conf['embed_url'] = variable_get('ebog_embed_video_video', '');
-  $conf['embed_code'] = variable_get('ebog_embed_video_embed_code', '');
-  $conf['type'] = variable_get('ebog_embed_video_embed_type', '');
-  $conf['title'] = variable_get('ebog_embed_video_content_title', '');
-  $conf['descr'] = variable_get('ebog_embed_video_short_description', '');
-  $conf['see_more_title'] = variable_get('ebog_embed_video_see_more_title', '');
-  $conf['see_more_link'] = variable_get('ebog_embed_video_see_more_link', '');
+  $node = NULL;
+  $content = '';
 
-  return theme('ebog_embed_video', $conf);
-}
+  $result = db_query('SELECT nid FROM {node} WHERE type = "video" AND status = 1 ORDER BY created DESC LIMIT 1');
+  while ($row = db_fetch_array($result)) {
+    $node = node_load($row['nid']);
+    $embed = ebog_embed_video_parse_url($node->field_video_url[0]['value']);
+    $description = check_plain($node->field_video_description[0]['value']);
+    $more_link = l($node->field_more_link[0]['value'], $node->field_more_link_url[0]['value']);
 
-/**
- * Define some configuration fields fot the block.
- *
- * @return
- *   Form API settings form.
- */
-function _ebog_embed_video_block_configure() {
-  $form = array();
-
-  $form['ebog_embed_video_video'] = array(
-    '#type' => 'textfield',
-    '#title' => t('URL to YouTube OR Vimeo video'),
-    '#description' => t('example: http://www.youtube.com/watch?v=XwmHoWfwHiw OR http://vimeo.com/3535418'),
-    '#default_value' => variable_get('ebog_embed_video_video', ''),
-  );
-
-  $form['ebog_embed_video_short_description'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Short description'),
-    '#default_value' => variable_get('ebog_embed_video_short_description', ''),
-  );
-
-  $form['ebog_embed_video_content_title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Content title'),
-    '#default_value' => variable_get('ebog_embed_video_content_title', ''),
-  );
-
-  $form['ebog_embed_video_see_more_title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Title for "see more link"'),
-    '#required' => TRUE,
-    '#default_value' => variable_get('ebog_embed_video_see_more_title', ''),
-  );
-
-  $form['ebog_embed_video_see_more_link'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Link for "see more link"'),
-    '#maxlength' => 255,
-    '#required' => TRUE,
-    '#default_value' => variable_get('ebog_embed_video_see_more_link', ''),
-  );
-
-  return $form;
-}
-
-/**
- * Save block configuration.
- * @see _ebog_embed_video_block_configure().
- *
- * @param $settings
- *   Form values passes on settings form submition.
- */
-function _ebog_embed_video_block_save($settings) {
-  if (is_array($settings)) {
-    foreach ($settings as $key => $setting) {
-      variable_set($key, trim(check_plain($setting)));
-    }
-
-    $embed = ebog_embed_video_parse_url($settings['ebog_embed_video_video']);
-    variable_set('ebog_embed_video_embed_code', $embed['embed_code']);
-    variable_set('ebog_embed_video_embed_type', $embed['type']);
+    $content = theme('ebog_embed_video', $embed['type'], $embed['embed_code'], $description, $more_link);
   }
+
+  return $content;
 }
+
 /**
  * Parse video URL's.
  *
- * @param $url
+ * @param string $url
  *   URL to parse.
- * @return
+ *
+ * @return array
  *   Array with parsed URL and service type.
  */
 function ebog_embed_video_parse_url($url) {

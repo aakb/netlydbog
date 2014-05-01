@@ -1,0 +1,8 @@
+name = App API (mobil app)
+description = API to used by the mobil application.
+package = Other
+dependencies[] = ting
+dependencies[] = publizon
+dependencies[] = litteratursiden_feed_compare
+core = 6.x
+version = 0.1

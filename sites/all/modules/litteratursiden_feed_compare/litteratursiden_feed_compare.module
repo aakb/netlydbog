@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function litteratursiden_feed_compare_menu() {
   $items = array();
@@ -21,23 +21,23 @@ function litteratursiden_feed_compare_menu() {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function litteratursiden_feed_compare_theme() {
   return array(
     'litteratursiden_feed_compare_front' => array(
       'arguments' => array('items' => NULL, 'conf' => NULL),
-      'template' => 'litteratursiden_feed_compare_front'
+      'template' => 'litteratursiden_feed_compare_front',
     ),
     'litteratursiden_feed_compare_page' => array(
       'arguments' => array('items' => NULL, 'conf' => NULL),
-      'template' => 'litteratursiden_feed_compare_page'
+      'template' => 'litteratursiden_feed_compare_page',
     ),
   );
 }
 
 /**
- * Implementation of hook_ctools_plugin_directory().
+ * Implements hook_ctools_plugin_directory().
  */
 function litteratursiden_feed_compare_ctools_plugin_directory($module, $plugin) {
   if ($module == 'ctools' && !empty($plugin)) {
@@ -48,17 +48,16 @@ function litteratursiden_feed_compare_ctools_plugin_directory($module, $plugin) 
 /**
  * Get cached search result from feed-to-TING search/parse process.
  */
-function litteratursiden_feed_compare_get_cached_feed($items, $reset = FALSE) {
+function litteratursiden_feed_compare_get_cached_feed($items, $reset = FALSE, $shuffle = TRUE) {
   static $data;
   if (!isset($data) || $reset) {
     if (!$reset && ($cache = cache_get('litteratursiden_feed_compare_cache')) && !empty($cache->data)) {
       $data = $cache->data;
     }
     else {
-      $items = variable_get('litteratursiden_feed_compare_items_on_page', '10');
-      $lifetime = variable_get('litteratursiden_feed_compare_cache_lifetime', '43200');
+      $lifetime = variable_get('litteratursiden_feed_compare_cache_lifetime', 43200);
 
-      $data = litteratursiden_feed_compare_get_feed($items);
+      $data = litteratursiden_feed_compare_get_feed(variable_get('litteratursiden_feed_compare_items_on_page', '10'));
       if (isset($data['data'])) {
         cache_set('litteratursiden_feed_compare_cache', $data, 'cache', time() + $lifetime);
       }
@@ -68,7 +67,14 @@ function litteratursiden_feed_compare_get_cached_feed($items, $reset = FALSE) {
     }
   }
 
-  shuffle($data['data']);
+  // Should they be shuffled.
+  if ($shuffle) {
+    shuffle($data['data']);
+  }
+
+  // Only return the number of reviews requested.
+  $data['data'] = array_slice($data['data'], 0, $items);
+
   return $data;
 }
 
@@ -126,9 +132,11 @@ function litteratursiden_feed_compare_get_feed($items) {
                       'title' => $book->title,
                       'isbn' => $isbn,
                       'author' => publizon_get_authors($object),
+                      'created' => $val['credate'],
                       'abstract' => $val['description'],
                       'image' => $book->getCover('120_x'),
                       'url' => $object->url,
+                      'link' => $val['link'],
                     );
                     $amount++;
 
@@ -161,8 +169,15 @@ function litteratursiden_feed_compare_get_feed($items) {
 /**
  * Get item data from litteratursiden service.
  *
+ * @param string $title
+ *   Item title.
+ * @param string $author
+ *   The items author.
+ * @param bool $encoded
+ *   Default to FALSE and do not encode the other parameters.
+ *
  * @return array
- *  Item data.
+ *   Item data.
  */
 function litteratursiden_feed_compare_get_item($title, $author, $encoded = FALSE) {
   if (!$encoded) {
@@ -192,7 +207,7 @@ function _litteratursiden_feed_compare_file_get_contents_curl($url) {
   $ch = curl_init();
 
   curl_setopt($ch, CURLOPT_HEADER, 0);
-  //Set curl to return the data instead of printing it to the browser.
+  // Set curl to return the data instead of printing it to the browser.
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($ch, CURLOPT_URL, $url);
 

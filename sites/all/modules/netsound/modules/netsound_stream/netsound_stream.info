@@ -1,0 +1,6 @@
+name = Netsound stream (player)
+description = Publizon netsound stream player intergration.
+dependencies[] = ting
+dependencies[] = publizon
+package = NetSound
+core = 6.x

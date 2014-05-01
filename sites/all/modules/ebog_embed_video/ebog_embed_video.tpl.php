@@ -1,61 +1,50 @@
 <?php
 /**
  * @file
+ * Default template file for embed video block.
  */
 ?>
-<?php if ($conf['type'] == 'undefined') { ?>
-  <p>USER PROVIDED WRONG URL TO VIDEO</p>
-<?php }
-elseif (!empty($conf['embed_code']) AND !empty($conf['embed_url'])) { ?>
-  <div class="ebog_embed_video">
-  <?php if ($conf['type'] == 'youtube') { ?>
-      <div class="ebog_embed_youtube">
-        <object style="width:207px;height:144px;">
-          <param name="movie" value="http://www.youtube.com/v/<?php echo $conf['embed_code']; ?>" />
-          <param name="allowFullScreen" value="true" />
-          <param name="allowScriptAccess" value="always" />
-          <param name="wmode" value="opaque" />
-          <embed
-            src="https://www.youtube.com/v/<?php echo $conf['embed_code']; ?>"
-            type="application/x-shockwave-flash"
-            allowfullscreen="true"
-            allowScriptAccess="always"
-            wmode="opaque"
-            >
-        </object>
-      </div>
-    <?php } ?>
-
-  <?php if ($conf['type'] == 'vimeo') { ?>
-      <div class="ebog_embed_vimeo">
-        <iframe
-          src="http://player.vimeo.com/video/<?php echo $conf['embed_code']; ?>"
-          frameborder="0"
-          wmode="opaque"
-          webkitAllowFullScreen
+<div class="ebog_embed_video">
+  <?php if ($type == 'youtube') : ?>
+    <div class="ebog_embed_youtube">
+      <object>
+        <param name="movie" value="http://www.youtube.com/v/<?php echo $embed_code; ?>" />
+        <param name="allowFullScreen" value="true" />
+        <param name="allowScriptAccess" value="always" />
+        <param name="wmode" value="opaque" />
+        <embed
+          src="https://www.youtube.com/v/<?php echo $embed_code; ?>"
+          type="application/x-shockwave-flash"
           allowfullscreen="true"
+          allowScriptAccess="always"
+          wmode="opaque"
+          width="100%"
           >
-        </iframe>
-      </div>
-    <?php } ?>
-
-      <?php if ($conf['title'] != '') { ?>
-      <div class="ebog_embed_title">
-      <?php echo $conf['title']; ?>
-      </div>
-    <?php } ?>
-
-      <?php if ($conf['descr'] != '') { ?>
-      <div class="ebog_embed_descr">
-      <?php echo $conf['descr']; ?>
-      </div>
-  <?php } ?>
-  </div>
-  <div class="bottom-bar">
-    <div class="see-more ebog_embed_see_more">
-      <?php if ($conf['see_more_link'] != '' && $conf['see_more_title'] != '') { ?>
-        <?php echo l($conf['see_more_title'], $conf['see_more_link']); ?>
-  <?php } ?>
+      </object>
     </div>
+  <?php endif; ?>
+
+  <?php if ($type == 'vimeo') : ?>
+    <div class="ebog_embed_vimeo">
+      <iframe
+        src="http://player.vimeo.com/video/<?php echo $embed_code; ?>"
+        width="100%"
+        frameborder="0"
+        wmode="opaque"
+        webkitAllowFullScreen
+        allowfullscreen="true"
+        >
+      </iframe>
+    </div>
+  <?php endif; ?>
+
+  <div class="ebog_embed_descr">
+    <?php echo $description; ?>
   </div>
-<?php } ?>
+</div>
+
+<div class="bottom-bar">
+  <div class="see-more ebog_embed_see_more">
+    <?php echo $more_link; ?>
+  </div>
+</div>

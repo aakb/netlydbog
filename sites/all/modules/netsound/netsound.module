@@ -27,6 +27,7 @@ function netsound_block($op = 'list', $delta = 0, $edit = array()) {
     $blocks[4]['info'] = t('Shortcut menu');
     $blocks[5]['info'] = t('Contact ELIB');
     $blocks[6]['info'] = t('Contact NETLYD');
+
     return $blocks;
   }
   elseif ($op == 'view') {
@@ -45,40 +46,38 @@ function netsound_block($op = 'list', $delta = 0, $edit = array()) {
           $block['content'] = '<div class="keywords-slider"><div class="canvas">'.implode(" ",$linked).'</div></div>';
         }
         break;
+
       case 1:
         //$block['subject'] = t('Categories');
         //$block['content'] = 'dflksæfd';
         break;
+
       case 2:
-
-
-        $content .= faq_page(arg(1));
-
-        $block['content'] = $content;
+        $block['content'] = faq_page(arg(1));
         break;
+
       case 3:
-
         drupal_set_message('<p style="strong">'.t('Din søgning på <strong>!query</strong> gav ingen resultater. ',array('!query' => strip_tags(arg(1)))).'</p><p>'.t('Hjælp til søgning:<br />- Prøv at bruge synonymer. Du søger måske efter noget, der bruger andre ord. - Gør søgningen mere generel. Prøv mere generelle udtryk i stedet for konkrete udtryk. - Du kan trunkere i netlydbog.dk med "". Skriver du "hund", får du resultat på ord som begynder på "hund", altså hund, hundene, hundens osv.').'</p>');
-
-
-        //<p>'.t('Prøv evt din søgning på <a href="http://bibliotek.dk/vis.php?origin=sogning&field1=fritekst&term1=!query&ma=lb">bibliotek.dk</a>',array('!query' => strip_tags(arg(1)))).'</p>');
-
         break;
+
       case 4:
         $block['content'] = drupal_get_form('netsound_shortcutmenu_form');
         break;
+
       case 5:
         $block['content'] = drupal_get_form('netsound_contact_elib_form');
         break;
+
       case 6:
         $block['content'] = drupal_get_form('netsound_contact_netlyd_form');
         break;
     }
+
     return $block;
   }
 }
 
-function netsound_contact_netlyd_form($form_state){
+function netsound_contact_netlyd_form($form_state) {
   $form = array();
    $form['contact_name'] = array(
     '#type' => 'textfield',
@@ -114,9 +113,7 @@ function netsound_contact_netlyd_form($form_state){
   $form['#submit'][] = 'netsound_contact_form_submit';
 
   return $form;
-
 }
-
 
 function netsound_contact_elib_form($form_state){
   $form = array();
@@ -201,7 +198,7 @@ function netsound_contact_elib_form($form_state){
 }
 
 
-function netsound_shortcutmenu_form($form_state){
+function netsound_shortcutmenu_form($form_state) {
   $form  = array();
 
   $questions = explode("\n",variable_get('netsound_shortcutmenu', ''));
@@ -311,17 +308,15 @@ function netsound_form_alter(&$form, $form_state, $form_id) {
 
 function netsound_show_videolink($tid){
   $res = db_query('SELECT node.nid AS nid
- FROM node node
- INNER JOIN term_node term_node ON node.vid = term_node.vid
- WHERE (node.type in ("helpvideo")) AND (term_node.tid = '.$tid.')
-  ');
+                   FROM node node
+                   INNER JOIN term_node term_node ON node.vid = term_node.vid
+                   WHERE (node.type in ("helpvideo")) AND (term_node.tid = '.$tid.')');
   $row =  db_fetch_array($res);
   return node_load($row['nid']);
 
 }
 
 function netsound_mail($key, &$message, $params) {
-
   $headers = array(
     'MIME-Version' => '1.0',
     'Content-Type' => 'text/html; charset=UTF-8; format=flowed',

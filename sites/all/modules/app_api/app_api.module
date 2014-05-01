@@ -1,0 +1,291 @@
+<?php
+/**
+ * @file
+ * Generic Service API with API key and flood control.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function app_api_menu() {
+  $items = array();
+
+  // Get recall list.
+  $items['service/api/%/recall/%'] = array(
+    'title' => 'Get list',
+    'page callback' => 'app_api_route',
+    'page arguments' => array(4),
+    'access callback' => '_app_api_check_access',
+    'access arguments' => array(2),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Menu callback that tests that the user can login.
+ *
+ * @param string $method
+ *
+ */
+function app_api_route($method) {
+  // Check if username and password is set in $_POST.
+  if ((isset($_POST['username'])) && (isset($_POST['password'])) && (isset($_POST['retailer_id']))) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $retailer_id = $_POST['retailer_id'];
+  }
+  else {
+    // Not set, lets return.
+    drupal_json(array(
+      'status' => FALSE,
+      'errorcode' => 1,
+      'data' => array(
+        'message' => t('Required field(s) missing.'),
+      ),
+    ));
+    exit();
+  }
+
+  // Login the user.
+  $login = _app_api_login($username, $password, $retailer_id);
+  if ($login['status']) {
+    $method = '_app_api_recall_' . $method;
+    if (function_exists($method)) {
+      $method($login['data']['account']);
+    }
+    else {
+      drupal_json(array(
+        'status' => FALSE,
+        'errorcode' => 3,
+        'data' => array(
+          'message' => t('Unkown method called.'),
+        ),
+      ));
+      exit();
+    }
+  }
+  else {
+    // Login failed.
+    drupal_json($login);
+    exit();
+  }
+}
+
+/**
+ * Get recall list.
+ *
+ * Requires POST parameters:
+ *   Username
+ *   Password
+ *   Retailer id
+ */
+function _app_api_recall_get($user) {
+  // Check if username and password is set in $_POST.
+  $products = array();
+
+  $result = db_query('SELECT DISTINCT isbn, timestamp FROM {recall_list} WHERE uid = %d', array('%d' => $user->uid));
+  while ($row = db_fetch_array($result)) {
+    try {
+      $product = new PublizonProduct($row['isbn']);
+
+      // HACK XXXX, the objects saved in the cart may not longer exists
+      // in the datawell. So if they do not have ISBN number, we have to
+      // remove them from the cart.
+      if (empty($product->teaser_link)) {
+        recall_list_modify($row['isbn'], 'delete', FALSE);
+        continue;
+      }
+
+      $object = $product->getTingObject();
+      if (!$object) {
+        // Object not found in the datawell.
+        continue;
+      }
+
+      // Build array with product information.
+      $products[] = array(
+        'title' => $product->title,
+        'description' => $product->description,
+        'date' => $row['timestamp'],
+        'faust' => $object->localId,
+        'isbn' => $product->isbn,
+        'cover' => url($product->cover, array('absolute' => TRUE)),
+      );
+    }
+    catch (Exception $e) {
+      watchdog('app_api', $e->getMessage(), array(), WATCHDOG_ERROR);
+      drupal_json(array(
+        'status' => FALSE,
+        'errorcode' => 3,
+        'data' => array(
+          'message' => t('Communication with publizon failed.'),
+        ),
+      ));
+      exit();
+    }
+  }
+
+  drupal_json(array(
+    'status' => TRUE,
+    'data' => array(
+      'items' => $products,
+    ),
+  ));
+  exit();
+}
+
+/**
+ * Add new item to the users recall list.
+ *
+ * @param object $user
+ *   The user to add item to.
+ */
+function _app_api_recall_add($user) {
+  _app_api_modify_list($user, 'add');
+}
+
+/**
+ * Remove item to from the users recall list.
+ *
+ * @param object $user
+ *   The user to add item to.
+ */
+function _app_api_recall_del($user) {
+  _app_api_modify_list($user, 'delete');
+}
+
+/**
+ * Helper function to add/remove items from users recall list.
+ *
+ * @param object $user
+ *   The user which list should be modified.
+ * @param string $op
+ *   The operation to preform.
+ */
+function _app_api_modify_list($user, $op) {
+  // Check isbn is set in $_POST.
+  if ((isset($_POST['isbn']))) {
+    $isbn = $_POST['isbn'];
+  }
+  else {
+    // Not set, lets return.
+    drupal_json(array(
+      'status' => FALSE,
+      'errorcode' => 1,
+      'data' => array(
+        'message' => t('Required field(s) missing.'),
+      ),
+    ));
+    exit();
+  }
+
+  // Test if product exists.
+  try {
+    $product = new PublizonProduct($isbn);
+  } catch(Exception $e) {
+    drupal_json(array(
+      'status' => FALSE,
+      'errorcode' => 5,
+      'data' => array(
+        'message' => t('The product could not be found at publizon.'),
+      ),
+    ));
+    exit();
+  }
+
+  $result = recall_list_modify($isbn, $op, FALSE, $user);
+  if ($result != FALSE) {
+    $status = array(
+      'status' => TRUE,
+      'data' => array(
+        'message' => t('List have been updated.'),
+      ),
+    );
+  }
+  else {
+    $status = array(
+      'status' => FALSE,
+      'errorcode' => 4,
+      'data' => array(
+        'message' => t('List have not been updated.'),
+      ),
+    );
+  }
+
+  drupal_json($status);
+  exit();
+}
+
+/**
+ * Checks if the user can login and gets the Drupal user object.
+ *
+ * @param string $username
+ *   The users card ID or CPR number.
+ * @param string $password
+ *   The users pin code.
+ * @param int $retailer_id
+ *  The library that the user belongs to ID.
+ *
+ * @return array
+ *   Array with either error array ready to json_encode or the user object in
+ *   the data key.
+ */
+function _app_api_login($username, $password, $retailer_id) {
+  // Register flood control.
+  flood_register_event('ls_api_login');
+
+  // Check if flood control is exceeded.
+  if (flood_is_allowed('app_api_login', variable_get('app_api_flood_login', 10))) {
+    $account = $account = publizon_user_authentication($username, $password, $retailer_id);
+    // Authenticate user.
+    if (isset($account->uid)) {
+      // User validated.
+      return array(
+        'status' => TRUE,
+        'data' => array(
+          'account' => $account,
+        )
+      );
+    }
+    else {
+      return array(
+        'status' => FALSE,
+        'errorcode' => -1,
+        'data' => array(
+          'message' => t('User does not exists'),
+        ),
+      );
+    }
+  }
+  else {
+    return array(
+      'status' => FALSE,
+      'errorcode' => 2,
+      'data' => array(
+        'message' => t('Flood activated.'),
+      ),
+    );
+  }
+}
+
+/**
+ * Simple validation for API.
+ *
+ * @param string $api_key
+ *   The API key used.
+ *
+ * @return bool
+ *   If api_key is correct return TRUE, else FALSE.
+ */
+function _app_api_check_access($api_key) {
+  $allowed = FALSE;
+
+  $key = variable_get('app_api_key', FALSE);
+  if ($key && $key == $api_key) {
+     $allowed = TRUE;
+  }
+
+  return $allowed;
+}
