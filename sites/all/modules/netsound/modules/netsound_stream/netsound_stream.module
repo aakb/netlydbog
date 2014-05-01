@@ -5,6 +5,21 @@
 
 define('NETSOUND_SERVICE_KEY', 'B7933301-2F27-4682-88EE-108A2DB0E5B1');
 
+
+/**
+ * Implements hook_init().
+ *
+ * Loaded in init function as JS is not loaded in
+ * hook_preprocess_publizon_actions as its result is cached.
+ */
+function netsound_stram_init() {
+  // Add Javascript to handle stream links.
+  drupal_add_js(drupal_get_path('module', 'netsound_stream') . '/js/netsound_stream.js');
+}
+
+/**
+ * Implements hook_menu().
+ */
 function netsound_stream_menu() {
   $items = array();
 
@@ -75,9 +90,6 @@ function netsound_stream_preprocess_publizon_actions(&$vars) {
     '#class' => 'stream',
     '#weight' => -8,
   );
-
-  // Add Javascript to handle stream links.
-  drupal_add_js(drupal_get_path('module', 'netsound_stream') . '/js/netsound_stream.js');
 
   // Sort the elements to get the stream action in between the other links.
   usort($vars['actions'], 'element_sort');
