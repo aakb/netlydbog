@@ -81,7 +81,10 @@ function elib_popup_process_loan(response) {
     modal : true,
     width: 'auto',
     height: 'auto',
-    buttons: popup_buttons
+    buttons: popup_buttons,
+    close: function () {
+      $(this).dialog('destroy').remove ();
+    }
   });
 
   // Remove spinner from the button.

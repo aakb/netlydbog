@@ -56,6 +56,9 @@ function elib_popup_message(title, content) {
     modal : true,
     width: 'auto',
     height: 'auto',
-    buttons: popup_buttons
+    buttons: popup_buttons,
+    close: function () {
+      $(this).dialog('destroy').remove ();
+    }
   });
 }

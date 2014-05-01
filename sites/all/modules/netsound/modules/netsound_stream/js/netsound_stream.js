@@ -71,7 +71,7 @@
     if (response.processed && response.processed == true) {
       // Prepare the stream popup.
       popup_buttons = {};
-      popup_buttons[download_button] = function() {
+      popup_buttons[cancel_button] = function() {
         $('#ting-download-popup').dialog('close');
       };
 
@@ -83,7 +83,10 @@
       modal : true,
       width: 'auto',
       height: 'auto',
-      buttons: popup_buttons
+      buttons: popup_buttons,
+      close: function () {
+        $(this).dialog ('destroy').remove ();
+      }
     });
   }
 })(jQuery);

@@ -57,7 +57,10 @@
               modal : true,
               width: 'auto',
               height: 'auto',
-              buttons: popup_buttons
+              buttons: popup_buttons,
+              close: function () {
+                $(this).dialog('destroy').remove ();
+              }
             });
 
             if ($.browser.msie) {
@@ -70,7 +73,10 @@
           dlg = $('<div id="ting-download-popup" title="' + response.title + '">' + response.content + '</div>').dialog({
             modal : true,
             width: 'auto',
-            height: 'auto'
+            height: 'auto',
+            close: function () {
+              $(this).dialog('destroy').remove ();
+            }
           });
 
           // Some special behavior for IE

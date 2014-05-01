@@ -90,7 +90,10 @@ function elib_popup_login_open(title, login_form, callback) {
     modal: true,
     width: 'auto',
     height: 'auto',
-    buttons: popup_buttons
+    buttons: popup_buttons,
+    close: function () {
+      $(this).dialog('destroy').remove ();
+    }
   });
 }
 
@@ -102,7 +105,7 @@ function elib_popup_login_close() {
 
   // Check if login dialog is open, if it is close it.
   var login_dialog = $('#ting-login-popup');
-  if (login_dialog.length) {
+  if (login_dialog.length !== 0) {
     login_dialog.dialog('close');
     login_dialog.remove();
   }
