@@ -75,7 +75,7 @@
             width: 'auto',
             height: 'auto',
             close: function () {
-              $(this).dialog('destroy').remove ();
+              $(this).dialog('destroy').remove();
             }
           });
 
