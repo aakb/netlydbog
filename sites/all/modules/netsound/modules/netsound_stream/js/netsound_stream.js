@@ -74,9 +74,6 @@
       popup_buttons[cancel_button] = function() {
         $('#ting-download-popup').dialog('close');
       };
-
-      // Remove spinner from the button.
-      elib_popup_spinner(false, undefined);
     }
 
     $('<div id="ting-download-popup" title="' + response.title + '">' + response.content + '</div>').dialog({
@@ -85,7 +82,10 @@
       height: 'auto',
       buttons: popup_buttons,
       close: function () {
-        $(this).dialog ('destroy').remove ();
+        $(this).dialog ('destroy').remove();
+
+        // Remove spinner from the button.
+        elib_popup_spinner(false, undefined);
       }
     });
   }

@@ -59,6 +59,9 @@ function elib_popup_message(title, content) {
     buttons: popup_buttons,
     close: function () {
       $(this).dialog('destroy').remove ();
+
+      // Remove spinner from the button.
+      elib_popup_spinner(false, undefined);
     }
   });
 }

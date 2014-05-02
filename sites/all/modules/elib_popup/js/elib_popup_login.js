@@ -92,7 +92,10 @@ function elib_popup_login_open(title, login_form, callback) {
     height: 'auto',
     buttons: popup_buttons,
     close: function () {
-      $(this).dialog('destroy').remove ();
+      $(this).dialog('destroy').remove();
+
+      // Remove spinner from the button.
+      elib_popup_spinner(false, undefined);
     }
   });
 }
