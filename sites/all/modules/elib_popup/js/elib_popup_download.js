@@ -4,19 +4,19 @@
     $('#ting-download-popup-info').dialog('close');
   });
 
-  var href = '';
-  var clicked = null;
-
   // Handle clicked loan link, those matching 'ting/object/%/download' pattern
   $(document).ready(function() {
     $('.icons a.download, .icons a.loan').live('click', function() {
       // Add spinner for the button clicked.
       elib_popup_spinner(true, $(this));
 
+      // Store current clicked link.
+      Drupal.settings.netsound_link = $('.js-clicked').attr('href');
+
       // Process the loan.
       $.ajax({
         type : 'post',
-        url : $('.js-clicked').attr('href'),
+        url : Drupal.settings.netsound_link,
         dataType : 'json',
         success : elib_popup_process_loan
       });
@@ -63,7 +63,7 @@ function elib_popup_process_loan(response) {
       // Finalize the loan.
       $.ajax({
         type : 'post',
-        url : $('.js-clicked').attr('href') + '/request',
+        url : Drupal.settings.netsound_link + '/request',
         dataType : 'json',
         success : function(response) {
           // Close dialog and call the function once more with the new response.
