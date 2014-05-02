@@ -16,7 +16,10 @@ function elib_popup_spinner(display, context) {
   "use strict";
 
   var button = $('.js-clicked');
-  if (button.length == 0) {
+  if (button.length === 0) {
+    if (context === undefined) {
+      return;
+    }
     context.addClass('js-clicked');
     button = context;
   }
