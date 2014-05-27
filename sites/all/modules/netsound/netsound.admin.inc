@@ -32,6 +32,13 @@ function netsound_settings_form($form_state){
     '#title' => 'Netlydbog.dk support email address',
    	'#default_value' => variable_get('netsound_supportmail', ''),
   );
+
+  $form['netsound']['supportforms']['netsound_publizonmail'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Publizon support mail',
+    '#default_value' => variable_get('netsound_publizonmail', ''),
+    '#required' => true
+  );
   
   return system_settings_form($form);
 	
