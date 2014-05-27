@@ -60,6 +60,16 @@ function app_feeds_filter_content($content) {
   // Remove "books" div from the HTML (HACK REMOVE LATER - jeskr).
   $content = preg_replace('/\<div id="books"\>.*\<\/div\>/', ' ', $content);
 
+  // Replace html <br/> and </p> tags with newlines.
+  $content = preg_replace('/\<br(\s*)?\/?\>/i', "\n", $content);
+  $content = preg_replace('/\<\/p\>/i', "\n", $content);
+
+  // Remove &nbsp; from the content.
+  $content = preg_replace('/&nbsp;/i', "\n", $content);
+
+  // Remove all other HTML tags.
+  $content = strip_tags($content);
+
   // Fix content content.
   $content = htmlspecialchars(check_plain($content), ENT_QUOTES);
 
