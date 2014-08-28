@@ -83,7 +83,7 @@ function webtrends_footer() {
     $script .= '</div>'."\n";
     $script .= '</noscript>'."\n";
 
-    $scriptpath = drupal_get_path('module', 'webtrends') . '/js';
+    $script_path = '/' . drupal_get_path('module', 'webtrends') . '/js/webtrends.min.js';
 
     $script .= <<<EOT
 <script type="text/javascript">
@@ -110,7 +110,7 @@ window.webtrendsAsyncInit=function(){
         dcs.track();
 };
 (function(){
-    var s=document.createElement("script"); s.async=true; s.src="$scriptpath/webtrends.min.js";
+    var s=document.createElement("script"); s.async=true; s.src="$script_path";
     var s2=document.getElementsByTagName("script")[0]; s2.parentNode.insertBefore(s,s2);
 }());
 //]]>
