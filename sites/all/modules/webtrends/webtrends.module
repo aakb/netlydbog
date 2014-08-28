@@ -86,7 +86,8 @@ function webtrends_footer() {
     $scriptpath = drupal_get_path('module', 'webtrends') . '/js';
 
     $script .= <<<EOT
-<script>
+<script type="text/javascript">
+//<![CDATA[
 window.webtrendsAsyncInit=function(){
     var dcs=new Webtrends.dcs().init({
         dcsid:"dcs2224weedpu4y431y1rzm8m_3x7e",
@@ -112,6 +113,7 @@ window.webtrendsAsyncInit=function(){
     var s=document.createElement("script"); s.async=true; s.src="$scriptpath/webtrends.min.js";
     var s2=document.getElementsByTagName("script")[0]; s2.parentNode.insertBefore(s,s2);
 }());
+//]]>
 </script>
 <noscript><img alt="dcsimg" id="dcsimg" width="1" height="1" src="//statse.webtrendslive.com/dcs2224weedpu4y431y1rzm8m_3x7e/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=10.4.1&amp;dcssip=www.netlydbog.dk"/></noscript>
 EOT;
