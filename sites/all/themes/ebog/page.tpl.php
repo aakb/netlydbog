@@ -108,5 +108,6 @@ maximum-scale=3.0" />
     </div>
   </div><!-- /#page -->
   <?php print $closure; ?>
+  <script type="text/javascript" src="https://www.surveymonkey.com/jsPop.aspx?sm=eQL2jN4WNdrHqtNRMa8aXA_3d_3d"></script>
 </body>
 </html>
