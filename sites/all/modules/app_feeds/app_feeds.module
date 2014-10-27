@@ -90,7 +90,7 @@ function app_feeds_filter_content($content) {
 function app_feeds_load_nodes($type, $count) {
   $nodes = array();
   // @TODO add optional limit number.
-  $result = db_query('SELECT nid FROM {node} WHERE type = "%s" AND status = 1 ORDER BY created DESC LIMIT %d', array($type, $count));
+  $result = db_query('SELECT nid FROM {node} WHERE type = "%s" AND status = 1 AND exclude_from_feeds != 1 ORDER BY created DESC LIMIT %d', array($type, $count));
   while ($row = db_fetch_array($result)) {
     $nodes[$row['nid']] = node_load($row['nid']);
   }
