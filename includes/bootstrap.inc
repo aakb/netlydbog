@@ -1715,7 +1715,7 @@ function drupal_session_initialize() {
    
   session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
  
-  if (isset($_COOKIE[session_name()])) {
+  if (!empty($_COOKIE[session_name()])) {
     // If a session cookie exists, initialize the session. Otherwise the
     // session is only started on demand in drupal_session_commit(), making
     // anonymous users not use a session cookie unless something is stored in
